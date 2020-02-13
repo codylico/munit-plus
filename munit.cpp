@@ -115,7 +115,7 @@
 #  endif
 #endif
 
-#include "munit.h"
+#include "munit.hpp"
 
 #define MUNIT_STRINGIFY(x) #x
 #define MUNIT_XSTRINGIFY(x) MUNIT_STRINGIFY(x)
@@ -1075,7 +1075,8 @@ munit_print_time(FILE* fp, munit_uint64_t nanoseconds) {
 /* Add a paramter to an array of parameters. */
 static MunitResult
 munit_parameters_add(size_t* params_size, MunitParameter* params[MUNIT_ARRAY_PARAM(*params_size)], char* name, char* value) {
-  *params = realloc(*params, sizeof(MunitParameter) * (*params_size + 2));
+  *params = static_cast<MunitParameter*>(realloc(*params,
+                                                 sizeof(MunitParameter) * (*params_size + 2)));
   if (*params == NULL)
     return MUNIT_ERROR;
 
@@ -1107,7 +1108,7 @@ munit_maybe_concat(size_t* len, char* prefix, char* suffix) {
     res_l = prefix_l;
   } else {
     res_l = prefix_l + suffix_l;
-    res = malloc(res_l + 1);
+    res = static_cast<char*>(malloc(res_l + 1));
     memcpy(res, prefix, prefix_l);
     memcpy(res + prefix_l, suffix, suffix_l);
     res[res_l] = 0;
@@ -1921,7 +1922,8 @@ munit_suite_main_custom(const MunitSuite* suite, void* user_data,
           goto cleanup;
         }
 
-        runner.parameters = realloc(runner.parameters, sizeof(MunitParameter) * (parameters_size + 2));
+        runner.parameters = static_cast<MunitParameter*>(realloc(runner.parameters,
+                                                                 sizeof(MunitParameter) * (parameters_size + 2)));
         if (runner.parameters == NULL) {
           munit_log_internal(MUNIT_LOG_ERROR, stderr, "failed to allocate memory");
           goto cleanup;
@@ -2009,7 +2011,7 @@ munit_suite_main_custom(const MunitSuite* suite, void* user_data,
           goto cleanup;
       }
     } else {
-      runner_tests = realloc((void*) runner.tests, sizeof(char*) * (tests_size + 2));
+      runner_tests = static_cast<const char**>(realloc((void*) runner.tests, sizeof(char*) * (tests_size + 2)));
       if (runner_tests == NULL) {
         munit_log_internal(MUNIT_LOG_ERROR, stderr, "failed to allocate memory");
         goto cleanup;

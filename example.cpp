@@ -8,7 +8,7 @@
  * details.
  *********************************************************************/
 
-#include "munit.h"
+#include "munit.hpp"
 
 /* This is just to disable an MSVC warning about conditional
  * expressions being constant, which you shouldn't have to do for your
@@ -26,8 +26,8 @@ test_compare(const MunitParameter params[], void* data) {
   const unsigned char val_uchar = 'b';
   const short val_short = 1729;
   double pi = 3.141592654;
-  char* stewardesses = "stewardesses";
-  char* most_fun_word_to_type;
+  char const* stewardesses = "stewardesses";
+  char const* most_fun_word_to_type;
 
   /* These are just to silence compiler warnings about the parameters
    * being unused. */
@@ -233,7 +233,7 @@ static void*
 test_compare_setup(const MunitParameter params[], void* user_data) {
   (void) params;
 
-  munit_assert_string_equal(user_data, "µnit");
+  munit_assert_string_equal(static_cast<char*>(user_data), "µnit");
   return (void*) (uintptr_t) 0xdeadbeef;
 }
 

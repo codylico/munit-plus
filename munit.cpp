@@ -144,14 +144,24 @@
 #endif
 
 /*** Logging ***/
+/* FIXME "switch to munit_plus_* name prefix" */
+/* NOTE Don't use a munit_plus namespace; too many macros! */
 
-static MunitLogLevel munit_log_level_visible = MUNIT_LOG_INFO;
-static MunitLogLevel munit_log_level_fatal = MUNIT_LOG_ERROR;
+static MunitPlusLogLevel munit_plus_log_level_visible = MUNIT_PLUS_LOG_INFO;
+static MunitPlusLogLevel munit_plus_log_level_fatal = MUNIT_PLUS_LOG_ERROR;
 
-#if defined(MUNIT_THREAD_LOCAL)
-static MUNIT_THREAD_LOCAL bool munit_error_jmp_buf_valid = false;
-static MUNIT_THREAD_LOCAL jmp_buf munit_error_jmp_buf;
-#endif
+namespace {
+  class munit_plus_error_jmp : public std::exception {
+  public:
+    munit_plus_error_jmp(void) noexcept;
+    char const* what(void) const noexcept;
+  };
+
+  munit_plus_error_jmp::munit_plus_error_jmp(void) noexcept = default;
+  char const* munit_plus_error_jmp::what(void) const noexcept {
+    return "munit_plus_error_jmp should have been caught!";
+  };
+};
 
 /* At certain warning levels, mingw will trigger warnings about
  * suggesting the format attribute, which we've explicity *not* set
@@ -164,82 +174,74 @@ static MUNIT_THREAD_LOCAL jmp_buf munit_error_jmp_buf;
 #  pragma GCC diagnostic ignored "-Wsuggest-attribute=format"
 #endif
 
-MUNIT_PRINTF(5,0)
+MUNIT_PLUS_PRINTF(5,0)
 static void
-munit_logf_exv(MunitLogLevel level, FILE* fp, const char* filename, int line, const char* format, va_list ap) {
-  if (level < munit_log_level_visible)
+munit_plus_logf_exv(MunitPlusLogLevel level, FILE* fp, const char* filename, int line, const char* format, va_list ap) {
+  if (level < munit_plus_log_level_visible)
     return;
 
   switch (level) {
-    case MUNIT_LOG_DEBUG:
-      fputs("Debug", fp);
+    case MUNIT_PLUS_LOG_DEBUG:
+      std::fputs("Debug", fp);
       break;
-    case MUNIT_LOG_INFO:
-      fputs("Info", fp);
+    case MUNIT_PLUS_LOG_INFO:
+      std::fputs("Info", fp);
       break;
-    case MUNIT_LOG_WARNING:
-      fputs("Warning", fp);
+    case MUNIT_PLUS_LOG_WARNING:
+      std::fputs("Warning", fp);
       break;
-    case MUNIT_LOG_ERROR:
-      fputs("Error", fp);
+    case MUNIT_PLUS_LOG_ERROR:
+      std::fputs("Error", fp);
       break;
     default:
-      munit_logf_ex(MUNIT_LOG_ERROR, filename, line, "Invalid log level (%d)", level);
+      munit_plus_logf_ex(MUNIT_PLUS_LOG_ERROR, filename, line, "Invalid log level (%d)", level);
       return;
   }
 
-  fputs(": ", fp);
-  if (filename != NULL)
-    fprintf(fp, "%s:%d: ", filename, line);
-  vfprintf(fp, format, ap);
-  fputc('\n', fp);
+  std::fputs(": ", fp);
+  if (filename != nullptr)
+    std::fprintf(fp, "%s:%d: ", filename, line);
+  std::vfprintf(fp, format, ap);
+  std::fputc('\n', fp);
 }
 
-MUNIT_PRINTF(3,4)
+MUNIT_PLUS_PRINTF(3,4)
 static void
-munit_logf_internal(MunitLogLevel level, FILE* fp, const char* format, ...) {
+munit_plus_logf_internal(MunitPlusLogLevel level, FILE* fp, const char* format, ...) {
   va_list ap;
 
   va_start(ap, format);
-  munit_logf_exv(level, fp, NULL, 0, format, ap);
+  munit_plus_logf_exv(level, fp, nullptr, 0, format, ap);
   va_end(ap);
 }
 
 static void
-munit_log_internal(MunitLogLevel level, FILE* fp, const char* message) {
-  munit_logf_internal(level, fp, "%s", message);
+munit_plus_log_internal(MunitPlusLogLevel level, FILE* fp, const char* message) {
+  munit_plus_logf_internal(level, fp, "%s", message);
 }
 
 void
-munit_logf_ex(MunitLogLevel level, const char* filename, int line, const char* format, ...) {
+munit_plus_logf_ex(MunitPlusLogLevel level, const char* filename, int line, const char* format, ...) {
   va_list ap;
 
   va_start(ap, format);
-  munit_logf_exv(level, stderr, filename, line, format, ap);
+  munit_plus_logf_exv(level, stderr, filename, line, format, ap);
   va_end(ap);
 
-  if (level >= munit_log_level_fatal) {
-#if defined(MUNIT_THREAD_LOCAL)
-    if (munit_error_jmp_buf_valid)
-      longjmp(munit_error_jmp_buf, 1);
-#endif
-    abort();
+  if (level >= munit_plus_log_level_fatal) {
+    throw munit_plus_error_jmp();
   }
 }
 
 void
-munit_errorf_ex(const char* filename, int line, const char* format, ...) {
+munit_plus_errorf_ex(const char* filename, int line, const char* format, ...) {
   va_list ap;
 
   va_start(ap, format);
-  munit_logf_exv(MUNIT_LOG_ERROR, stderr, filename, line, format, ap);
+  munit_plus_logf_exv(MUNIT_PLUS_LOG_ERROR, stderr, filename, line, format, ap);
   va_end(ap);
 
-#if defined(MUNIT_THREAD_LOCAL)
-  if (munit_error_jmp_buf_valid)
-    longjmp(munit_error_jmp_buf, 1);
-#endif
-  abort();
+  throw munit_plus_error_jmp();
 }
 
 #if defined(__MINGW32__) || defined(__MINGW64__)
@@ -251,9 +253,9 @@ munit_errorf_ex(const char* filename, int line, const char* format, ...) {
 #endif
 
 static void
-munit_log_errno(MunitLogLevel level, FILE* fp, const char* msg) {
+munit_log_errno(MunitPlusLogLevel level, FILE* fp, const char* msg) {
 #if defined(MUNIT_NO_STRERROR_R) || (defined(__MINGW32__) && !defined(MINGW_HAS_SECURE_API))
-  munit_logf_internal(level, fp, "%s: %s (%d)", msg, strerror(errno), errno);
+  munit_plus_logf_internal(level, fp, "%s: %s (%d)", msg, strerror(errno), errno);
 #else
   char munit_error_str[MUNIT_STRERROR_LEN];
   munit_error_str[0] = '\0';
@@ -264,7 +266,7 @@ munit_log_errno(MunitLogLevel level, FILE* fp, const char* msg) {
   strerror_s(munit_error_str, MUNIT_STRERROR_LEN, errno);
 #endif
 
-  munit_logf_internal(level, fp, "%s: %s (%d)", msg, munit_error_str, errno);
+  munit_plus_logf_internal(level, fp, "%s: %s (%d)", msg, munit_error_str, errno);
 #endif
 }
 
@@ -279,7 +281,7 @@ munit_malloc_ex(const char* filename, int line, size_t size) {
 
   ptr = calloc(1, size);
   if (MUNIT_UNLIKELY(ptr == NULL)) {
-    munit_logf_ex(MUNIT_LOG_ERROR, filename, line, "Failed to allocate %" MUNIT_SIZE_MODIFIER "u bytes.", size);
+    munit_plus_logf_ex(MUNIT_PLUS_LOG_ERROR, filename, line, "Failed to allocate %" MUNIT_SIZE_MODIFIER "u bytes.", size);
   }
 
   return ptr;
@@ -1334,7 +1336,7 @@ munit_test_runner_run_test_with_params(MunitTestRunner* runner, const MunitTest*
   tmpfile_s(&stderr_buf);
 #endif
   if (stderr_buf == NULL) {
-    munit_log_errno(MUNIT_LOG_ERROR, stderr, "unable to create buffer for stderr");
+    munit_log_errno(MUNIT_PLUS_LOG_ERROR, stderr, "unable to create buffer for stderr");
     result = MUNIT_ERROR;
     goto print_result;
   }
@@ -1344,7 +1346,7 @@ munit_test_runner_run_test_with_params(MunitTestRunner* runner, const MunitTest*
     pipefd[0] = -1;
     pipefd[1] = -1;
     if (pipe(pipefd) != 0) {
-      munit_log_errno(MUNIT_LOG_ERROR, stderr, "unable to create pipe");
+      munit_log_errno(MUNIT_PLUS_LOG_ERROR, stderr, "unable to create pipe");
       result = MUNIT_ERROR;
       goto print_result;
     }
@@ -1354,7 +1356,11 @@ munit_test_runner_run_test_with_params(MunitTestRunner* runner, const MunitTest*
       close(pipefd[0]);
 
       orig_stderr = munit_replace_stderr(stderr_buf);
-      munit_test_runner_exec(runner, test, params, &report);
+      try {
+        munit_test_runner_exec(runner, test, params, &report);
+      } catch (struct munit_plus_error_jmp const& ) {
+        report.failed++;
+      }
 
       /* Note that we don't restore stderr.  This is so we can buffer
        * things written to stderr later on (such as by
@@ -1365,7 +1371,7 @@ munit_test_runner_run_test_with_params(MunitTestRunner* runner, const MunitTest*
         write_res = write(pipefd[1], ((munit_uint8_t*) (&report)) + bytes_written, sizeof(report) - bytes_written);
         if (write_res < 0) {
           if (stderr_buf != NULL) {
-            munit_log_errno(MUNIT_LOG_ERROR, stderr, "unable to write to pipe");
+            munit_log_errno(MUNIT_PLUS_LOG_ERROR, stderr, "unable to write to pipe");
           }
           exit(EXIT_FAILURE);
         }
@@ -1381,7 +1387,7 @@ munit_test_runner_run_test_with_params(MunitTestRunner* runner, const MunitTest*
       close(pipefd[0]);
       close(pipefd[1]);
       if (stderr_buf != NULL) {
-        munit_log_errno(MUNIT_LOG_ERROR, stderr, "unable to fork");
+        munit_log_errno(MUNIT_PLUS_LOG_ERROR, stderr, "unable to fork");
       }
       report.errored++;
       result = MUNIT_ERROR;
@@ -1398,21 +1404,25 @@ munit_test_runner_run_test_with_params(MunitTestRunner* runner, const MunitTest*
 
       if (MUNIT_LIKELY(changed_pid == fork_pid) && MUNIT_LIKELY(WIFEXITED(status))) {
         if (bytes_read != sizeof(report)) {
-          munit_logf_internal(MUNIT_LOG_ERROR, stderr_buf, "child exited unexpectedly with status %d", WEXITSTATUS(status));
+          munit_plus_logf_internal(MUNIT_PLUS_LOG_ERROR, stderr_buf,
+                                   "child exited unexpectedly with status %d", WEXITSTATUS(status));
           report.errored++;
         } else if (WEXITSTATUS(status) != EXIT_SUCCESS) {
-          munit_logf_internal(MUNIT_LOG_ERROR, stderr_buf, "child exited with status %d", WEXITSTATUS(status));
+          munit_plus_logf_internal(MUNIT_PLUS_LOG_ERROR, stderr_buf,
+                                   "child exited with status %d", WEXITSTATUS(status));
           report.errored++;
         }
       } else {
         if (WIFSIGNALED(status)) {
 #if defined(_XOPEN_VERSION) && (_XOPEN_VERSION >= 700)
-          munit_logf_internal(MUNIT_LOG_ERROR, stderr_buf, "child killed by signal %d (%s)", WTERMSIG(status), strsignal(WTERMSIG(status)));
+          munit_plus_logf_internal(MUNIT_PLUS_LOG_ERROR, stderr_buf, "child killed by signal %d (%s)",
+                                   WTERMSIG(status), strsignal(WTERMSIG(status)));
 #else
-          munit_logf_internal(MUNIT_LOG_ERROR, stderr_buf, "child killed by signal %d", WTERMSIG(status));
+          munit_plus_logf_internal(MUNIT_PLUS_LOG_ERROR, stderr_buf, "child killed by signal %d",
+                                   WTERMSIG(status));
 #endif
         } else if (WIFSTOPPED(status)) {
-          munit_logf_internal(MUNIT_LOG_ERROR, stderr_buf, "child stopped by signal %d", WSTOPSIG(status));
+          munit_plus_logf_internal(MUNIT_PLUS_LOG_ERROR, stderr_buf, "child stopped by signal %d", WSTOPSIG(status));
         }
         report.errored++;
       }
@@ -1427,17 +1437,12 @@ munit_test_runner_run_test_with_params(MunitTestRunner* runner, const MunitTest*
     const volatile int orig_stderr = munit_replace_stderr(stderr_buf);
 #endif
 
-#if defined(MUNIT_THREAD_LOCAL)
-    if (MUNIT_UNLIKELY(setjmp(munit_error_jmp_buf) != 0)) {
+    try {
+      result = munit_test_runner_exec(runner, test, params, &report);
+    } catch (struct munit_plus_error_jmp const& ) {
       result = MUNIT_FAIL;
       report.failed++;
-    } else {
-      munit_error_jmp_buf_valid = true;
-      result = munit_test_runner_exec(runner, test, params, &report);
     }
-#else
-    result = munit_test_runner_exec(runner, test, params, &report);
-#endif
 
 #if !defined(MUNIT_NO_BUFFER)
     munit_restore_stderr(orig_stderr);
@@ -1458,7 +1463,7 @@ munit_test_runner_run_test_with_params(MunitTestRunner* runner, const MunitTest*
     } else {
       munit_test_runner_print_color(runner, MUNIT_RESULT_STRING_ERROR, '1');
       if (MUNIT_LIKELY(stderr_buf != NULL))
-        munit_log_internal(MUNIT_LOG_ERROR, stderr_buf, "Test marked TODO, but was successful.");
+        munit_plus_log_internal(MUNIT_PLUS_LOG_ERROR, stderr_buf, "Test marked TODO, but was successful.");
       runner->report.failed++;
       result = MUNIT_ERROR;
     }
@@ -1846,7 +1851,7 @@ munit_suite_main_custom(const MunitSuite* suite, void* user_data,
   unsigned long ts;
   char* endptr;
   unsigned long long iterations;
-  MunitLogLevel level;
+  MunitPlusLogLevel level;
   const MunitArgument* argument;
   const char** runner_tests;
   unsigned int tests_run;
@@ -1887,14 +1892,14 @@ munit_suite_main_custom(const MunitSuite* suite, void* user_data,
     if (strncmp("--", argv[arg], 2) == 0) {
       if (strcmp("seed", argv[arg] + 2) == 0) {
         if (arg + 1 >= argc) {
-          munit_logf_internal(MUNIT_LOG_ERROR, stderr, "%s requires an argument", argv[arg]);
+          munit_plus_logf_internal(MUNIT_PLUS_LOG_ERROR, stderr, "%s requires an argument", argv[arg]);
           goto cleanup;
         }
 
         envptr = argv[arg + 1];
         ts = strtoul(argv[arg + 1], &envptr, 0);
         if (*envptr != '\0' || ts > (~((munit_uint32_t) 0U))) {
-          munit_logf_internal(MUNIT_LOG_ERROR, stderr, "invalid value ('%s') passed to %s", argv[arg + 1], argv[arg]);
+          munit_plus_logf_internal(MUNIT_PLUS_LOG_ERROR, stderr, "invalid value ('%s') passed to %s", argv[arg + 1], argv[arg]);
           goto cleanup;
         }
         runner.seed = (munit_uint32_t) ts;
@@ -1902,14 +1907,14 @@ munit_suite_main_custom(const MunitSuite* suite, void* user_data,
         arg++;
       } else if (strcmp("iterations", argv[arg] + 2) == 0) {
         if (arg + 1 >= argc) {
-          munit_logf_internal(MUNIT_LOG_ERROR, stderr, "%s requires an argument", argv[arg]);
+          munit_plus_logf_internal(MUNIT_PLUS_LOG_ERROR, stderr, "%s requires an argument", argv[arg]);
           goto cleanup;
         }
 
         endptr = argv[arg + 1];
         iterations = strtoul(argv[arg + 1], &endptr, 0);
         if (*endptr != '\0' || iterations > UINT_MAX) {
-          munit_logf_internal(MUNIT_LOG_ERROR, stderr, "invalid value ('%s') passed to %s", argv[arg + 1], argv[arg]);
+          munit_plus_logf_internal(MUNIT_PLUS_LOG_ERROR, stderr, "invalid value ('%s') passed to %s", argv[arg + 1], argv[arg]);
           goto cleanup;
         }
 
@@ -1918,14 +1923,14 @@ munit_suite_main_custom(const MunitSuite* suite, void* user_data,
         arg++;
       } else if (strcmp("param", argv[arg] + 2) == 0) {
         if (arg + 2 >= argc) {
-          munit_logf_internal(MUNIT_LOG_ERROR, stderr, "%s requires two arguments", argv[arg]);
+          munit_plus_logf_internal(MUNIT_PLUS_LOG_ERROR, stderr, "%s requires two arguments", argv[arg]);
           goto cleanup;
         }
 
         runner.parameters = static_cast<MunitParameter*>(realloc(runner.parameters,
                                                                  sizeof(MunitParameter) * (parameters_size + 2)));
         if (runner.parameters == NULL) {
-          munit_log_internal(MUNIT_LOG_ERROR, stderr, "failed to allocate memory");
+          munit_plus_log_internal(MUNIT_PLUS_LOG_ERROR, stderr, "failed to allocate memory");
           goto cleanup;
         }
         runner.parameters[parameters_size].name = (char*) argv[arg + 1];
@@ -1936,7 +1941,7 @@ munit_suite_main_custom(const MunitSuite* suite, void* user_data,
         arg += 2;
       } else if (strcmp("color", argv[arg] + 2) == 0) {
         if (arg + 1 >= argc) {
-          munit_logf_internal(MUNIT_LOG_ERROR, stderr, "%s requires an argument", argv[arg]);
+          munit_plus_logf_internal(MUNIT_PLUS_LOG_ERROR, stderr, "%s requires an argument", argv[arg]);
           goto cleanup;
         }
 
@@ -1947,7 +1952,7 @@ munit_suite_main_custom(const MunitSuite* suite, void* user_data,
         else if (strcmp(argv[arg + 1], "auto") == 0)
           runner.colorize = munit_stream_supports_ansi(MUNIT_OUTPUT_FILE);
         else {
-          munit_logf_internal(MUNIT_LOG_ERROR, stderr, "invalid value ('%s') passed to %s", argv[arg + 1], argv[arg]);
+          munit_plus_logf_internal(MUNIT_PLUS_LOG_ERROR, stderr, "invalid value ('%s') passed to %s", argv[arg + 1], argv[arg]);
           goto cleanup;
         }
 
@@ -1969,27 +1974,27 @@ munit_suite_main_custom(const MunitSuite* suite, void* user_data,
       } else if (strcmp("log-visible", argv[arg] + 2) == 0 ||
                  strcmp("log-fatal", argv[arg] + 2) == 0) {
         if (arg + 1 >= argc) {
-          munit_logf_internal(MUNIT_LOG_ERROR, stderr, "%s requires an argument", argv[arg]);
+          munit_plus_logf_internal(MUNIT_PLUS_LOG_ERROR, stderr, "%s requires an argument", argv[arg]);
           goto cleanup;
         }
 
         if (strcmp(argv[arg + 1], "debug") == 0)
-          level = MUNIT_LOG_DEBUG;
+          level = MUNIT_PLUS_LOG_DEBUG;
         else if (strcmp(argv[arg + 1], "info") == 0)
-          level = MUNIT_LOG_INFO;
+          level = MUNIT_PLUS_LOG_INFO;
         else if (strcmp(argv[arg + 1], "warning") == 0)
-          level = MUNIT_LOG_WARNING;
+          level = MUNIT_PLUS_LOG_WARNING;
         else if (strcmp(argv[arg + 1], "error") == 0)
-          level = MUNIT_LOG_ERROR;
+          level = MUNIT_PLUS_LOG_ERROR;
         else {
-          munit_logf_internal(MUNIT_LOG_ERROR, stderr, "invalid value ('%s') passed to %s", argv[arg + 1], argv[arg]);
+          munit_plus_logf_internal(MUNIT_PLUS_LOG_ERROR, stderr, "invalid value ('%s') passed to %s", argv[arg + 1], argv[arg]);
           goto cleanup;
         }
 
         if (strcmp("log-visible", argv[arg] + 2) == 0)
-          munit_log_level_visible = level;
+          munit_plus_log_level_visible = level;
         else
-          munit_log_level_fatal = level;
+          munit_plus_log_level_fatal = level;
 
         arg++;
       } else if (strcmp("list", argv[arg] + 2) == 0) {
@@ -2003,7 +2008,7 @@ munit_suite_main_custom(const MunitSuite* suite, void* user_data,
       } else {
         argument = munit_arguments_find(arguments, argv[arg] + 2);
         if (argument == NULL) {
-          munit_logf_internal(MUNIT_LOG_ERROR, stderr, "unknown argument ('%s')", argv[arg]);
+          munit_plus_logf_internal(MUNIT_PLUS_LOG_ERROR, stderr, "unknown argument ('%s')", argv[arg]);
           goto cleanup;
         }
 
@@ -2013,7 +2018,7 @@ munit_suite_main_custom(const MunitSuite* suite, void* user_data,
     } else {
       runner_tests = static_cast<const char**>(realloc((void*) runner.tests, sizeof(char*) * (tests_size + 2)));
       if (runner_tests == NULL) {
-        munit_log_internal(MUNIT_LOG_ERROR, stderr, "failed to allocate memory");
+        munit_plus_log_internal(MUNIT_PLUS_LOG_ERROR, stderr, "failed to allocate memory");
         goto cleanup;
       }
       runner.tests = runner_tests;
@@ -2055,3 +2060,186 @@ munit_suite_main(const MunitSuite* suite, void* user_data,
                  int argc, char* const argv[MUNIT_ARRAY_PARAM(argc + 1)]) {
   return munit_suite_main_custom(suite, user_data, argc, argv, NULL);
 }
+
+//BEGIN cxx-style stuff
+#include <cstdio>
+#include <cstring>
+
+std::string munit_plus_formatter<std::nullptr_t>::format(std::nullptr_t val) {
+  return "(nil)";
+}
+
+std::string munit_plus_formatter<bool>::format(bool val) {
+  return val ? "true" : "false";
+};
+
+std::string munit_plus_formatter<char>::format(char val) {
+  constexpr char const* format = "'\\x%02x'";
+  int const len = std::snprintf(nullptr, 0u, format, val);
+  if (len < 0) return std::string();
+  std::string out(len, 0);
+  std::snprintf(&out[0], len, format, val);
+  return out;
+};
+std::string munit_plus_formatter<signed char>::format(signed char val) {
+  constexpr char const* format = "'\\x%02x'";
+  int const len = std::snprintf(nullptr, 0u, format, val);
+  if (len < 0) return std::string();
+  std::string out(len, 0);
+  std::snprintf(&out[0], len, format, val);
+  return out;
+};
+std::string munit_plus_formatter<unsigned char>::format(unsigned char val) {
+  constexpr char const* format = "'\\x%02x'";
+  int const len = std::snprintf(nullptr, 0u, format, val);
+  if (len < 0) return std::string();
+  std::string out(len, 0);
+  std::snprintf(&out[0], len, format, val);
+  return out;
+};
+
+std::string munit_plus_formatter<short>::format(short val) {
+  constexpr char const* format = "%d";
+  int const len = std::snprintf(nullptr, 0u, format, val);
+  if (len < 0) return std::string();
+  std::string out(len, 0);
+  std::snprintf(&out[0], len, format, val);
+  return out;
+};
+std::string munit_plus_formatter<unsigned short>::format(unsigned short val) {
+  constexpr char const* format = "%u";
+  int const len = std::snprintf(nullptr, 0u, format, val);
+  if (len < 0) return std::string();
+  std::string out(len, 0);
+  std::snprintf(&out[0], len, format, val);
+  return out;
+};
+
+std::string munit_plus_formatter<int>::format(int val) {
+  constexpr char const* format = "%d";
+  int const len = std::snprintf(nullptr, 0u, format, val);
+  if (len < 0) return std::string();
+  std::string out(len, 0);
+  std::snprintf(&out[0], len, format, val);
+  return out;
+};
+std::string munit_plus_formatter<unsigned int>::format(unsigned int val) {
+  constexpr char const* format = "%u";
+  int const len = std::snprintf(nullptr, 0u, format, val);
+  if (len < 0) return std::string();
+  std::string out(len, 0);
+  std::snprintf(&out[0], len, format, val);
+  return out;
+};
+
+std::string munit_plus_formatter<long>::format(long val) {
+  constexpr char const* format = "%ld";
+  int const len = std::snprintf(nullptr, 0u, format, val);
+  if (len < 0) return std::string();
+  std::string out(len, 0);
+  std::snprintf(&out[0], len, format, val);
+  return out;
+};
+std::string munit_plus_formatter<unsigned long>::format(unsigned long val) {
+  constexpr char const* format = "%lu";
+  int const len = std::snprintf(nullptr, 0u, format, val);
+  if (len < 0) return std::string();
+  std::string out(len, 0);
+  std::snprintf(&out[0], len, format, val);
+  return out;
+};
+
+std::string munit_plus_formatter<long long>::format(long long val) {
+  constexpr char const* format = "%lld";
+  int const len = std::snprintf(nullptr, 0u, format, val);
+  if (len < 0) return std::string();
+  std::string out(len, 0);
+  std::snprintf(&out[0], len, format, val);
+  return out;
+};
+std::string munit_plus_formatter<unsigned long long>::format(unsigned long long val) {
+  constexpr char const* format = "%llu";
+  int const len = std::snprintf(nullptr, 0u, format, val);
+  if (len < 0) return std::string();
+  std::string out(len, 0);
+  std::snprintf(&out[0], len, format, val);
+  return out;
+};
+
+std::string munit_plus_formatter<float>::format(float val) {
+  constexpr char const* format = "%f";
+  int const len = std::snprintf(nullptr, 0u, format, val);
+  if (len < 0) return std::string();
+  std::string out(len, 0);
+  std::snprintf(&out[0], len, format, val);
+  return out;
+};
+std::string munit_plus_formatter<double>::format(double val) {
+  constexpr char const* format = "%g";
+  int const len = std::snprintf(nullptr, 0u, format, val);
+  if (len < 0) return std::string();
+  std::string out(len, 0);
+  std::snprintf(&out[0], len, format, val);
+  return out;
+};
+std::string munit_plus_formatter<long double>::format(long double val) {
+  constexpr char const* format = "%Lg";
+  int const len = std::snprintf(nullptr, 0u, format, val);
+  if (len < 0) return std::string();
+  std::string out(len, 0);
+  std::snprintf(&out[0], len, format, val);
+  return out;
+};
+
+std::string munit_plus_formatter<float>::precise_format(float val, int i) {
+  constexpr char const* format = "%0.*g";
+  int const len = std::snprintf(nullptr, 0u, format, i, val);
+  if (len < 0) return std::string();
+  std::string out(len, 0);
+  std::snprintf(&out[0], len, format, i, val);
+  return out;
+};
+std::string munit_plus_formatter<double>::precise_format(double val, int i) {
+  constexpr char const* format = "%0.*g";
+  int const len = std::snprintf(nullptr, 0u, format, i, val);
+  if (len < 0) return std::string();
+  std::string out(len, 0);
+  std::snprintf(&out[0], len, format, i, val);
+  return out;
+};
+std::string munit_plus_formatter<long double>::precise_format(long double val, int i) {
+  constexpr char const* format = "%0.*Lg";
+  int const len = std::snprintf(nullptr, 0u, format, i, val);
+  if (len < 0) return std::string();
+  std::string out(len, 0);
+  std::snprintf(&out[0], len, format, i, val);
+  return out;
+};
+
+std::string munit_plus_formatter<void*>::format(void const* val) {
+  constexpr char const* format = "%p";
+  int const len = std::snprintf(nullptr, 0u, format, val);
+  if (len < 0) return std::string();
+  std::string out(len, 0);
+  std::snprintf(&out[0], len, format, val);
+  return out;
+};
+
+
+#include <cstdio>
+#include <cstdarg>
+#include <exception>
+
+#if defined(__EMSCRIPTEN__)
+#  define MUNIT_NO_BUFFER
+#endif
+
+/*** Logging ***/
+
+
+#if defined(__MINGW32__) || defined(__MINGW64__)
+#pragma GCC diagnostic pop
+#endif
+
+
+//END   cxx-style stuff

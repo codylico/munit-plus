@@ -9,6 +9,8 @@
  *********************************************************************/
 
 #include "munit.hpp"
+#include <string>
+#include <cstring>
 
 /* This is just to disable an MSVC warning about conditional
  * expressions being constant, which you shouldn't have to do for your
@@ -35,32 +37,32 @@ test_compare(const MunitParameter params[], void* data) {
   (void) data;
 
   /* Let's start with the basics. */
-  munit_assert(0 != 1);
+  munit_plus_assert(0 != 1);
 
   /* There is also the more verbose, though slightly more descriptive
-     munit_assert_true/false: */
-  munit_assert_false(0);
+     munit_plus_assert_true/false: */
+  munit_plus_assert_false(0);
 
-  /* You can also call munit_error and munit_errorf yourself.  We
+  /* You can also call munit_plus_error and munit_plus_errorf yourself.  We
    * won't do it is used to indicate a failure, but here is what it
    * would look like: */
-  /* munit_error("FAIL"); */
-  /* munit_errorf("Goodbye, cruel %s", "world"); */
+  /* munit_plus_error("FAIL"); */
+  /* munit_plus_errorf("Goodbye, cruel %s", "world"); */
 
   /* There are macros for comparing lots of types. */
-  munit_assert_char('a', ==, 'a');
+  munit_plus_assert_char('a', ==, 'a');
 
   /* Sure, you could just assert('a' == 'a'), but if you did that, a
    * failed assertion would just say something like "assertion failed:
    * val_uchar == 'b'".  µnit will tell you the actual values, so a
    * failure here would result in something like "assertion failed:
    * val_uchar == 'b' ('X' == 'b')." */
-  munit_assert_uchar(val_uchar, ==, 'b');
+  munit_plus_assert_uchar(val_uchar, ==, 'b');
 
   /* Obviously we can handle values larger than 'char' and 'uchar'.
    * There are versions for char, short, int, long, long long,
    * int8/16/32/64_t, as well as the unsigned versions of them all. */
-  munit_assert_short(42, <, val_short);
+  munit_plus_assert_short(42, <, val_short);
 
   /* There is also support for size_t.
    *
@@ -68,10 +70,10 @@ test_compare(const MunitParameter params[], void* data) {
    * "uncopyrightables", which has uncopyrightable (and
    * dermatoglyphics, which is the study of fingerprints) beat by a
    * character */
-  munit_assert_size(strlen("uncopyrightables"), >, strlen("dermatoglyphics"));
+  munit_plus_assert_size(std::strlen("uncopyrightables"), >, std::strlen("dermatoglyphics"));
 
   /* Of course there is also support for doubles and floats. */
-  munit_assert_double(pi, ==, 3.141592654);
+  munit_plus_assert_double(pi, ==, 3.141592654);
 
   /* If you want to compare two doubles for equality, you might want
    * to consider using munit_assert_double_equal.  It compares two
@@ -79,7 +81,7 @@ test_compare(const MunitParameter params[], void* data) {
    * Note that precision (the third argument to the macro) needs to be
    * fully evaluated to an integer by the preprocessor so µnit doesn't
    * have to depend pow, which is often in libm not libc. */
-  munit_assert_double_equal(3.141592654, 3.141592653589793, 9);
+  munit_plus_assert_double_equal(3.141592654, 3.141592653589793, 9);
 
   /* And if you want to check strings for equality (or inequality),
    * there is munit_assert_string_equal/not_equal.
@@ -88,24 +90,24 @@ test_compare(const MunitParameter params[], void* data) {
    * keyboard with only one hand, which makes it loads of fun to type.
    * If I'm going to have to type a string repeatedly, let's make it a
    * good one! */
-  munit_assert_string_equal(stewardesses, "stewardesses");
+  munit_plus_assert_string_equal(stewardesses, "stewardesses");
 
   /* A personal favorite macro which is fantastic if you're working
    * with binary data, is the one which naïvely checks two blobs of
    * memory for equality.  If this fails it will tell you the offset
    * of the first differing byte. */
-  munit_assert_memory_equal(7, stewardesses, "steward");
+  munit_plus_assert_memory_equal(7, stewardesses, "steward");
 
   /* You can also make sure that two blobs differ *somewhere*: */
-  munit_assert_memory_not_equal(8, stewardesses, "steward");
+  munit_plus_assert_memory_not_equal(8, stewardesses, "steward");
 
   /* There are equal/not_equal macros for pointers, too: */
   most_fun_word_to_type = stewardesses;
-  munit_assert_ptr_equal(most_fun_word_to_type, stewardesses);
+  munit_plus_assert_ptr_equal(most_fun_word_to_type, stewardesses);
 
   /* And null/not_null */
-  munit_assert_null(NULL);
-  munit_assert_not_null(most_fun_word_to_type);
+  munit_plus_assert_null(NULL);
+  munit_plus_assert_not_null(most_fun_word_to_type);
 
   /* Lets verify that the data parameter is what we expected.  We'll
    * see where this comes from in a bit.
@@ -113,7 +115,7 @@ test_compare(const MunitParameter params[], void* data) {
    * Note that the casting isn't usually required; if you give this
    * function a real pointer (instead of a number like 0xdeadbeef) it
    * would work as expected. */
-  munit_assert_ptr_equal(data, (void*)(uintptr_t)0xdeadbeef);
+  munit_plus_assert_ptr_equal(data, (void*)(uintptr_t)0xdeadbeef);
 
   return MUNIT_OK;
 }
@@ -142,13 +144,13 @@ test_rand(const MunitParameter params[], void* user_data) {
 
   /* If you need an integer in a given range */
   random_int = munit_rand_int_range(128, 4096);
-  munit_assert_int(random_int, >=, 128);
-  munit_assert_int(random_int, <=, 4096);
+  munit_plus_assert_int(random_int, >=, 128);
+  munit_plus_assert_int(random_int, <=, 4096);
 
   /* Or maybe you want a double, between 0 and 1: */
   random_dbl = munit_rand_double();
-  munit_assert_double(random_dbl, >=, 0.0);
-  munit_assert_double(random_dbl, <=, 1.0);
+  munit_plus_assert_double(random_dbl, >=, 0.0);
+  munit_plus_assert_double(random_dbl, <=, 1.0);
 
   /* Of course, you want to be able to reproduce bugs discovered
    * during testing, so every time the tests are run they print the
@@ -233,8 +235,8 @@ static void*
 test_compare_setup(const MunitParameter params[], void* user_data) {
   (void) params;
 
-  munit_assert_string_equal(static_cast<char*>(user_data), "µnit");
-  return (void*) (uintptr_t) 0xdeadbeef;
+  munit_plus_assert_string_equal(static_cast<char*>(user_data), "µnit");
+  return reinterpret_cast<void*>( static_cast<uintptr_t>(0xdeadbeef) );
 }
 
 /* To clean up after a test, you can use a tear down function.  The
@@ -242,7 +244,122 @@ test_compare_setup(const MunitParameter params[], void* user_data) {
  * above. */
 static void
 test_compare_tear_down(void* fixture) {
-  munit_assert_ptr_equal(fixture, (void*)(uintptr_t)0xdeadbeef);
+  munit_plus_assert_ptr_equal(fixture, (void*)(uintptr_t)0xdeadbeef);
+}
+
+#include <string>
+#include <iostream>
+
+class thing_with_a_dtor {
+public:
+  ~thing_with_a_dtor(void) {
+    munit_plus_log(MUNIT_PLUS_LOG_INFO, "yay! destructor was called.");
+  }
+};
+
+/* Let's see what C++ can do. */
+static MunitResult
+test_compare_cxx(const MunitParameter params[], void* data) {
+  /* We'll use these later */
+  const unsigned char val_uchar = 'b';
+  const short val_short = 1729;
+  double pi = 3.141592654;
+  std::string stewardesses = "stewardesses";
+  std::string most_fun_word_to_type;
+  thing_with_a_dtor thingie;
+
+  /* These are just to silence compiler warnings about the parameters
+   * being unused. */
+  (void) params;
+  (void) data;
+
+  /* Let's start with the basics. */
+  munit_plus_assert(0 != 1);
+
+  /* There is also the more verbose, though slightly more descriptive
+     munit_assert_true/false: */
+  munit_plus_assert_false(false);
+
+  /* You can also call munit_error and munit_errorf yourself.  We
+   * won't do it is used to indicate a failure, but here is what it
+   * would look like: */
+  /* munit_error("FAIL"); */
+  /* munit_errorf("Goodbye, cruel %s", "world"); */
+
+  /* There are macros for comparing lots of types. */
+  munit_plus_assert_op('a', ==, 'a');
+
+  /* Sure, you could just assert('a' == 'a'), but if you did that, a
+   * failed assertion would just say something like "assertion failed:
+   * val_uchar == 'b'".  µnit will tell you the actual values, so a
+   * failure here would result in something like "assertion failed:
+   * val_uchar == 'b' ('X' == 'b')." */
+  munit_plus_assert_op(val_uchar, ==, 'b');
+
+  /* Obviously we can handle values larger than 'char' and 'uchar'.
+   * There are versions for char, short, int, long, long long,
+   * int8/16/32/64_t, as well as the unsigned versions of them all. */
+  munit_plus_assert_op(42, <, val_short);
+
+  /* There is also support for size_t.
+   *
+   * The longest word in English without repeating any letters is
+   * "uncopyrightables", which has uncopyrightable (and
+   * dermatoglyphics, which is the study of fingerprints) beat by a
+   * character */
+  munit_plus_assert_op(strlen("uncopyrightables"), >, strlen("dermatoglyphics"));
+
+  /* Of course there is also support for doubles and floats. */
+  munit_plus_assert_op(pi, ==, 3.141592654);
+
+  /* If you want to compare two doubles for equality, you might want
+   * to consider using munit_plus_assert_near_equal.  It compares two
+   * doubles for equality within a precison of 1.0 x 10^-(precision).
+   * Note that precision (the third argument to the macro) needs to be
+   * fully evaluated to an integer by the preprocessor so µnit doesn't
+   * have to depend pow, which is often in libm not libc. */
+  munit_plus_assert_near_equal(double, 3.141592654, 3.141592653589793, 9);
+
+  /* And if you want to check strings for equality (or inequality),
+   * the munit_plus_assert_op should just work. For the char* variables,
+   * munit_assert_string_equal remains available.
+   *
+   * "stewardesses" is the longest word you can type on a QWERTY
+   * keyboard with only one hand, which makes it loads of fun to type.
+   * If I'm going to have to type a string repeatedly, let's make it a
+   * good one! */
+  munit_plus_assert_op(stewardesses, ==, "stewardesses");
+  munit_plus_assert_string_equal(stewardesses.c_str(), "stewardesses");
+
+  /* A personal favorite macro which is fantastic if you're working
+   * with binary data, is the one which naïvely checks two blobs of
+   * memory for equality.  If this fails it will tell you the offset
+   * of the first differing byte. */
+  munit_plus_assert_memory_equal(7, stewardesses.c_str(), "steward");
+
+  /* You can also make sure that two blobs differ *somewhere*: */
+  munit_plus_assert_memory_not_equal(8, stewardesses.c_str(), "steward");
+
+  /* There are equal/not_equal macros for pointers, too: */
+  most_fun_word_to_type = stewardesses;
+  munit_plus_assert_ptr_equal(most_fun_word_to_type.c_str(), stewardesses.c_str());
+
+  /* And null/not_null */
+  munit_plus_assert_null(nullptr);
+  munit_plus_assert_not_null(most_fun_word_to_type.c_str());
+
+  /* Lets verify that the data parameter is what we expected.  We'll
+   * see where this comes from in a bit.
+   *
+   * Note that the casting isn't usually required; if you give this
+   * function a real pointer (instead of a number like 0xdeadbeef) it
+   * would work as expected. */
+  munit_plus_assert_ptr_equal(data, reinterpret_cast<void*>(static_cast<uintptr_t>(0xdeadbeef)));
+
+  /* Fail this test to see if thingie's destructor gets called. */
+  munit_plus_assert_true(false);
+
+  return MUNIT_OK;
 }
 
 static char* foo_params[] = {
@@ -298,6 +415,16 @@ static MunitTest test_suite_tests[] = {
   /* To tell the test runner when the array is over, just add a NULL
    * entry at the end. */
   { (char*) "/example/parameters", test_parameters, NULL, NULL, MUNIT_TEST_OPTION_NONE, test_params },
+  { (char*) "/example/cxx", test_compare_cxx, nullptr, nullptr, MUNIT_TEST_OPTION_NONE },
+  { (char*) "/example/lambda", [](const MunitParameter params[], void* data)->MunitResult{
+        const char* foo = munit_parameters_get(params, "foo");
+        const char* bar = munit_parameters_get(params, "bar");
+        const char* baz = munit_parameters_get(params, "baz");
+        if (!baz) baz = "baz";
+        munit_plus_logf(MUNIT_PLUS_LOG_INFO, "oops. lambda here. oh well. %s %s %s",foo,bar,baz);
+        munit_plus_assert_true(true);
+        return MUNIT_OK;
+      }, nullptr, nullptr, MUNIT_TEST_OPTION_NONE, test_params },
   { NULL, NULL, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL }
 };
 

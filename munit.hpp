@@ -355,20 +355,24 @@ void munit_plus_errorf_ex(const char* filename, int line, const char* format, ..
   munit_plus_assert_ptr(ptr, !=, nullptr)
 
 /*** Memory allocation ***/
+void* munit_plus_malloc_ex(const char* filename, int line, std::size_t size);
 
-void* munit_malloc_ex(const char* filename, int line, size_t size);
 
-#define munit_malloc(size) \
-  munit_malloc_ex(__FILE__, __LINE__, (size))
+#define munit_plus_malloc(size) \
+  munit_plus_malloc_ex(__FILE__, __LINE__, (size))
 
-#define munit_new(type) \
-  ((type*) munit_malloc(sizeof(type)))
 
-#define munit_calloc(nmemb, size) \
-  munit_malloc((nmemb) * (size))
+#define munit_plus_new(type) \
+  munit_plus_new_ex<type>(#type, __FILE__, __LINE__)
+#define munit_plus_newp(type, ...) \
+  munit_plus_new_ex<type>(#type, __FILE__, __LINE__, __VA_ARGS__)
 
-#define munit_newa(type, nmemb) \
-  ((type*) munit_calloc((nmemb), sizeof(type)))
+#define munit_plus_calloc(nmemb, size) \
+  munit_plus_malloc((nmemb) * (size))
+
+#define munit_plus_newa(type, nmemb) \
+  munit_plus_newa_ex<type>(#type, __FILE__, __LINE__, nmemb)
+
 
 /*** Random number generation ***/
 
@@ -512,6 +516,9 @@ int munit_suite_main_custom(const MunitSuite* suite,
 #include <string>
 #include <sstream>
 #include <cstring>
+#include <new>
+#include <exception>
+
 
 /* General thing formatter. Now you can create your own fancy strings
  * for your thing type. */
@@ -678,6 +685,13 @@ template <typename A, typename B>
 void munit_plus_assert_precision_base
     (char const* filename, int line, char const* stra, char const* strb, A const a, B const b, double eps, int prec);
 
+template <typename A, typename... D>
+A* munit_plus_new_ex(const char* typetext, const char* filename, int line, D... args);
+template <typename A>
+A* munit_plus_newa_ex(const char* typetext, const char* filename, int line, std::size_t nmemb);
+
+
+
 template <typename A, typename B, typename C>
 inline void munit_plus_assert_type_base
     (char const* filename, int line, char const* stra, char const* strb, A const& a, B const& b, C c)
@@ -787,6 +801,62 @@ bool munit_plus_precision<C>::operator>(double eps) const { return value > eps; 
       munit_tmp_a_,munit_tmp_b_,1e-##precision,precision); \
   } /*while (0)*/
 
+template <typename A, typename ...D>
+inline A* munit_plus_new_ex(const char* typetext, const char* filename, int line, D... args)
+{
+  A* ptr;
+
+  if (sizeof(A) == 0)
+    return nullptr;
+
+  try {
+    ptr = new A(static_cast<D&&>(args)...);
+  } catch (std::exception const& e) {
+    munit_plus_logf_ex(MUNIT_PLUS_LOG_ERROR, filename, line,
+      "Failed to construct %s of %" MUNIT_SIZE_MODIFIER "u bytes. (what(): %s)",
+      typetext, sizeof(A), e.what());
+    throw;
+  } catch (...) {
+    munit_plus_logf_ex(MUNIT_PLUS_LOG_ERROR, filename, line,
+      "Failed to construct %s of %" MUNIT_SIZE_MODIFIER "u bytes.", typetext, sizeof(A));
+    throw;
+  }
+  if (MUNIT_PLUS_UNLIKELY(ptr == nullptr)) {
+    munit_plus_logf_ex(MUNIT_PLUS_LOG_ERROR, filename, line,
+      "Failed to allocate %s of %" MUNIT_SIZE_MODIFIER "u bytes.", typetext, sizeof(A));
+  }
+
+  return ptr;
+}
+
+template <typename A>
+inline A* munit_plus_newa_ex(const char* typetext, const char* filename, int line, std::size_t nmemb) {
+  A* ptr;
+
+  if (sizeof(A) == 0 || nmemb == 0)
+    return nullptr;
+
+  try {
+    ptr = new A[nmemb];
+  } catch (std::exception const& e) {
+    munit_plus_logf_ex(MUNIT_PLUS_LOG_ERROR, filename, line,
+      "Failed to construct %s[%" MUNIT_SIZE_MODIFIER "u] of %" MUNIT_SIZE_MODIFIER "u bytes. (what(): %s)",
+      typetext, nmemb, sizeof(A)*nmemb, e.what());
+    throw;
+  } catch (...) {
+    munit_plus_logf_ex(MUNIT_PLUS_LOG_ERROR, filename, line,
+      "Failed to construct %s[%" MUNIT_SIZE_MODIFIER "u] of %" MUNIT_SIZE_MODIFIER "u bytes.",
+      typetext, nmemb, sizeof(A)*nmemb);
+    throw;
+  }
+  if (MUNIT_PLUS_UNLIKELY(ptr == nullptr)) {
+    munit_plus_logf_ex(MUNIT_PLUS_LOG_ERROR, filename, line,
+      "Failed to allocate %s[%" MUNIT_SIZE_MODIFIER "u] of %" MUNIT_SIZE_MODIFIER "u bytes.",
+      typetext, nmemb, sizeof(A)*nmemb);
+  }
+
+  return ptr;
+}
 #endif /* !defined(MUNIT_PLUS_H) */
 
 #if defined(MUNIT_ENABLE_ASSERT_ALIASES)

@@ -280,14 +280,14 @@ munit_plus_log_errno(MunitPlusLogLevel level, FILE* fp, const char* msg) {
 /*** Memory allocation ***/
 
 void*
-munit_malloc_ex(const char* filename, int line, size_t size) {
+munit_plus_malloc_ex(const char* filename, int line, std::size_t size) {
   void* ptr;
 
   if (size == 0)
     return NULL;
 
   ptr = calloc(1, size);
-  if (MUNIT_UNLIKELY(ptr == NULL)) {
+  if (MUNIT_PLUS_UNLIKELY(ptr == NULL)) {
     munit_plus_logf_ex(MUNIT_PLUS_LOG_ERROR, filename, line, "Failed to allocate %" MUNIT_SIZE_MODIFIER "u bytes.", size);
   }
 

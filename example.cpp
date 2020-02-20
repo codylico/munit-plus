@@ -11,6 +11,7 @@
 #include "munit.hpp"
 #include <string>
 #include <cstring>
+#include <stdexcept>
 
 /* This is just to disable an MSVC warning about conditional
  * expressions being constant, which you shouldn't have to do for your
@@ -362,6 +363,35 @@ test_compare_cxx(const MunitParameter params[], void* data) {
   return MUNIT_OK;
 }
 
+/* One-off tests. */
+struct pitcher_thing {
+  pitcher_thing(void) {
+    throw std::length_error("whatever");
+  }
+  pitcher_thing(int a) {
+    throw a;
+  }
+};
+static MunitResult
+test_compare_cxx_oneoff(const MunitParameter params[], void* data) {
+  pitcher_thing *p = nullptr;
+  thing_with_a_dtor *q = nullptr;
+  p = munit_plus_new(pitcher_thing);
+  if (p) delete p;
+  p = nullptr;
+  //p = munit_plus_newp(pitcher_thing, 4);
+  if (p) delete p;
+  p = nullptr;
+  q = munit_plus_new(thing_with_a_dtor);
+  delete q; q = nullptr;
+  //p = munit_plus_newa(pitcher_thing, 4);
+  if (p) delete[] p;
+  p = nullptr;
+  q = munit_plus_newa(thing_with_a_dtor,4);
+  delete[] q; q = nullptr;
+  return MUNIT_OK;
+}
+
 static char* foo_params[] = {
   (char*) "one", (char*) "two", (char*) "three", NULL
 };
@@ -425,6 +455,7 @@ static MunitTest test_suite_tests[] = {
         munit_plus_assert_true(true);
         return MUNIT_OK;
       }, nullptr, nullptr, MUNIT_TEST_OPTION_NONE, test_params },
+  { (char*) "/example/cxx_oneoff", test_compare_cxx_oneoff, nullptr, nullptr, MUNIT_TEST_OPTION_NONE },
   { NULL, NULL, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL }
 };
 

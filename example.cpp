@@ -376,7 +376,11 @@ static MunitResult
 test_compare_cxx_oneoff(const MunitParameter params[], void* data) {
   pitcher_thing *p = nullptr;
   thing_with_a_dtor *q = nullptr;
-  p = munit_plus_new(pitcher_thing);
+  try {
+    p = munit_plus_new(pitcher_thing);
+  } catch (...) {
+    munit_plus_log(MUNIT_PLUS_LOG_INFO, "hah! i caught everything.");
+  }
   if (p) delete p;
   p = nullptr;
   //p = munit_plus_newp(pitcher_thing, 4);

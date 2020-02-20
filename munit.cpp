@@ -114,11 +114,10 @@
 #define MUNIT_STRINGIFY(x) #x
 #define MUNIT_XSTRINGIFY(x) MUNIT_STRINGIFY(x)
 
-/* presently unused */
-#if defined(__GNUC__) || defined(__INTEL_COMPILER) || defined(__SUNPRO_CC) || defined(__IBMCPP__)
+#if __cplusplus >= 201103L
+#  define MUNIT_THREAD_LOCAL thread_local
+#elif defined(__GNUC__) || defined(__INTEL_COMPILER) || defined(__SUNPRO_CC) || defined(__IBMCPP__)
 #  define MUNIT_THREAD_LOCAL __thread
-#elif (defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 201102L)) || defined(_Thread_local)
-#  define MUNIT_THREAD_LOCAL _Thread_local
 #elif defined(_WIN32)
 #  define MUNIT_THREAD_LOCAL __declspec(thread)
 #endif
@@ -146,6 +145,10 @@ static MunitPlusLogLevel munit_plus_log_level_visible = MUNIT_PLUS_LOG_INFO;
 static MunitPlusLogLevel munit_plus_log_level_fatal = MUNIT_PLUS_LOG_ERROR;
 
 namespace {
+#if defined(MUNIT_THREAD_LOCAL)
+  static MUNIT_THREAD_LOCAL bool munit_plus_error_jmp_active = false;
+#endif
+
   class munit_plus_error_jmp {
   private:
     std::exception_ptr ep;
@@ -159,6 +162,9 @@ namespace {
   munit_plus_error_jmp::munit_plus_error_jmp(void) noexcept
     : ep(std::current_exception())
   {
+#if defined(MUNIT_THREAD_LOCAL)
+    munit_plus_error_jmp_active = true;
+#endif /*MUNIT_THREAD_LOCAL*/
   }
   void munit_plus_error_jmp::rethrow_if_nested(void) const {
     if (ep) {
@@ -1363,12 +1369,23 @@ munit_test_runner_run_test_with_params(MunitTestRunner* runner, const MunitTest*
       close(pipefd[0]);
 
       orig_stderr = munit_replace_stderr(stderr_buf);
+#if defined(MUNIT_THREAD_LOCAL)
+      munit_plus_error_jmp_active = false;
+#endif /*MUNIT_THREAD_LOCAL*/
       try {
         munit_test_runner_exec(runner, test, params, &report);
       } catch (struct munit_plus_error_jmp const& j) {
         report.failed++;
+#if defined(MUNIT_THREAD_LOCAL)
+        munit_plus_error_jmp_active = false;
+#endif /*MUNIT_THREAD_LOCAL*/
         j.rethrow_if_nested();
       }
+#if defined(MUNIT_THREAD_LOCAL)
+      if (munit_plus_error_jmp_active) {
+        report.failed++;
+      }
+#endif /*MUNIT_THREAD_LOCAL*/
 
       /* Note that we don't restore stderr.  This is so we can buffer
        * things written to stderr later on (such as by
@@ -1445,12 +1462,24 @@ munit_test_runner_run_test_with_params(MunitTestRunner* runner, const MunitTest*
     const volatile int orig_stderr = munit_replace_stderr(stderr_buf);
 #endif
 
+#if defined(MUNIT_THREAD_LOCAL)
+    munit_plus_error_jmp_active = false;
+#endif /*MUNIT_THREAD_LOCAL*/
     try {
       result = munit_test_runner_exec(runner, test, params, &report);
     } catch (struct munit_plus_error_jmp const& ) {
       result = MUNIT_FAIL;
+#if defined(MUNIT_THREAD_LOCAL)
+      munit_plus_error_jmp_active = false;
+#endif /*MUNIT_THREAD_LOCAL*/
       report.failed++;
     }
+#if defined(MUNIT_THREAD_LOCAL)
+    if (munit_plus_error_jmp_active) {
+      report.failed++;
+      munit_plus_error_jmp_active = false;
+    }
+#endif /*MUNIT_THREAD_LOCAL*/
 
 #if !defined(MUNIT_NO_BUFFER)
     munit_restore_stderr(orig_stderr);

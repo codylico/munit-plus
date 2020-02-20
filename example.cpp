@@ -446,8 +446,6 @@ static MunitTest test_suite_tests[] = {
    * comments kind of ruin that, though.  Here is how you'll usually
    * see entries written: */
   { (char*) "/example/rand", test_rand, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL },
-  /* To tell the test runner when the array is over, just add a NULL
-   * entry at the end. */
   { (char*) "/example/parameters", test_parameters, NULL, NULL, MUNIT_TEST_OPTION_NONE, test_params },
   { (char*) "/example/cxx", test_compare_cxx, nullptr, nullptr, MUNIT_TEST_OPTION_NONE },
   { (char*) "/example/lambda", [](const MunitParameter params[], void* data)->MunitResult{
@@ -460,6 +458,8 @@ static MunitTest test_suite_tests[] = {
         return MUNIT_OK;
       }, nullptr, nullptr, MUNIT_TEST_OPTION_NONE, test_params },
   { (char*) "/example/cxx_oneoff", test_compare_cxx_oneoff, nullptr, nullptr, MUNIT_TEST_OPTION_NONE },
+  /* To tell the test runner when the array is over, just add a NULL
+   * entry at the end. */
   { NULL, NULL, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL }
 };
 

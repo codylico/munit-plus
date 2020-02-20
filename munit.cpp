@@ -759,7 +759,7 @@ psnip_clock_get_time (enum PsnipClockType clock_type, struct PsnipClockTimespec*
 #endif /* !defined(PSNIP_CLOCK_H) */
 
 static psnip_uint64_t
-munit_clock_get_elapsed(struct PsnipClockTimespec* start, struct PsnipClockTimespec* end) {
+munit_plus_clock_get_elapsed(struct PsnipClockTimespec* start, struct PsnipClockTimespec* end) {
   psnip_uint64_t r = (end->seconds - start->seconds) * PSNIP_CLOCK_NSEC_PER_SEC;
   if (end->nanoseconds < start->nanoseconds) {
     r -= (start->nanoseconds - end->nanoseconds);
@@ -1215,8 +1215,8 @@ munit_test_runner_exec(MunitTestRunner* runner, const MunitTest* test, const Mun
     if (MUNIT_LIKELY(result == MUNIT_OK)) {
       report->successful++;
 #if defined(MUNIT_ENABLE_TIMING)
-      report->wall_clock += munit_clock_get_elapsed(&wall_clock_begin, &wall_clock_end);
-      report->cpu_clock += munit_clock_get_elapsed(&cpu_clock_begin, &cpu_clock_end);
+      report->wall_clock += munit_plus_clock_get_elapsed(&wall_clock_begin, &wall_clock_end);
+      report->cpu_clock += munit_plus_clock_get_elapsed(&cpu_clock_begin, &cpu_clock_end);
 #endif
     } else {
       switch ((int) result) {

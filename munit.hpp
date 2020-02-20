@@ -22,8 +22,8 @@
  * SOFTWARE.
  */
 
-#if !defined(MUNIT_H)
-#define MUNIT_H
+#if !defined(MUNIT_PLUS_H)
+#define MUNIT_PLUS_H
 
 #include <stdarg.h>
 #include <stdlib.h>
@@ -787,7 +787,7 @@ bool munit_plus_precision<C>::operator>(double eps) const { return value > eps; 
       munit_tmp_a_,munit_tmp_b_,1e-##precision,precision); \
   } /*while (0)*/
 
-#endif /* !defined(MUNIT_H) */
+#endif /* !defined(MUNIT_PLUS_H) */
 
 #if defined(MUNIT_ENABLE_ASSERT_ALIASES)
 #  if defined(assert)

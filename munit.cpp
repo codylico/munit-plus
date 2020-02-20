@@ -260,7 +260,7 @@ munit_plus_errorf_ex(const char* filename, int line, const char* format, ...) {
 #endif
 
 static void
-munit_log_errno(MunitPlusLogLevel level, FILE* fp, const char* msg) {
+munit_plus_log_errno(MunitPlusLogLevel level, FILE* fp, const char* msg) {
 #if defined(MUNIT_NO_STRERROR_R) || (defined(__MINGW32__) && !defined(MINGW_HAS_SECURE_API))
   munit_plus_logf_internal(level, fp, "%s: %s (%d)", msg, strerror(errno), errno);
 #else
@@ -1343,7 +1343,7 @@ munit_test_runner_run_test_with_params(MunitTestRunner* runner, const MunitTest*
   tmpfile_s(&stderr_buf);
 #endif
   if (stderr_buf == NULL) {
-    munit_log_errno(MUNIT_PLUS_LOG_ERROR, stderr, "unable to create buffer for stderr");
+    munit_plus_log_errno(MUNIT_PLUS_LOG_ERROR, stderr, "unable to create buffer for stderr");
     result = MUNIT_ERROR;
     goto print_result;
   }
@@ -1353,7 +1353,7 @@ munit_test_runner_run_test_with_params(MunitTestRunner* runner, const MunitTest*
     pipefd[0] = -1;
     pipefd[1] = -1;
     if (pipe(pipefd) != 0) {
-      munit_log_errno(MUNIT_PLUS_LOG_ERROR, stderr, "unable to create pipe");
+      munit_plus_log_errno(MUNIT_PLUS_LOG_ERROR, stderr, "unable to create pipe");
       result = MUNIT_ERROR;
       goto print_result;
     }
@@ -1379,7 +1379,7 @@ munit_test_runner_run_test_with_params(MunitTestRunner* runner, const MunitTest*
         write_res = write(pipefd[1], ((munit_uint8_t*) (&report)) + bytes_written, sizeof(report) - bytes_written);
         if (write_res < 0) {
           if (stderr_buf != NULL) {
-            munit_log_errno(MUNIT_PLUS_LOG_ERROR, stderr, "unable to write to pipe");
+            munit_plus_log_errno(MUNIT_PLUS_LOG_ERROR, stderr, "unable to write to pipe");
           }
           exit(EXIT_FAILURE);
         }
@@ -1395,7 +1395,7 @@ munit_test_runner_run_test_with_params(MunitTestRunner* runner, const MunitTest*
       close(pipefd[0]);
       close(pipefd[1]);
       if (stderr_buf != NULL) {
-        munit_log_errno(MUNIT_PLUS_LOG_ERROR, stderr, "unable to fork");
+        munit_plus_log_errno(MUNIT_PLUS_LOG_ERROR, stderr, "unable to fork");
       }
       report.errored++;
       result = MUNIT_ERROR;

@@ -80,12 +80,6 @@
 #  define _CRT_NONSTDC_NO_DEPRECATE
 #endif
 
-#if defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L)
-#  include <stdbool.h>
-#elif defined(_WIN32)
-/* https://msdn.microsoft.com/en-us/library/tf4dy80a.aspx */
-#endif
-
 #include <limits.h>
 #include <time.h>
 #include <errno.h>
@@ -120,6 +114,7 @@
 #define MUNIT_STRINGIFY(x) #x
 #define MUNIT_XSTRINGIFY(x) MUNIT_STRINGIFY(x)
 
+/* presently unused */
 #if defined(__GNUC__) || defined(__INTEL_COMPILER) || defined(__SUNPRO_CC) || defined(__IBMCPP__)
 #  define MUNIT_THREAD_LOCAL __thread
 #elif (defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 201102L)) || defined(_Thread_local)

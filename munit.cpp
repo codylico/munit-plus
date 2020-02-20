@@ -146,16 +146,28 @@ static MunitPlusLogLevel munit_plus_log_level_visible = MUNIT_PLUS_LOG_INFO;
 static MunitPlusLogLevel munit_plus_log_level_fatal = MUNIT_PLUS_LOG_ERROR;
 
 namespace {
-  class munit_plus_error_jmp : public std::exception {
+  class munit_plus_error_jmp {
+  private:
+    std::exception_ptr ep;
+
   public:
     munit_plus_error_jmp(void) noexcept;
-    char const* what(void) const noexcept;
+    /*char const* what(void) const noexcept;*/ /*TODO decide if this method is necessary*/
+    void rethrow_if_nested(void) const;
   };
 
-  munit_plus_error_jmp::munit_plus_error_jmp(void) noexcept = default;
-  char const* munit_plus_error_jmp::what(void) const noexcept {
+  munit_plus_error_jmp::munit_plus_error_jmp(void) noexcept
+    : ep(std::current_exception())
+  {
+  }
+  void munit_plus_error_jmp::rethrow_if_nested(void) const {
+    if (ep) {
+      std::rethrow_exception(ep);
+    } else return;
+  }
+  /*char const* munit_plus_error_jmp::what(void) const noexcept {
     return "munit_plus_error_jmp should have been caught!";
-  };
+  };*/
 };
 
 /* At certain warning levels, mingw will trigger warnings about
@@ -1353,8 +1365,9 @@ munit_test_runner_run_test_with_params(MunitTestRunner* runner, const MunitTest*
       orig_stderr = munit_replace_stderr(stderr_buf);
       try {
         munit_test_runner_exec(runner, test, params, &report);
-      } catch (struct munit_plus_error_jmp const& ) {
+      } catch (struct munit_plus_error_jmp const& j) {
         report.failed++;
+        j.rethrow_if_nested();
       }
 
       /* Note that we don't restore stderr.  This is so we can buffer

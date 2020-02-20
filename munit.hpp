@@ -793,5 +793,5 @@ bool munit_plus_precision<C>::operator>(double eps) const { return value > eps; 
 #  if defined(assert)
 #    undef assert
 #  endif
-#  define assert(expr) munit_assert(expr)
+#  define assert(expr) munit_plus_assert(expr)
 #endif

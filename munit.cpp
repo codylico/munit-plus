@@ -812,7 +812,11 @@ munit_plus_clock_get_elapsed(struct PsnipClockTimespec* start, struct PsnipClock
 #  endif
 #endif
 
-#if defined(_OPENMP)
+#if __cplusplus >= 201103L
+#  include <atomic>
+#  define ATOMIC_UINT32_T std::atomic_uint32_t
+#  define ATOMIC_UINT32_INIT(x) ATOMIC_VAR_INIT(x)
+#elif defined(_OPENMP)
 #  define ATOMIC_UINT32_T uint32_t
 #  define ATOMIC_UINT32_INIT(x) (x)
 #elif defined(HAVE_STDATOMIC)
@@ -832,7 +836,11 @@ munit_plus_clock_get_elapsed(struct PsnipClockTimespec* start, struct PsnipClock
 
 static ATOMIC_UINT32_T munit_rand_state = ATOMIC_UINT32_INIT(42);
 
-#if defined(_OPENMP)
+#if __cplusplus >= 201103L
+#  define munit_atomic_store(dest, value)         std::atomic_store_explicit(dest, value, std::memory_order_seq_cst)
+#  define munit_atomic_load(src)                  std::atomic_load_explicit(src, std::memory_order_seq_cst)
+#  define munit_atomic_cas(dest, expected, value) std::atomic_compare_exchange_weak_explicit( dest, expected, value, std::memory_order_seq_cst, std::memory_order_seq_cst )
+#elif defined(_OPENMP)
 static inline void
 munit_atomic_store(ATOMIC_UINT32_T* dest, ATOMIC_UINT32_T value) {
 #pragma omp critical (munit_atomics)

@@ -296,7 +296,7 @@ munit_plus_malloc_ex(const char* filename, int line, std::size_t size) {
   if (size == 0)
     return nullptr;
 
-  ptr = calloc(1, size);
+  ptr = std::calloc(1, size);
   if (MUNIT_PLUS_UNLIKELY(ptr == nullptr)) {
     munit_plus_logf_ex(MUNIT_PLUS_LOG_ERROR, filename, line, "Failed to allocate %" MUNIT_SIZE_MODIFIER "u bytes.", size);
   }

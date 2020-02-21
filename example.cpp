@@ -12,6 +12,8 @@
 #include <string>
 #include <cstring>
 #include <stdexcept>
+#include <vector>
+#include <list>
 
 /* This is just to disable an MSVC warning about conditional
  * expressions being constant, which you shouldn't have to do for your
@@ -163,7 +165,7 @@ test_rand(const MunitParameter params[], void* user_data) {
    * uncomment the next line of code.  Note that the PRNG is not
    * re-seeded between iterations of the same test, so this will only
    * work on the first iteration. */
-  munit_plus_assert_uint32(munit_plus_rand_uint32(), ==, 1306447409);/* */
+  /* munit_plus_assert_uint32(munit_plus_rand_uint32(), ==, 1306447409); */
 
   /* You can also get blobs of random memory: */
   munit_plus_rand_memory(sizeof(data), data);
@@ -364,35 +366,37 @@ test_compare_cxx(const MunitParameter params[], void* data) {
 }
 
 /* One-off tests. */
-struct pitcher_thing {
-  pitcher_thing(void) {
-    throw std::length_error("whatever");
-  }
-  pitcher_thing(int a) {
-    throw a;
-  }
+class trivial_thing {
+public:
+  int yay;
+  float hah;
+  void* nowhere;
 };
 static MunitResult
 test_compare_cxx_oneoff(const MunitParameter params[], void* data) {
-  pitcher_thing *p = nullptr;
-  thing_with_a_dtor *q = nullptr;
-  try {
-    p = munit_plus_new(pitcher_thing);
-  } catch (...) {
-    munit_plus_log(MUNIT_PLUS_LOG_INFO, "hah! i caught everything.");
+  std::list<long> seven;
+  /* assign */{
+    int i;
+    for (i = 0; i < 7; ++i) { seven.push_back(0); }
   }
-  if (p) delete p;
-  p = nullptr;
-  //p = munit_plus_newp(pitcher_thing, 4);
-  if (p) delete p;
-  p = nullptr;
-  q = munit_plus_new(thing_with_a_dtor);
-  delete q; q = nullptr;
-  //p = munit_plus_newa(pitcher_thing, 4);
-  if (p) delete[] p;
-  p = nullptr;
-  q = munit_plus_newa(thing_with_a_dtor,4);
-  delete[] q; q = nullptr;
+  munit_plus_rand_memory_ex(seven.begin(), seven.end());
+  std::vector<trivial_thing> five;
+  five.resize(5);
+  munit_plus_rand_memory_ex(five.begin(), five.end());
+  std::vector<std::string> four;
+  four.resize(4);
+  //munit_plus_rand_memory_ex(four.begin(), four.end());
+  std::string three[3] = { "a", "b", "c" };
+  //munit_plus_rand_memory_ex(three);
+  int six[6];
+  munit_plus_rand_memory_ex(six);
+  thing_with_a_dtor two[2];
+  //munit_plus_rand_memory_ex(two);
+  /* read */{
+    for (long x : seven) { munit_plus_logf(MUNIT_PLUS_LOG_INFO, "seven: %li\n", x); }
+    for (trivial_thing const& x : five) { munit_plus_logf(MUNIT_PLUS_LOG_INFO, "five: %i,%f,%p\n", x.yay,x.hah,x.nowhere); }
+    for (int x : six) { munit_plus_logf(MUNIT_PLUS_LOG_INFO, "six: %i\n", x); }
+  }
   return MUNIT_OK;
 }
 

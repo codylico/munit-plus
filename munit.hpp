@@ -518,6 +518,7 @@ int munit_suite_main_custom(const MunitSuite* suite,
 #include <cstring>
 #include <new>
 #include <exception>
+#include <type_traits>
 
 
 /* General thing formatter. Now you can create your own fancy strings
@@ -690,6 +691,12 @@ A* munit_plus_new_ex(const char* typetext, const char* filename, int line, D... 
 template <typename A>
 A* munit_plus_newa_ex(const char* typetext, const char* filename, int line, std::size_t nmemb);
 
+/*** Random number generation / C++ ***/
+
+template <typename A>
+void munit_plus_rand_memory_ex(A &a);
+template <typename It>
+void munit_plus_rand_memory_ex(It const& begin, It const& end);
 
 
 template <typename A, typename B, typename C>
@@ -857,6 +864,27 @@ inline A* munit_plus_newa_ex(const char* typetext, const char* filename, int lin
 
   return ptr;
 }
+
+template <typename A>
+void munit_plus_rand_memory_ex(A &a)
+{
+  static_assert(std::is_trivial<A>::value, "munit_plus_rand_memory_ex only safe on trivial objects");
+  munit_plus_rand_memory(sizeof(A), reinterpret_cast<munit_uint8_t*>(&a));
+}
+
+template <typename It>
+void munit_plus_rand_memory_ex(It const& begin, It const& end)
+{
+  It i;
+  typedef typename std::remove_reference<decltype(*i)>::type value_type;
+  static_assert(std::is_trivial<value_type>::value, "munit_plus_rand_memory_ex only safe on trivial objects");
+  for (i = begin; i != end; ++i) {
+    value_type v;
+    munit_plus_rand_memory(sizeof(value_type), reinterpret_cast<munit_uint8_t*>(&v));
+    *i = v;
+  }
+}
+
 #endif /* !defined(MUNIT_PLUS_H) */
 
 #if defined(MUNIT_ENABLE_ASSERT_ALIASES)

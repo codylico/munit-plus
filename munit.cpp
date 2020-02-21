@@ -835,7 +835,7 @@ munit_plus_clock_get_elapsed(struct PsnipClockTimespec* start, struct PsnipClock
 #  define ATOMIC_UINT32_INIT(x) (x)
 #endif
 
-static ATOMIC_UINT32_T munit_rand_state = ATOMIC_UINT32_INIT(42);
+static ATOMIC_UINT32_T munit_plus_rand_state = ATOMIC_UINT32_INIT(42);
 
 #if __cplusplus >= 201103L
 #  define munit_plus_atomic_store(dest, value)         std::atomic_store_explicit(dest, value, std::memory_order_seq_cst)
@@ -911,25 +911,25 @@ munit_plus_atomic_cas(ATOMIC_UINT32_T* dest, ATOMIC_UINT32_T* expected, ATOMIC_U
 #define MUNIT_PRNG_INCREMENT  (1729U)
 
 static munit_uint32_t
-munit_rand_next_state(munit_uint32_t state) {
+munit_plus_rand_next_state(munit_uint32_t state) {
   return state * MUNIT_PRNG_MULTIPLIER + MUNIT_PRNG_INCREMENT;
 }
 
 static munit_uint32_t
-munit_rand_from_state(munit_uint32_t state) {
+munit_plus_rand_from_state(munit_uint32_t state) {
   munit_uint32_t res = ((state >> ((state >> 28) + 4)) ^ state) * (277803737U);
   res ^= res >> 22;
   return res;
 }
 
 void
-munit_rand_seed(munit_uint32_t seed) {
-  munit_uint32_t state = munit_rand_next_state(seed + MUNIT_PRNG_INCREMENT);
-  munit_plus_atomic_store(&munit_rand_state, state);
+munit_plus_rand_seed(munit_uint32_t seed) {
+  munit_uint32_t state = munit_plus_rand_next_state(seed + MUNIT_PRNG_INCREMENT);
+  munit_plus_atomic_store(&munit_plus_rand_state, state);
 }
 
 static munit_uint32_t
-munit_rand_generate_seed(void) {
+munit_plus_rand_generate_seed(void) {
   munit_uint32_t seed, state;
 #if defined(MUNIT_ENABLE_TIMING)
   struct PsnipClockTimespec wc = { 0, };
@@ -940,58 +940,58 @@ munit_rand_generate_seed(void) {
   seed = (munit_uint32_t) std::time(nullptr);
 #endif
 
-  state = munit_rand_next_state(seed + MUNIT_PRNG_INCREMENT);
-  return munit_rand_from_state(state);
+  state = munit_plus_rand_next_state(seed + MUNIT_PRNG_INCREMENT);
+  return munit_plus_rand_from_state(state);
 }
 
 static munit_uint32_t
-munit_rand_state_uint32(munit_uint32_t* state) {
+munit_plus_rand_state_uint32(munit_uint32_t* state) {
   const munit_uint32_t old = *state;
-  *state = munit_rand_next_state(old);
-  return munit_rand_from_state(old);
+  *state = munit_plus_rand_next_state(old);
+  return munit_plus_rand_from_state(old);
 }
 
 munit_uint32_t
-munit_rand_uint32(void) {
+munit_plus_rand_uint32(void) {
   munit_uint32_t old, state;
 
   do {
-    old = munit_plus_atomic_load(&munit_rand_state);
-    state = munit_rand_next_state(old);
-  } while (!munit_plus_atomic_cas(&munit_rand_state, &old, state));
+    old = munit_plus_atomic_load(&munit_plus_rand_state);
+    state = munit_plus_rand_next_state(old);
+  } while (!munit_plus_atomic_cas(&munit_plus_rand_state, &old, state));
 
-  return munit_rand_from_state(old);
+  return munit_plus_rand_from_state(old);
 }
 
 static void
-munit_rand_state_memory(munit_uint32_t* state, size_t size, munit_uint8_t data[MUNIT_ARRAY_PARAM(size)]) {
+munit_plus_rand_state_memory(munit_uint32_t* state, size_t size, munit_uint8_t data[MUNIT_ARRAY_PARAM(size)]) {
   size_t members_remaining = size / sizeof(munit_uint32_t);
   size_t bytes_remaining = size % sizeof(munit_uint32_t);
   munit_uint8_t* b = data;
   munit_uint32_t rv;
   while (members_remaining-- > 0) {
-    rv = munit_rand_state_uint32(state);
+    rv = munit_plus_rand_state_uint32(state);
     memcpy(b, &rv, sizeof(munit_uint32_t));
     b += sizeof(munit_uint32_t);
   }
   if (bytes_remaining != 0) {
-    rv = munit_rand_state_uint32(state);
+    rv = munit_plus_rand_state_uint32(state);
     memcpy(b, &rv, bytes_remaining);
   }
 }
 
 void
-munit_rand_memory(size_t size, munit_uint8_t data[MUNIT_ARRAY_PARAM(size)]) {
+munit_plus_rand_memory(size_t size, munit_uint8_t data[MUNIT_ARRAY_PARAM(size)]) {
   munit_uint32_t old, state;
 
   do {
-    state = old = munit_plus_atomic_load(&munit_rand_state);
-    munit_rand_state_memory(&state, size, data);
-  } while (!munit_plus_atomic_cas(&munit_rand_state, &old, state));
+    state = old = munit_plus_atomic_load(&munit_plus_rand_state);
+    munit_plus_rand_state_memory(&state, size, data);
+  } while (!munit_plus_atomic_cas(&munit_plus_rand_state, &old, state));
 }
 
 static munit_uint32_t
-munit_rand_state_at_most(munit_uint32_t* state, munit_uint32_t salt, munit_uint32_t max) {
+munit_plus_rand_state_at_most(munit_uint32_t* state, munit_uint32_t salt, munit_uint32_t max) {
   /* We want (UINT32_MAX + 1) % max, which in unsigned arithmetic is the same
    * as (UINT32_MAX + 1 - max) % max = -max % max. We compute -max using not
    * to avoid compiler warnings.
@@ -1000,56 +1000,56 @@ munit_rand_state_at_most(munit_uint32_t* state, munit_uint32_t salt, munit_uint3
   munit_uint32_t x;
 
   if (max == (~((munit_uint32_t) 0U)))
-    return munit_rand_state_uint32(state) ^ salt;
+    return munit_plus_rand_state_uint32(state) ^ salt;
 
   max++;
 
   do {
-    x = munit_rand_state_uint32(state) ^ salt;
+    x = munit_plus_rand_state_uint32(state) ^ salt;
   } while (x < min);
 
   return x % max;
 }
 
 static munit_uint32_t
-munit_rand_at_most(munit_uint32_t salt, munit_uint32_t max) {
+munit_plus_rand_at_most(munit_uint32_t salt, munit_uint32_t max) {
   munit_uint32_t old, state;
   munit_uint32_t retval;
 
   do {
-    state = old = munit_plus_atomic_load(&munit_rand_state);
-    retval = munit_rand_state_at_most(&state, salt, max);
-  } while (!munit_plus_atomic_cas(&munit_rand_state, &old, state));
+    state = old = munit_plus_atomic_load(&munit_plus_rand_state);
+    retval = munit_plus_rand_state_at_most(&state, salt, max);
+  } while (!munit_plus_atomic_cas(&munit_plus_rand_state, &old, state));
 
   return retval;
 }
 
 int
-munit_rand_int_range(int min, int max) {
+munit_plus_rand_int_range(int min, int max) {
   munit_uint64_t range = (munit_uint64_t) max - (munit_uint64_t) min;
 
   if (min > max)
-    return munit_rand_int_range(max, min);
+    return munit_plus_rand_int_range(max, min);
 
   if (range > (~((munit_uint32_t) 0U)))
     range = (~((munit_uint32_t) 0U));
 
-  return min + munit_rand_at_most(0, (munit_uint32_t) range);
+  return min + munit_plus_rand_at_most(0, (munit_uint32_t) range);
 }
 
 double
-munit_rand_double(void) {
+munit_plus_rand_double(void) {
   munit_uint32_t old, state;
   double retval = 0.0;
 
   do {
-    state = old = munit_plus_atomic_load(&munit_rand_state);
+    state = old = munit_plus_atomic_load(&munit_plus_rand_state);
 
     /* See http://mumble.net/~campbell/tmp/random_real.c for how to do
      * this right.  Patches welcome if you feel that this is too
      * biased. */
-    retval = munit_rand_state_uint32(&state) / ((~((munit_uint32_t) 0U)) + 1.0);
-  } while (!munit_plus_atomic_cas(&munit_rand_state, &old, state));
+    retval = munit_plus_rand_state_uint32(&state) / ((~((munit_uint32_t) 0U)) + 1.0);
+  } while (!munit_plus_atomic_cas(&munit_plus_rand_state, &old, state));
 
   return retval;
 }
@@ -1211,7 +1211,7 @@ munit_test_runner_exec(MunitTestRunner* runner, const MunitTest* test, const Mun
   else if (iterations == 0)
     iterations = runner->suite->iterations;
 
-  munit_rand_seed(runner->seed);
+  munit_plus_rand_seed(runner->seed);
 
   do {
     void* data = (test->setup == NULL) ? runner->user_data : test->setup(params, runner->user_data);
@@ -1631,7 +1631,7 @@ munit_test_runner_run_test(MunitTestRunner* runner,
   const MunitParameter* wp;
   int pidx;
 
-  munit_rand_seed(runner->seed);
+  munit_plus_rand_seed(runner->seed);
 
   fprintf(MUNIT_OUTPUT_FILE, "%-" MUNIT_XSTRINGIFY(MUNIT_TEST_NAME_LEN) "s", test_name);
 
@@ -1670,7 +1670,7 @@ munit_test_runner_run_test(MunitTestRunner* runner,
          * running a single test, but we don't want every test with
          * the same number of parameters to choose the same parameter
          * number, so use the test name as a primitive salt. */
-        pidx = munit_rand_at_most(munit_str_hash(test_name), possible - 1);
+        pidx = munit_plus_rand_at_most(munit_str_hash(test_name), possible - 1);
         if (MUNIT_UNLIKELY(munit_parameters_add(&params_l, &params, pe->name, pe->values[pidx]) != MUNIT_OK))
           goto cleanup;
       } else {
@@ -1935,7 +1935,7 @@ munit_suite_main_custom(const MunitSuite* suite, void* user_data,
   runner.fatal_failures = false;
   runner.suite = suite;
   runner.user_data = user_data;
-  runner.seed = munit_rand_generate_seed();
+  runner.seed = munit_plus_rand_generate_seed();
   runner.colorize = munit_stream_supports_ansi(MUNIT_OUTPUT_FILE);
 
   for (arg = 1 ; arg < argc ; arg++) {

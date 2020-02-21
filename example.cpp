@@ -144,12 +144,12 @@ test_rand(const MunitParameter params[], void* user_data) {
    * (pseudo-)randomly generated. */
 
   /* If you need an integer in a given range */
-  random_int = munit_rand_int_range(128, 4096);
+  random_int = munit_plus_rand_int_range(128, 4096);
   munit_plus_assert_int(random_int, >=, 128);
   munit_plus_assert_int(random_int, <=, 4096);
 
   /* Or maybe you want a double, between 0 and 1: */
-  random_dbl = munit_rand_double();
+  random_dbl = munit_plus_rand_double();
   munit_plus_assert_double(random_dbl, >=, 0.0);
   munit_plus_assert_double(random_dbl, <=, 1.0);
 
@@ -163,10 +163,10 @@ test_rand(const MunitParameter params[], void* user_data) {
    * uncomment the next line of code.  Note that the PRNG is not
    * re-seeded between iterations of the same test, so this will only
    * work on the first iteration. */
-  /* munit_assert_uint32(munit_rand_uint32(), ==, 1306447409); */
+  munit_plus_assert_uint32(munit_plus_rand_uint32(), ==, 1306447409);/* */
 
   /* You can also get blobs of random memory: */
-  munit_rand_memory(sizeof(data), data);
+  munit_plus_rand_memory(sizeof(data), data);
 
   return MUNIT_OK;
 }

@@ -376,11 +376,11 @@ void* munit_plus_malloc_ex(const char* filename, int line, std::size_t size);
 
 /*** Random number generation ***/
 
-void munit_rand_seed(munit_uint32_t seed);
-munit_uint32_t munit_rand_uint32(void);
-int munit_rand_int_range(int min, int max);
-double munit_rand_double(void);
-void munit_rand_memory(size_t size, munit_uint8_t buffer[MUNIT_ARRAY_PARAM(size)]);
+void munit_plus_rand_seed(munit_uint32_t seed);
+munit_uint32_t munit_plus_rand_uint32(void);
+int munit_plus_rand_int_range(int min, int max);
+double munit_plus_rand_double(void);
+void munit_plus_rand_memory(size_t size, munit_uint8_t buffer[MUNIT_ARRAY_PARAM(size)]);
 
 /*** Tests and Suites ***/
 

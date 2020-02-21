@@ -109,6 +109,10 @@
 #  endif
 #endif
 
+#include <cstring>
+#include <cstdio>
+#include <cstdlib>
+
 #include "munit.hpp"
 
 #define MUNIT_STRINGIFY(x) #x
@@ -268,15 +272,15 @@ munit_plus_errorf_ex(const char* filename, int line, const char* format, ...) {
 static void
 munit_plus_log_errno(MunitPlusLogLevel level, FILE* fp, const char* msg) {
 #if defined(MUNIT_NO_STRERROR_R) || (defined(__MINGW32__) && !defined(MINGW_HAS_SECURE_API))
-  munit_plus_logf_internal(level, fp, "%s: %s (%d)", msg, strerror(errno), errno);
+  munit_plus_logf_internal(level, fp, "%s: %s (%d)", msg, std::strerror(errno), errno);
 #else
   char munit_error_str[MUNIT_STRERROR_LEN];
   munit_error_str[0] = '\0';
 
 #if !defined(_WIN32)
-  strerror_r(errno, munit_error_str, MUNIT_STRERROR_LEN);
+  ::strerror_r(errno, munit_error_str, MUNIT_STRERROR_LEN);
 #else
-  strerror_s(munit_error_str, MUNIT_STRERROR_LEN, errno);
+  ::strerror_s(munit_error_str, MUNIT_STRERROR_LEN, errno);
 #endif
 
   munit_plus_logf_internal(level, fp, "%s: %s (%d)", msg, munit_error_str, errno);

@@ -837,18 +837,18 @@ munit_plus_clock_get_elapsed(struct PsnipClockTimespec* start, struct PsnipClock
 static ATOMIC_UINT32_T munit_rand_state = ATOMIC_UINT32_INIT(42);
 
 #if __cplusplus >= 201103L
-#  define munit_atomic_store(dest, value)         std::atomic_store_explicit(dest, value, std::memory_order_seq_cst)
-#  define munit_atomic_load(src)                  std::atomic_load_explicit(src, std::memory_order_seq_cst)
-#  define munit_atomic_cas(dest, expected, value) std::atomic_compare_exchange_weak_explicit( dest, expected, value, std::memory_order_seq_cst, std::memory_order_seq_cst )
+#  define munit_plus_atomic_store(dest, value)         std::atomic_store_explicit(dest, value, std::memory_order_seq_cst)
+#  define munit_plus_atomic_load(src)                  std::atomic_load_explicit(src, std::memory_order_seq_cst)
+#  define munit_plus_atomic_cas(dest, expected, value) std::atomic_compare_exchange_weak_explicit( dest, expected, value, std::memory_order_seq_cst, std::memory_order_seq_cst )
 #elif defined(_OPENMP)
 static inline void
-munit_atomic_store(ATOMIC_UINT32_T* dest, ATOMIC_UINT32_T value) {
+munit_plus_atomic_store(ATOMIC_UINT32_T* dest, ATOMIC_UINT32_T value) {
 #pragma omp critical (munit_atomics)
   *dest = value;
 }
 
 static inline uint32_t
-munit_atomic_load(ATOMIC_UINT32_T* src) {
+munit_plus_atomic_load(ATOMIC_UINT32_T* src) {
   int ret;
 #pragma omp critical (munit_atomics)
   ret = *src;
@@ -856,7 +856,7 @@ munit_atomic_load(ATOMIC_UINT32_T* src) {
 }
 
 static inline uint32_t
-munit_atomic_cas(ATOMIC_UINT32_T* dest, ATOMIC_UINT32_T* expected, ATOMIC_UINT32_T desired) {
+munit_plus_atomic_cas(ATOMIC_UINT32_T* dest, ATOMIC_UINT32_T* expected, ATOMIC_UINT32_T desired) {
   bool ret;
 
 #pragma omp critical (munit_atomics)
@@ -872,31 +872,31 @@ munit_atomic_cas(ATOMIC_UINT32_T* dest, ATOMIC_UINT32_T* expected, ATOMIC_UINT32
   return ret;
 }
 #elif defined(HAVE_STDATOMIC)
-#  define munit_atomic_store(dest, value)         atomic_store(dest, value)
-#  define munit_atomic_load(src)                  atomic_load(src)
-#  define munit_atomic_cas(dest, expected, value) atomic_compare_exchange_weak(dest, expected, value)
+#  define munit_plus_atomic_store(dest, value)         atomic_store(dest, value)
+#  define munit_plus_atomic_load(src)                  atomic_load(src)
+#  define munit_plus_atomic_cas(dest, expected, value) atomic_compare_exchange_weak(dest, expected, value)
 #elif defined(HAVE_CLANG_ATOMICS)
-#  define munit_atomic_store(dest, value)         __c11_atomic_store(dest, value, __ATOMIC_SEQ_CST)
-#  define munit_atomic_load(src)                  __c11_atomic_load(src, __ATOMIC_SEQ_CST)
-#  define munit_atomic_cas(dest, expected, value) __c11_atomic_compare_exchange_weak(dest, expected, value, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST)
+#  define munit_plus_atomic_store(dest, value)         __c11_atomic_store(dest, value, __ATOMIC_SEQ_CST)
+#  define munit_plus_atomic_load(src)                  __c11_atomic_load(src, __ATOMIC_SEQ_CST)
+#  define munit_plus_atomic_cas(dest, expected, value) __c11_atomic_compare_exchange_weak(dest, expected, value, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST)
 #elif defined(__GNUC__) && (__GNUC__ > 4) || (__GNUC__ == 4 && __GNUC_MINOR__ >= 7)
-#  define munit_atomic_store(dest, value)         __atomic_store_n(dest, value, __ATOMIC_SEQ_CST)
-#  define munit_atomic_load(src)                  __atomic_load_n(src, __ATOMIC_SEQ_CST)
-#  define munit_atomic_cas(dest, expected, value) __atomic_compare_exchange_n(dest, expected, value, true, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST)
+#  define munit_plus_atomic_store(dest, value)         __atomic_store_n(dest, value, __ATOMIC_SEQ_CST)
+#  define munit_plus_atomic_load(src)                  __atomic_load_n(src, __ATOMIC_SEQ_CST)
+#  define munit_plus_atomic_cas(dest, expected, value) __atomic_compare_exchange_n(dest, expected, value, true, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST)
 #elif defined(__GNUC__) && (__GNUC__ >= 4)
-#  define munit_atomic_store(dest,value)          do { *(dest) = (value); } while (0)
-#  define munit_atomic_load(src)                  (*(src))
-#  define munit_atomic_cas(dest, expected, value) __sync_bool_compare_and_swap(dest, *expected, value)
+#  define munit_plus_atomic_store(dest,value)          do { *(dest) = (value); } while (0)
+#  define munit_plus_atomic_load(src)                  (*(src))
+#  define munit_plus_atomic_cas(dest, expected, value) __sync_bool_compare_and_swap(dest, *expected, value)
 #elif defined(_WIN32) /* Untested */
-#  define munit_atomic_store(dest,value)          do { *(dest) = (value); } while (0)
-#  define munit_atomic_load(src)                  (*(src))
-#  define munit_atomic_cas(dest, expected, value) InterlockedCompareExchange((dest), (value), *(expected))
+#  define munit_plus_atomic_store(dest,value)          do { *(dest) = (value); } while (0)
+#  define munit_plus_atomic_load(src)                  (*(src))
+#  define munit_plus_atomic_cas(dest, expected, value) InterlockedCompareExchange((dest), (value), *(expected))
 #else
 #  warning No atomic implementation, PRNG will not be thread-safe
-#  define munit_atomic_store(dest, value)         do { *(dest) = (value); } while (0)
-#  define munit_atomic_load(src)                  (*(src))
+#  define munit_plus_atomic_store(dest, value)         do { *(dest) = (value); } while (0)
+#  define munit_plus_atomic_load(src)                  (*(src))
 static inline bool
-munit_atomic_cas(ATOMIC_UINT32_T* dest, ATOMIC_UINT32_T* expected, ATOMIC_UINT32_T desired) {
+munit_plus_atomic_cas(ATOMIC_UINT32_T* dest, ATOMIC_UINT32_T* expected, ATOMIC_UINT32_T desired) {
   if (*dest == *expected) {
     *dest = desired;
     return true;
@@ -924,7 +924,7 @@ munit_rand_from_state(munit_uint32_t state) {
 void
 munit_rand_seed(munit_uint32_t seed) {
   munit_uint32_t state = munit_rand_next_state(seed + MUNIT_PRNG_INCREMENT);
-  munit_atomic_store(&munit_rand_state, state);
+  munit_plus_atomic_store(&munit_rand_state, state);
 }
 
 static munit_uint32_t
@@ -955,9 +955,9 @@ munit_rand_uint32(void) {
   munit_uint32_t old, state;
 
   do {
-    old = munit_atomic_load(&munit_rand_state);
+    old = munit_plus_atomic_load(&munit_rand_state);
     state = munit_rand_next_state(old);
-  } while (!munit_atomic_cas(&munit_rand_state, &old, state));
+  } while (!munit_plus_atomic_cas(&munit_rand_state, &old, state));
 
   return munit_rand_from_state(old);
 }
@@ -984,9 +984,9 @@ munit_rand_memory(size_t size, munit_uint8_t data[MUNIT_ARRAY_PARAM(size)]) {
   munit_uint32_t old, state;
 
   do {
-    state = old = munit_atomic_load(&munit_rand_state);
+    state = old = munit_plus_atomic_load(&munit_rand_state);
     munit_rand_state_memory(&state, size, data);
-  } while (!munit_atomic_cas(&munit_rand_state, &old, state));
+  } while (!munit_plus_atomic_cas(&munit_rand_state, &old, state));
 }
 
 static munit_uint32_t
@@ -1016,9 +1016,9 @@ munit_rand_at_most(munit_uint32_t salt, munit_uint32_t max) {
   munit_uint32_t retval;
 
   do {
-    state = old = munit_atomic_load(&munit_rand_state);
+    state = old = munit_plus_atomic_load(&munit_rand_state);
     retval = munit_rand_state_at_most(&state, salt, max);
-  } while (!munit_atomic_cas(&munit_rand_state, &old, state));
+  } while (!munit_plus_atomic_cas(&munit_rand_state, &old, state));
 
   return retval;
 }
@@ -1042,13 +1042,13 @@ munit_rand_double(void) {
   double retval = 0.0;
 
   do {
-    state = old = munit_atomic_load(&munit_rand_state);
+    state = old = munit_plus_atomic_load(&munit_rand_state);
 
     /* See http://mumble.net/~campbell/tmp/random_real.c for how to do
      * this right.  Patches welcome if you feel that this is too
      * biased. */
     retval = munit_rand_state_uint32(&state) / ((~((munit_uint32_t) 0U)) + 1.0);
-  } while (!munit_atomic_cas(&munit_rand_state, &old, state));
+  } while (!munit_plus_atomic_cas(&munit_rand_state, &old, state));
 
   return retval;
 }

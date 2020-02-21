@@ -2127,24 +2127,27 @@ std::string munit_plus_formatter<char>::format(char val) {
   constexpr char const* format = "'\\x%02x'";
   int const len = std::snprintf(nullptr, 0u, format, val);
   if (len < 0) return std::string();
-  std::string out(len, 0);
-  std::snprintf(&out[0], len, format, val);
+  std::string out(len+1, 0);
+  std::snprintf(&out[0], len+1, format, val);
+  out.resize(len);
   return out;
 };
 std::string munit_plus_formatter<signed char>::format(signed char val) {
   constexpr char const* format = "'\\x%02x'";
   int const len = std::snprintf(nullptr, 0u, format, val);
   if (len < 0) return std::string();
-  std::string out(len, 0);
-  std::snprintf(&out[0], len, format, val);
+  std::string out(len+1, 0);
+  std::snprintf(&out[0], len+1, format, val);
+  out.resize(len);
   return out;
 };
 std::string munit_plus_formatter<unsigned char>::format(unsigned char val) {
   constexpr char const* format = "'\\x%02x'";
   int const len = std::snprintf(nullptr, 0u, format, val);
   if (len < 0) return std::string();
-  std::string out(len, 0);
-  std::snprintf(&out[0], len, format, val);
+  std::string out(len+1, 0);
+  std::snprintf(&out[0], len+1, format, val);
+  out.resize(len);
   return out;
 };
 
@@ -2152,16 +2155,18 @@ std::string munit_plus_formatter<short>::format(short val) {
   constexpr char const* format = "%d";
   int const len = std::snprintf(nullptr, 0u, format, val);
   if (len < 0) return std::string();
-  std::string out(len, 0);
-  std::snprintf(&out[0], len, format, val);
+  std::string out(len+1, 0);
+  std::snprintf(&out[0], len+1, format, val);
+  out.resize(len);
   return out;
 };
 std::string munit_plus_formatter<unsigned short>::format(unsigned short val) {
   constexpr char const* format = "%u";
   int const len = std::snprintf(nullptr, 0u, format, val);
   if (len < 0) return std::string();
-  std::string out(len, 0);
-  std::snprintf(&out[0], len, format, val);
+  std::string out(len+1, 0);
+  std::snprintf(&out[0], len+1, format, val);
+  out.resize(len);
   return out;
 };
 
@@ -2169,16 +2174,18 @@ std::string munit_plus_formatter<int>::format(int val) {
   constexpr char const* format = "%d";
   int const len = std::snprintf(nullptr, 0u, format, val);
   if (len < 0) return std::string();
-  std::string out(len, 0);
-  std::snprintf(&out[0], len, format, val);
+  std::string out(len+1, 0);
+  std::snprintf(&out[0], len+1, format, val);
+  out.resize(len);
   return out;
 };
 std::string munit_plus_formatter<unsigned int>::format(unsigned int val) {
   constexpr char const* format = "%u";
   int const len = std::snprintf(nullptr, 0u, format, val);
   if (len < 0) return std::string();
-  std::string out(len, 0);
-  std::snprintf(&out[0], len, format, val);
+  std::string out(len+1, 0);
+  std::snprintf(&out[0], len+1, format, val);
+  out.resize(len);
   return out;
 };
 
@@ -2186,16 +2193,18 @@ std::string munit_plus_formatter<long>::format(long val) {
   constexpr char const* format = "%ld";
   int const len = std::snprintf(nullptr, 0u, format, val);
   if (len < 0) return std::string();
-  std::string out(len, 0);
-  std::snprintf(&out[0], len, format, val);
+  std::string out(len+1, 0);
+  std::snprintf(&out[0], len+1, format, val);
+  out.resize(len);
   return out;
 };
 std::string munit_plus_formatter<unsigned long>::format(unsigned long val) {
   constexpr char const* format = "%lu";
   int const len = std::snprintf(nullptr, 0u, format, val);
   if (len < 0) return std::string();
-  std::string out(len, 0);
-  std::snprintf(&out[0], len, format, val);
+  std::string out(len+1, 0);
+  std::snprintf(&out[0], len+1, format, val);
+  out.resize(len);
   return out;
 };
 
@@ -2203,16 +2212,18 @@ std::string munit_plus_formatter<long long>::format(long long val) {
   constexpr char const* format = "%lld";
   int const len = std::snprintf(nullptr, 0u, format, val);
   if (len < 0) return std::string();
-  std::string out(len, 0);
-  std::snprintf(&out[0], len, format, val);
+  std::string out(len+1, 0);
+  std::snprintf(&out[0], len+1, format, val);
+  out.resize(len);
   return out;
 };
 std::string munit_plus_formatter<unsigned long long>::format(unsigned long long val) {
   constexpr char const* format = "%llu";
   int const len = std::snprintf(nullptr, 0u, format, val);
   if (len < 0) return std::string();
-  std::string out(len, 0);
-  std::snprintf(&out[0], len, format, val);
+  std::string out(len+1, 0);
+  std::snprintf(&out[0], len+1, format, val);
+  out.resize(len);
   return out;
 };
 
@@ -2220,24 +2231,27 @@ std::string munit_plus_formatter<float>::format(float val) {
   constexpr char const* format = "%f";
   int const len = std::snprintf(nullptr, 0u, format, val);
   if (len < 0) return std::string();
-  std::string out(len, 0);
-  std::snprintf(&out[0], len, format, val);
+  std::string out(len+1, 0);
+  std::snprintf(&out[0], len+1, format, val);
+  out.resize(len);
   return out;
 };
 std::string munit_plus_formatter<double>::format(double val) {
   constexpr char const* format = "%g";
   int const len = std::snprintf(nullptr, 0u, format, val);
   if (len < 0) return std::string();
-  std::string out(len, 0);
-  std::snprintf(&out[0], len, format, val);
+  std::string out(len+1, 0);
+  std::snprintf(&out[0], len+1, format, val);
+  out.resize(len);
   return out;
 };
 std::string munit_plus_formatter<long double>::format(long double val) {
   constexpr char const* format = "%Lg";
   int const len = std::snprintf(nullptr, 0u, format, val);
   if (len < 0) return std::string();
-  std::string out(len, 0);
-  std::snprintf(&out[0], len, format, val);
+  std::string out(len+1, 0);
+  std::snprintf(&out[0], len+1, format, val);
+  out.resize(len);
   return out;
 };
 
@@ -2245,24 +2259,27 @@ std::string munit_plus_formatter<float>::precise_format(float val, int i) {
   constexpr char const* format = "%0.*g";
   int const len = std::snprintf(nullptr, 0u, format, i, val);
   if (len < 0) return std::string();
-  std::string out(len, 0);
-  std::snprintf(&out[0], len, format, i, val);
+  std::string out(len+1, 0);
+  std::snprintf(&out[0], len+1, format, i, val);
+  out.resize(len);
   return out;
 };
 std::string munit_plus_formatter<double>::precise_format(double val, int i) {
   constexpr char const* format = "%0.*g";
   int const len = std::snprintf(nullptr, 0u, format, i, val);
   if (len < 0) return std::string();
-  std::string out(len, 0);
-  std::snprintf(&out[0], len, format, i, val);
+  std::string out(len+1, 0);
+  std::snprintf(&out[0], len+1, format, i, val);
+  out.resize(len);
   return out;
 };
 std::string munit_plus_formatter<long double>::precise_format(long double val, int i) {
   constexpr char const* format = "%0.*Lg";
   int const len = std::snprintf(nullptr, 0u, format, i, val);
   if (len < 0) return std::string();
-  std::string out(len, 0);
-  std::snprintf(&out[0], len, format, i, val);
+  std::string out(len+1, 0);
+  std::snprintf(&out[0], len+1, format, i, val);
+  out.resize(len);
   return out;
 };
 
@@ -2270,8 +2287,9 @@ std::string munit_plus_formatter<void*>::format(void const* val) {
   constexpr char const* format = "%p";
   int const len = std::snprintf(nullptr, 0u, format, val);
   if (len < 0) return std::string();
-  std::string out(len, 0);
-  std::snprintf(&out[0], len, format, val);
+  std::string out(len+1, 0);
+  std::snprintf(&out[0], len+1, format, val);
+  out.resize(len);
   return out;
 };
 

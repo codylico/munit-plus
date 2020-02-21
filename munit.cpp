@@ -781,6 +781,7 @@ munit_plus_clock_get_elapsed(struct PsnipClockTimespec* start, struct PsnipClock
 
 #else
 #  include <time.h>
+#  include <ctime>
 #endif /* defined(MUNIT_ENABLE_TIMING) */
 
 /*** PRNG stuff ***/
@@ -936,7 +937,7 @@ munit_rand_generate_seed(void) {
   psnip_clock_get_time(PSNIP_CLOCK_TYPE_WALL, &wc);
   seed = (munit_uint32_t) wc.nanoseconds;
 #else
-  seed = (munit_uint32_t) time(NULL);
+  seed = (munit_uint32_t) std::time(nullptr);
 #endif
 
   state = munit_rand_next_state(seed + MUNIT_PRNG_INCREMENT);

@@ -118,10 +118,10 @@
 #define MUNIT_STRINGIFY(x) #x
 #define MUNIT_XSTRINGIFY(x) MUNIT_STRINGIFY(x)
 
-#if __cplusplus >= 201103L
-#  define MUNIT_THREAD_LOCAL thread_local
-#elif defined(__GNUC__) || defined(__INTEL_COMPILER) || defined(__SUNPRO_CC) || defined(__IBMCPP__)
+#if defined(__GNUC__) || defined(__INTEL_COMPILER) || defined(__SUNPRO_CC) || defined(__IBMCPP__)
 #  define MUNIT_THREAD_LOCAL __thread
+#elif __cplusplus >= 201103L
+#  define MUNIT_THREAD_LOCAL thread_local
 #elif defined(_WIN32)
 #  define MUNIT_THREAD_LOCAL __declspec(thread)
 #endif
@@ -797,7 +797,7 @@ munit_plus_clock_get_elapsed(struct PsnipClockTimespec* start, struct PsnipClock
  * important that it be reproducible, so bug reports have a better
  * chance of being reproducible. */
 
-#if defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 201112L) && !defined(__STDC_NO_ATOMICS__) && !defined(__EMSCRIPTEN__) && (!defined(__GNUC_MINOR__) || (__GNUC__ > 4) || (__GNUC__ == 4 && __GNUC_MINOR__ > 8))
+#if defined(__cplusplus) && (__cplusplus >= 201103L) && !defined(__STDC_NO_ATOMICS__) && !defined(__EMSCRIPTEN__) && (!defined(__GNUC_MINOR__) || (__GNUC__ > 4) || (__GNUC__ == 4 && __GNUC_MINOR__ > 8))
 #  define HAVE_STDATOMIC
 #elif defined(__clang__)
 #  if __has_extension(c_atomic)
@@ -813,16 +813,12 @@ munit_plus_clock_get_elapsed(struct PsnipClockTimespec* start, struct PsnipClock
 #  endif
 #endif
 
-#if __cplusplus >= 201103L
-#  include <atomic>
-#  define ATOMIC_UINT32_T std::atomic_uint32_t
-#  define ATOMIC_UINT32_INIT(x) ATOMIC_VAR_INIT(x)
-#elif defined(_OPENMP)
+#if defined(_OPENMP)
 #  define ATOMIC_UINT32_T uint32_t
 #  define ATOMIC_UINT32_INIT(x) (x)
 #elif defined(HAVE_STDATOMIC)
-#  include <stdatomic.h>
-#  define ATOMIC_UINT32_T _Atomic uint32_t
+#  include <atomic>
+#  define ATOMIC_UINT32_T std::atomic_uint32_t
 #  define ATOMIC_UINT32_INIT(x) ATOMIC_VAR_INIT(x)
 #elif defined(HAVE_CLANG_ATOMICS)
 #  define ATOMIC_UINT32_T _Atomic uint32_t
@@ -837,11 +833,7 @@ munit_plus_clock_get_elapsed(struct PsnipClockTimespec* start, struct PsnipClock
 
 static ATOMIC_UINT32_T munit_plus_rand_state = ATOMIC_UINT32_INIT(42);
 
-#if __cplusplus >= 201103L
-#  define munit_plus_atomic_store(dest, value)         std::atomic_store_explicit(dest, value, std::memory_order_seq_cst)
-#  define munit_plus_atomic_load(src)                  std::atomic_load_explicit(src, std::memory_order_seq_cst)
-#  define munit_plus_atomic_cas(dest, expected, value) std::atomic_compare_exchange_weak_explicit( dest, expected, value, std::memory_order_seq_cst, std::memory_order_seq_cst )
-#elif defined(_OPENMP)
+#if defined(_OPENMP)
 static inline void
 munit_plus_atomic_store(ATOMIC_UINT32_T* dest, ATOMIC_UINT32_T value) {
 #pragma omp critical (munit_atomics)
@@ -873,9 +865,9 @@ munit_plus_atomic_cas(ATOMIC_UINT32_T* dest, ATOMIC_UINT32_T* expected, ATOMIC_U
   return ret;
 }
 #elif defined(HAVE_STDATOMIC)
-#  define munit_plus_atomic_store(dest, value)         atomic_store(dest, value)
-#  define munit_plus_atomic_load(src)                  atomic_load(src)
-#  define munit_plus_atomic_cas(dest, expected, value) atomic_compare_exchange_weak(dest, expected, value)
+#  define munit_plus_atomic_store(dest, value)         std::atomic_store_explicit(dest, value, std::memory_order_seq_cst)
+#  define munit_plus_atomic_load(src)                  std::atomic_load_explicit(src, std::memory_order_seq_cst)
+#  define munit_plus_atomic_cas(dest, expected, value) std::atomic_compare_exchange_weak_explicit( dest, expected, value, std::memory_order_seq_cst, std::memory_order_seq_cst )
 #elif defined(HAVE_CLANG_ATOMICS)
 #  define munit_plus_atomic_store(dest, value)         __c11_atomic_store(dest, value, __ATOMIC_SEQ_CST)
 #  define munit_plus_atomic_load(src)                  __c11_atomic_load(src, __ATOMIC_SEQ_CST)

@@ -386,16 +386,16 @@ void munit_plus_rand_memory(size_t size, munit_uint8_t buffer[MUNIT_ARRAY_PARAM(
 
 typedef enum {
   /* Test successful */
-  MUNIT_OK,
+  MUNIT_PLUS_OK,
   /* Test failed */
-  MUNIT_FAIL,
+  MUNIT_PLUS_FAIL,
   /* Test was skipped */
-  MUNIT_SKIP,
+  MUNIT_PLUS_SKIP,
   /* Test failed due to circumstances not intended to be tested
    * (things like network errors, invalid parameter value, failure to
    * allocate memory in the test harness, etc.). */
-  MUNIT_ERROR
-} MunitResult;
+  MUNIT_PLUS_ERROR
+} MunitPlusResult;
 
 typedef struct {
   char*  name;
@@ -415,7 +415,7 @@ typedef enum {
   MUNIT_TEST_OPTION_TODO             = 1 << 1
 } MunitTestOptions;
 
-typedef MunitResult (* MunitTestFunc)(const MunitParameter params[], void* user_data_or_fixture);
+typedef MunitPlusResult (* MunitTestFunc)(const MunitParameter params[], void* user_data_or_fixture);
 typedef void*       (* MunitTestSetup)(const MunitParameter params[], void* user_data);
 typedef void        (* MunitTestTearDown)(void* fixture);
 

@@ -1093,12 +1093,12 @@ munit_print_time(FILE* fp, munit_uint64_t nanoseconds) {
 #endif
 
 /* Add a paramter to an array of parameters. */
-static MunitResult
+static MunitPlusResult
 munit_parameters_add(size_t* params_size, MunitParameter* params[MUNIT_ARRAY_PARAM(*params_size)], char* name, char* value) {
   *params = static_cast<MunitParameter*>(realloc(*params,
                                                  sizeof(MunitParameter) * (*params_size + 2)));
   if (*params == NULL)
-    return MUNIT_ERROR;
+    return MUNIT_PLUS_ERROR;
 
   (*params)[*params_size].name = name;
   (*params)[*params_size].value = value;
@@ -1106,7 +1106,7 @@ munit_parameters_add(size_t* params_size, MunitParameter* params[MUNIT_ARRAY_PAR
   (*params)[*params_size].name = NULL;
   (*params)[*params_size].value = NULL;
 
-  return MUNIT_OK;
+  return MUNIT_PLUS_OK;
 }
 
 /* Concatenate two strings, but just return one of the components
@@ -1188,10 +1188,10 @@ munit_splice(int from, int to) {
 }
 
 /* This is the part that should be handled in the child process */
-static MunitResult
+static MunitPlusResult
 munit_test_runner_exec(MunitTestRunner* runner, const MunitTest* test, const MunitParameter params[], MunitReport* report) {
   unsigned int iterations = runner->iterations;
-  MunitResult result = MUNIT_FAIL;
+  MunitPlusResult result = MUNIT_PLUS_FAIL;
 #if defined(MUNIT_ENABLE_TIMING)
   struct PsnipClockTimespec wall_clock_begin = { 0, }, wall_clock_end = { 0, };
   struct PsnipClockTimespec cpu_clock_begin = { 0, }, cpu_clock_end = { 0, };
@@ -1223,7 +1223,7 @@ munit_test_runner_exec(MunitTestRunner* runner, const MunitTest* test, const Mun
     if (test->tear_down != NULL)
       test->tear_down(data);
 
-    if (MUNIT_LIKELY(result == MUNIT_OK)) {
+    if (MUNIT_LIKELY(result == MUNIT_PLUS_OK)) {
       report->successful++;
 #if defined(MUNIT_ENABLE_TIMING)
       report->wall_clock += munit_plus_clock_get_elapsed(&wall_clock_begin, &wall_clock_end);
@@ -1231,13 +1231,13 @@ munit_test_runner_exec(MunitTestRunner* runner, const MunitTest* test, const Mun
 #endif
     } else {
       switch ((int) result) {
-        case MUNIT_SKIP:
+        case MUNIT_PLUS_SKIP:
           report->skipped++;
           break;
-        case MUNIT_FAIL:
+        case MUNIT_PLUS_FAIL:
           report->failed++;
           break;
-        case MUNIT_ERROR:
+        case MUNIT_PLUS_ERROR:
           report->errored++;
           break;
         default:
@@ -1303,7 +1303,7 @@ munit_restore_stderr(int orig_stderr) {
 /* Run a test with the specified parameters. */
 static void
 munit_test_runner_run_test_with_params(MunitTestRunner* runner, const MunitTest* test, const MunitParameter params[]) {
-  MunitResult result = MUNIT_OK;
+  MunitPlusResult result = MUNIT_PLUS_OK;
   MunitReport report = {
     0, 0, 0, 0,
 #if defined(MUNIT_ENABLE_TIMING)
@@ -1355,7 +1355,7 @@ munit_test_runner_run_test_with_params(MunitTestRunner* runner, const MunitTest*
 #endif
   if (stderr_buf == NULL) {
     munit_plus_log_errno(MUNIT_PLUS_LOG_ERROR, stderr, "unable to create buffer for stderr");
-    result = MUNIT_ERROR;
+    result = MUNIT_PLUS_ERROR;
     goto print_result;
   }
 
@@ -1365,7 +1365,7 @@ munit_test_runner_run_test_with_params(MunitTestRunner* runner, const MunitTest*
     pipefd[1] = -1;
     if (pipe(pipefd) != 0) {
       munit_plus_log_errno(MUNIT_PLUS_LOG_ERROR, stderr, "unable to create pipe");
-      result = MUNIT_ERROR;
+      result = MUNIT_PLUS_ERROR;
       goto print_result;
     }
 
@@ -1420,7 +1420,7 @@ munit_test_runner_run_test_with_params(MunitTestRunner* runner, const MunitTest*
         munit_plus_log_errno(MUNIT_PLUS_LOG_ERROR, stderr, "unable to fork");
       }
       report.errored++;
-      result = MUNIT_ERROR;
+      result = MUNIT_PLUS_ERROR;
     } else {
       close(pipefd[1]);
       do {
@@ -1473,7 +1473,7 @@ munit_test_runner_run_test_with_params(MunitTestRunner* runner, const MunitTest*
     try {
       result = munit_test_runner_exec(runner, test, params, &report);
     } catch (struct munit_plus_error_jmp const& ) {
-      result = MUNIT_FAIL;
+      result = MUNIT_PLUS_FAIL;
 #if defined(MUNIT_THREAD_LOCAL)
       munit_plus_error_jmp_active = false;
 #endif /*MUNIT_THREAD_LOCAL*/
@@ -1501,26 +1501,26 @@ munit_test_runner_run_test_with_params(MunitTestRunner* runner, const MunitTest*
   if ((test->options & MUNIT_TEST_OPTION_TODO) == MUNIT_TEST_OPTION_TODO) {
     if (report.failed != 0 || report.errored != 0 || report.skipped != 0) {
       munit_test_runner_print_color(runner, MUNIT_RESULT_STRING_TODO, '3');
-      result = MUNIT_OK;
+      result = MUNIT_PLUS_OK;
     } else {
       munit_test_runner_print_color(runner, MUNIT_RESULT_STRING_ERROR, '1');
       if (MUNIT_LIKELY(stderr_buf != NULL))
         munit_plus_log_internal(MUNIT_PLUS_LOG_ERROR, stderr_buf, "Test marked TODO, but was successful.");
       runner->report.failed++;
-      result = MUNIT_ERROR;
+      result = MUNIT_PLUS_ERROR;
     }
   } else if (report.failed > 0) {
     munit_test_runner_print_color(runner, MUNIT_RESULT_STRING_FAIL, '1');
     runner->report.failed++;
-    result = MUNIT_FAIL;
+    result = MUNIT_PLUS_FAIL;
   } else if (report.errored > 0) {
     munit_test_runner_print_color(runner, MUNIT_RESULT_STRING_ERROR, '1');
     runner->report.errored++;
-    result = MUNIT_ERROR;
+    result = MUNIT_PLUS_ERROR;
   } else if (report.skipped > 0) {
     munit_test_runner_print_color(runner, MUNIT_RESULT_STRING_SKIP, '3');
     runner->report.skipped++;
-    result = MUNIT_SKIP;
+    result = MUNIT_PLUS_SKIP;
   } else if (report.successful > 1) {
     munit_test_runner_print_color(runner, MUNIT_RESULT_STRING_OK, '2');
 #if defined(MUNIT_ENABLE_TIMING)
@@ -1535,7 +1535,7 @@ munit_test_runner_run_test_with_params(MunitTestRunner* runner, const MunitTest*
     fputs(" CPU", MUNIT_OUTPUT_FILE);
 #endif
     runner->report.successful++;
-    result = MUNIT_OK;
+    result = MUNIT_PLUS_OK;
   } else if (report.successful > 0) {
     munit_test_runner_print_color(runner, MUNIT_RESULT_STRING_OK, '2');
 #if defined(MUNIT_ENABLE_TIMING)
@@ -1546,12 +1546,12 @@ munit_test_runner_run_test_with_params(MunitTestRunner* runner, const MunitTest*
     fputs(" CPU", MUNIT_OUTPUT_FILE);
 #endif
     runner->report.successful++;
-    result = MUNIT_OK;
+    result = MUNIT_PLUS_OK;
   }
   fputs(" ]\n", MUNIT_OUTPUT_FILE);
 
   if (stderr_buf != NULL) {
-    if (result == MUNIT_FAIL || result == MUNIT_ERROR || runner->show_stderr) {
+    if (result == MUNIT_PLUS_FAIL || result == MUNIT_PLUS_ERROR || runner->show_stderr) {
       fflush(MUNIT_OUTPUT_FILE);
 
       rewind(stderr_buf);
@@ -1638,7 +1638,7 @@ munit_test_runner_run_test(MunitTestRunner* runner,
       filled = false;
       for (cli_p = runner->parameters ; cli_p != NULL && cli_p->name != NULL ; cli_p++) {
         if (strcmp(cli_p->name, pe->name) == 0) {
-          if (MUNIT_UNLIKELY(munit_parameters_add(&params_l, &params, pe->name, cli_p->value) != MUNIT_OK))
+          if (MUNIT_UNLIKELY(munit_parameters_add(&params_l, &params, pe->name, cli_p->value) != MUNIT_PLUS_OK))
             goto cleanup;
           filled = true;
           break;
@@ -1663,12 +1663,12 @@ munit_test_runner_run_test(MunitTestRunner* runner,
          * the same number of parameters to choose the same parameter
          * number, so use the test name as a primitive salt. */
         pidx = munit_plus_rand_at_most(munit_str_hash(test_name), possible - 1);
-        if (MUNIT_UNLIKELY(munit_parameters_add(&params_l, &params, pe->name, pe->values[pidx]) != MUNIT_OK))
+        if (MUNIT_UNLIKELY(munit_parameters_add(&params_l, &params, pe->name, pe->values[pidx]) != MUNIT_PLUS_OK))
           goto cleanup;
       } else {
         /* We want to try every permutation.  Put in a placeholder
          * entry, we'll iterate through them later. */
-        if (MUNIT_UNLIKELY(munit_parameters_add(&wild_params_l, &wild_params, pe->name, NULL) != MUNIT_OK))
+        if (MUNIT_UNLIKELY(munit_parameters_add(&wild_params_l, &wild_params, pe->name, NULL) != MUNIT_PLUS_OK))
           goto cleanup;
       }
     }
@@ -1678,7 +1678,7 @@ munit_test_runner_run_test(MunitTestRunner* runner,
       for (wp = wild_params ; wp != NULL && wp->name != NULL ; wp++) {
         for (pe = test->parameters ; pe != NULL && pe->name != NULL && pe->values != NULL ; pe++) {
           if (strcmp(wp->name, pe->name) == 0) {
-            if (MUNIT_UNLIKELY(munit_parameters_add(&params_l, &params, pe->name, pe->values[0]) != MUNIT_OK))
+            if (MUNIT_UNLIKELY(munit_parameters_add(&params_l, &params, pe->name, pe->values[0]) != MUNIT_PLUS_OK))
               goto cleanup;
           }
         }

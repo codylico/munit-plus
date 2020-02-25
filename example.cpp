@@ -25,7 +25,7 @@
 
 /* Tests are functions that return void, and take a single void*
  * parameter.  We'll get to what that parameter is later. */
-static MunitResult
+static MunitPlusResult
 test_compare(const MunitParameter params[], void* data) {
   /* We'll use these later */
   const unsigned char val_uchar = 'b';
@@ -120,10 +120,10 @@ test_compare(const MunitParameter params[], void* data) {
    * would work as expected. */
   munit_plus_assert_ptr_equal(data, (void*)(uintptr_t)0xdeadbeef);
 
-  return MUNIT_OK;
+  return MUNIT_PLUS_OK;
 }
 
-static MunitResult
+static MunitPlusResult
 test_rand(const MunitParameter params[], void* user_data) {
   int random_int;
   double random_dbl;
@@ -170,7 +170,7 @@ test_rand(const MunitParameter params[], void* user_data) {
   /* You can also get blobs of random memory: */
   munit_plus_rand_memory(sizeof(data), data);
 
-  return MUNIT_OK;
+  return MUNIT_PLUS_OK;
 }
 
 /* This test case shows how to accept parameters.  We'll see how to
@@ -181,7 +181,7 @@ test_rand(const MunitParameter params[], void* user_data) {
  * run specific test(s), or you can pass the --single argument to the
  * CLI to have the harness simply choose one variation at random
  * instead of running them all. */
-static MunitResult
+static MunitPlusResult
 test_parameters(const MunitParameter params[], void* user_data) {
   const char* foo;
   const char* bar;
@@ -200,14 +200,14 @@ test_parameters(const MunitParameter params[], void* user_data) {
    * overridden on the command line if desired. */
   /* const char* baz = munit_parameters_get(params, "baz"); */
 
-  /* Notice that we're returning MUNIT_FAIL instead of writing an
+  /* Notice that we're returning MUNIT_PLUS_FAIL instead of writing an
    * error message.  Error messages are generally preferable, since
    * they make it easier to diagnose the issue, but this is an
    * option.
    *
    * Possible values are:
-   *  - MUNIT_OK: Sucess
-   *  - MUNIT_FAIL: Failure
+   *  - MUNIT_PLUS_OK: Sucess
+   *  - MUNIT_PLUS_FAIL: Failure
    *  - MUNIT_SKIP: The test was skipped; usually this happens when a
    *    particular feature isn't in use.  For example, if you're
    *    writing a test which uses a Wayland-only feature, but your
@@ -221,14 +221,14 @@ test_parameters(const MunitParameter params[], void* user_data) {
   if (strcmp(foo, "one") != 0 &&
       strcmp(foo, "two") != 0 &&
       strcmp(foo, "three") != 0)
-    return MUNIT_FAIL;
+    return MUNIT_PLUS_FAIL;
 
   if (strcmp(bar, "red") != 0 &&
       strcmp(bar, "green") != 0 &&
       strcmp(bar, "blue") != 0)
-    return MUNIT_FAIL;
+    return MUNIT_PLUS_FAIL;
 
-  return MUNIT_OK;
+  return MUNIT_PLUS_OK;
 }
 
 /* The setup function, if you provide one, for a test will be run
@@ -261,7 +261,7 @@ public:
 };
 
 /* Let's see what C++ can do. */
-static MunitResult
+static MunitPlusResult
 test_compare_cxx(const MunitParameter params[], void* data) {
   /* We'll use these later */
   const unsigned char val_uchar = 'b';
@@ -362,7 +362,7 @@ test_compare_cxx(const MunitParameter params[], void* data) {
   /* Fail this test to see if thingie's destructor gets called. */
   munit_plus_assert_true(false);
 
-  return MUNIT_OK;
+  return MUNIT_PLUS_OK;
 }
 
 /* One-off tests. */
@@ -372,7 +372,7 @@ public:
   float hah;
   void* nowhere;
 };
-static MunitResult
+static MunitPlusResult
 test_compare_cxx_oneoff(const MunitParameter params[], void* data) {
   std::list<long> seven;
   /* assign */{
@@ -397,7 +397,7 @@ test_compare_cxx_oneoff(const MunitParameter params[], void* data) {
     for (trivial_thing const& x : five) { munit_plus_logf(MUNIT_PLUS_LOG_INFO, "five: %i,%f,%p\n", x.yay,x.hah,x.nowhere); }
     for (int x : six) { munit_plus_logf(MUNIT_PLUS_LOG_INFO, "six: %i\n", x); }
   }
-  return MUNIT_OK;
+  return MUNIT_PLUS_OK;
 }
 
 static char* foo_params[] = {
@@ -452,14 +452,14 @@ static MunitTest test_suite_tests[] = {
   { (char*) "/example/rand", test_rand, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL },
   { (char*) "/example/parameters", test_parameters, NULL, NULL, MUNIT_TEST_OPTION_NONE, test_params },
   { (char*) "/example/cxx", test_compare_cxx, nullptr, nullptr, MUNIT_TEST_OPTION_NONE },
-  { (char*) "/example/lambda", [](const MunitParameter params[], void* data)->MunitResult{
+  { (char*) "/example/lambda", [](const MunitParameter params[], void* data)->MunitPlusResult{
         const char* foo = munit_parameters_get(params, "foo");
         const char* bar = munit_parameters_get(params, "bar");
         const char* baz = munit_parameters_get(params, "baz");
         if (!baz) baz = "baz";
         munit_plus_logf(MUNIT_PLUS_LOG_INFO, "oops. lambda here. oh well. %s %s %s",foo,bar,baz);
         munit_plus_assert_true(true);
-        return MUNIT_OK;
+        return MUNIT_PLUS_OK;
       }, nullptr, nullptr, MUNIT_TEST_OPTION_NONE, test_params },
   { (char*) "/example/cxx_oneoff", test_compare_cxx_oneoff, nullptr, nullptr, MUNIT_TEST_OPTION_NONE },
   /* To tell the test runner when the array is over, just add a NULL

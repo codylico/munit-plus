@@ -298,7 +298,7 @@ munit_plus_malloc_ex(const char* filename, int line, std::size_t size) {
 
   ptr = std::calloc(1, size);
   if (MUNIT_PLUS_UNLIKELY(ptr == nullptr)) {
-    munit_plus_logf_ex(MUNIT_PLUS_LOG_ERROR, filename, line, "Failed to allocate %" MUNIT_SIZE_MODIFIER "u bytes.", size);
+    munit_plus_logf_ex(MUNIT_PLUS_LOG_ERROR, filename, line, "Failed to allocate %" MUNIT_PLUS_SIZE_MODIFIER "u bytes.", size);
   }
 
   return ptr;
@@ -2131,28 +2131,28 @@ std::string munit_plus_formatter<bool>::format(bool val) {
 
 std::string munit_plus_formatter<char>::format(char val) {
   std::string out;
-  munit_plus_format_do(out, val, "'\\x%02" MUNIT_CHAR_MODIFIER "x'");
+  munit_plus_format_do(out, val, "'\\x%02" MUNIT_PLUS_CHAR_MODIFIER "x'");
   return out;
 };
 std::string munit_plus_formatter<signed char>::format(signed char val) {
   std::string out;
-  munit_plus_format_do(out, val, "'\\x%02" MUNIT_CHAR_MODIFIER "x'");
+  munit_plus_format_do(out, val, "'\\x%02" MUNIT_PLUS_CHAR_MODIFIER "x'");
   return out;
 };
 std::string munit_plus_formatter<unsigned char>::format(unsigned char val) {
   std::string out;
-  munit_plus_format_do(out, val, "'\\x%02" MUNIT_CHAR_MODIFIER "x'");
+  munit_plus_format_do(out, val, "'\\x%02" MUNIT_PLUS_CHAR_MODIFIER "x'");
   return out;
 };
 
 std::string munit_plus_formatter<short>::format(short val) {
   std::string out;
-  munit_plus_format_do(out, val, "%" MUNIT_SHORT_MODIFIER "d");
+  munit_plus_format_do(out, val, "%" MUNIT_PLUS_SHORT_MODIFIER "d");
   return out;
 };
 std::string munit_plus_formatter<unsigned short>::format(unsigned short val) {
   std::string out;
-  munit_plus_format_do(out, val, "%" MUNIT_SHORT_MODIFIER "u");
+  munit_plus_format_do(out, val, "%" MUNIT_PLUS_SHORT_MODIFIER "u");
   return out;
 };
 

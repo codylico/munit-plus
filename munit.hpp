@@ -131,17 +131,17 @@ extern "C" {
 #endif
 
 #if !defined(_WIN32)
-#  define MUNIT_SIZE_MODIFIER "z"
-#  define MUNIT_CHAR_MODIFIER "hh"
-#  define MUNIT_SHORT_MODIFIER "h"
+#  define MUNIT_PLUS_SIZE_MODIFIER "z"
+#  define MUNIT_PLUS_CHAR_MODIFIER "hh"
+#  define MUNIT_PLUS_SHORT_MODIFIER "h"
 #else
 #  if defined(_M_X64) || defined(__amd64__)
-#    define MUNIT_SIZE_MODIFIER "I64"
+#    define MUNIT_PLUS_SIZE_MODIFIER "I64"
 #  else
-#    define MUNIT_SIZE_MODIFIER ""
+#    define MUNIT_PLUS_SIZE_MODIFIER ""
 #  endif
-#  define MUNIT_CHAR_MODIFIER ""
-#  define MUNIT_SHORT_MODIFIER ""
+#  define MUNIT_PLUS_CHAR_MODIFIER ""
+#  define MUNIT_PLUS_SHORT_MODIFIER ""
 #endif
 
 #if __cplusplus >= 201103L
@@ -232,13 +232,13 @@ void munit_plus_errorf_ex(const char* filename, int line, const char* format, ..
   MUNIT__POP_DISABLE_MSVC_C4127
 
 #define munit_plus_assert_char(a, op, b) \
-  munit_plus_assert_type_full("'\\x", "'", char, "02" MUNIT_CHAR_MODIFIER "x", a, op, b)
+  munit_plus_assert_type_full("'\\x", "'", char, "02" MUNIT_PLUS_CHAR_MODIFIER "x", a, op, b)
 #define munit_plus_assert_uchar(a, op, b) \
-  munit_plus_assert_type_full("'\\x", "'", unsigned char, "02" MUNIT_CHAR_MODIFIER "x", a, op, b)
+  munit_plus_assert_type_full("'\\x", "'", unsigned char, "02" MUNIT_PLUS_CHAR_MODIFIER "x", a, op, b)
 #define munit_plus_assert_short(a, op, b) \
-  munit_plus_assert_type(short, MUNIT_SHORT_MODIFIER "d", a, op, b)
+  munit_plus_assert_type(short, MUNIT_PLUS_SHORT_MODIFIER "d", a, op, b)
 #define munit_plus_assert_ushort(a, op, b) \
-  munit_plus_assert_type(unsigned short, MUNIT_SHORT_MODIFIER "u", a, op, b)
+  munit_plus_assert_type(unsigned short, MUNIT_PLUS_SHORT_MODIFIER "u", a, op, b)
 #define munit_plus_assert_int(a, op, b) \
   munit_plus_assert_type(int, "d", a, op, b)
 #define munit_plus_assert_uint(a, op, b) \
@@ -253,7 +253,7 @@ void munit_plus_errorf_ex(const char* filename, int line, const char* format, ..
   munit_plus_assert_type(unsigned long long int, "llu", a, op, b)
 
 #define munit_plus_assert_size(a, op, b) \
-  munit_plus_assert_type(std::size_t, MUNIT_SIZE_MODIFIER "u", a, op, b)
+  munit_plus_assert_type(std::size_t, MUNIT_PLUS_SIZE_MODIFIER "u", a, op, b)
 
 #define munit_plus_assert_float(a, op, b) \
   munit_plus_assert_type(float, "f", a, op, b)
@@ -318,7 +318,7 @@ void munit_plus_errorf_ex(const char* filename, int line, const char* format, ..
       size_t munit_tmp_pos_; \
       for (munit_tmp_pos_ = 0 ; munit_tmp_pos_ < munit_tmp_size_ ; munit_tmp_pos_++) { \
         if (munit_tmp_a_[munit_tmp_pos_] != munit_tmp_b_[munit_tmp_pos_]) { \
-          munit_plus_errorf("assertion failed: memory %s == %s, at offset %" MUNIT_SIZE_MODIFIER "u", \
+          munit_plus_errorf("assertion failed: memory %s == %s, at offset %" MUNIT_PLUS_SIZE_MODIFIER "u", \
                        #a, #b, munit_tmp_pos_); \
           break; \
         } \
@@ -820,17 +820,17 @@ inline A* munit_plus_new_ex(const char* typetext, const char* filename, int line
     ptr = new A(static_cast<D&&>(args)...);
   } catch (std::exception const& e) {
     munit_plus_logf_ex(MUNIT_PLUS_LOG_ERROR, filename, line,
-      "Failed to construct %s of %" MUNIT_SIZE_MODIFIER "u bytes. (what(): %s)",
+      "Failed to construct %s of %" MUNIT_PLUS_SIZE_MODIFIER "u bytes. (what(): %s)",
       typetext, sizeof(A), e.what());
     throw;
   } catch (...) {
     munit_plus_logf_ex(MUNIT_PLUS_LOG_ERROR, filename, line,
-      "Failed to construct %s of %" MUNIT_SIZE_MODIFIER "u bytes.", typetext, sizeof(A));
+      "Failed to construct %s of %" MUNIT_PLUS_SIZE_MODIFIER "u bytes.", typetext, sizeof(A));
     throw;
   }
   if (MUNIT_PLUS_UNLIKELY(ptr == nullptr)) {
     munit_plus_logf_ex(MUNIT_PLUS_LOG_ERROR, filename, line,
-      "Failed to allocate %s of %" MUNIT_SIZE_MODIFIER "u bytes.", typetext, sizeof(A));
+      "Failed to allocate %s of %" MUNIT_PLUS_SIZE_MODIFIER "u bytes.", typetext, sizeof(A));
   }
 
   return ptr;
@@ -847,18 +847,18 @@ inline A* munit_plus_newa_ex(const char* typetext, const char* filename, int lin
     ptr = new A[nmemb];
   } catch (std::exception const& e) {
     munit_plus_logf_ex(MUNIT_PLUS_LOG_ERROR, filename, line,
-      "Failed to construct %s[%" MUNIT_SIZE_MODIFIER "u] of %" MUNIT_SIZE_MODIFIER "u bytes. (what(): %s)",
+      "Failed to construct %s[%" MUNIT_PLUS_SIZE_MODIFIER "u] of %" MUNIT_PLUS_SIZE_MODIFIER "u bytes. (what(): %s)",
       typetext, nmemb, sizeof(A)*nmemb, e.what());
     throw;
   } catch (...) {
     munit_plus_logf_ex(MUNIT_PLUS_LOG_ERROR, filename, line,
-      "Failed to construct %s[%" MUNIT_SIZE_MODIFIER "u] of %" MUNIT_SIZE_MODIFIER "u bytes.",
+      "Failed to construct %s[%" MUNIT_PLUS_SIZE_MODIFIER "u] of %" MUNIT_PLUS_SIZE_MODIFIER "u bytes.",
       typetext, nmemb, sizeof(A)*nmemb);
     throw;
   }
   if (MUNIT_PLUS_UNLIKELY(ptr == nullptr)) {
     munit_plus_logf_ex(MUNIT_PLUS_LOG_ERROR, filename, line,
-      "Failed to allocate %s[%" MUNIT_SIZE_MODIFIER "u] of %" MUNIT_SIZE_MODIFIER "u bytes.",
+      "Failed to allocate %s[%" MUNIT_PLUS_SIZE_MODIFIER "u] of %" MUNIT_PLUS_SIZE_MODIFIER "u bytes.",
       typetext, nmemb, sizeof(A)*nmemb);
   }
 

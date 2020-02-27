@@ -34,24 +34,24 @@
 #define MUNIT_CURRENT_VERSION MUNIT_VERSION(0, 4, 1)
 
 #if defined(_MSC_VER) && (_MSC_VER < 1600)
-#  define munit_int8_t   __int8
-#  define munit_uint8_t  unsigned __int8
-#  define munit_int16_t  __int16
-#  define munit_uint16_t unsigned __int16
-#  define munit_int32_t  __int32
-#  define munit_uint32_t unsigned __int32
-#  define munit_int64_t  __int64
-#  define munit_uint64_t unsigned __int64
+#  define munit_plus_int8_t   __int8
+#  define munit_plus_uint8_t  unsigned __int8
+#  define munit_plus_int16_t  __int16
+#  define munit_plus_uint16_t unsigned __int16
+#  define munit_plus_int32_t  __int32
+#  define munit_plus_uint32_t unsigned __int32
+#  define munit_plus_int64_t  __int64
+#  define munit_plus_uint64_t unsigned __int64
 #else
 #  include <stdint.h>
-#  define munit_int8_t   int8_t
-#  define munit_uint8_t  uint8_t
-#  define munit_int16_t  int16_t
-#  define munit_uint16_t uint16_t
-#  define munit_int32_t  int32_t
-#  define munit_uint32_t uint32_t
-#  define munit_int64_t  int64_t
-#  define munit_uint64_t uint64_t
+#  define munit_plus_int8_t   int8_t
+#  define munit_plus_uint8_t  uint8_t
+#  define munit_plus_int16_t  int16_t
+#  define munit_plus_uint16_t uint16_t
+#  define munit_plus_int32_t  int32_t
+#  define munit_plus_uint32_t uint32_t
+#  define munit_plus_int64_t  int64_t
+#  define munit_plus_uint64_t uint64_t
 #endif
 
 #if defined(_MSC_VER) && (_MSC_VER < 1800)
@@ -263,21 +263,21 @@ void munit_plus_errorf_ex(const char* filename, int line, const char* format, ..
   munit_plus_assert_type(const void*, "p", a, op, b)
 
 #define munit_plus_assert_int8(a, op, b)             \
-  munit_plus_assert_type(munit_int8_t, PRIi8, a, op, b)
+  munit_plus_assert_type(munit_plus_int8_t, PRIi8, a, op, b)
 #define munit_plus_assert_uint8(a, op, b) \
-  munit_plus_assert_type(munit_uint8_t, PRIu8, a, op, b)
+  munit_plus_assert_type(munit_plus_uint8_t, PRIu8, a, op, b)
 #define munit_plus_assert_int16(a, op, b) \
-  munit_plus_assert_type(munit_int16_t, PRIi16, a, op, b)
+  munit_plus_assert_type(munit_plus_int16_t, PRIi16, a, op, b)
 #define munit_plus_assert_uint16(a, op, b) \
-  munit_plus_assert_type(munit_uint16_t, PRIu16, a, op, b)
+  munit_plus_assert_type(munit_plus_uint16_t, PRIu16, a, op, b)
 #define munit_plus_assert_int32(a, op, b) \
-  munit_plus_assert_type(munit_int32_t, PRIi32, a, op, b)
+  munit_plus_assert_type(munit_plus_int32_t, PRIi32, a, op, b)
 #define munit_plus_assert_uint32(a, op, b) \
-  munit_plus_assert_type(munit_uint32_t, PRIu32, a, op, b)
+  munit_plus_assert_type(munit_plus_uint32_t, PRIu32, a, op, b)
 #define munit_plus_assert_int64(a, op, b) \
-  munit_plus_assert_type(munit_int64_t, PRIi64, a, op, b)
+  munit_plus_assert_type(munit_plus_int64_t, PRIi64, a, op, b)
 #define munit_plus_assert_uint64(a, op, b) \
-  munit_plus_assert_type(munit_uint64_t, PRIu64, a, op, b)
+  munit_plus_assert_type(munit_plus_uint64_t, PRIu64, a, op, b)
 
 #define munit_plus_assert_double_equal(a, b, precision) \
   munit_plus_assert_near_equal(double, a, b, precision)
@@ -376,11 +376,11 @@ void* munit_plus_malloc_ex(const char* filename, int line, std::size_t size);
 
 /*** Random number generation ***/
 
-void munit_plus_rand_seed(munit_uint32_t seed);
-munit_uint32_t munit_plus_rand_uint32(void);
+void munit_plus_rand_seed(munit_plus_uint32_t seed);
+munit_plus_uint32_t munit_plus_rand_uint32(void);
 int munit_plus_rand_int_range(int min, int max);
 double munit_plus_rand_double(void);
-void munit_plus_rand_memory(size_t size, munit_uint8_t buffer[MUNIT_ARRAY_PARAM(size)]);
+void munit_plus_rand_memory(size_t size, munit_plus_uint8_t buffer[MUNIT_ARRAY_PARAM(size)]);
 
 /*** Tests and Suites ***/
 
@@ -869,7 +869,7 @@ template <typename A>
 void munit_plus_rand_memory_ex(A &a)
 {
   static_assert(std::is_trivial<A>::value, "munit_plus_rand_memory_ex only safe on trivial objects");
-  munit_plus_rand_memory(sizeof(A), reinterpret_cast<munit_uint8_t*>(&a));
+  munit_plus_rand_memory(sizeof(A), reinterpret_cast<munit_plus_uint8_t*>(&a));
 }
 
 template <typename It>
@@ -880,7 +880,7 @@ void munit_plus_rand_memory_ex(It const& begin, It const& end)
   static_assert(std::is_trivial<value_type>::value, "munit_plus_rand_memory_ex only safe on trivial objects");
   for (i = begin; i != end; ++i) {
     value_type v;
-    munit_plus_rand_memory(sizeof(value_type), reinterpret_cast<munit_uint8_t*>(&v));
+    munit_plus_rand_memory(sizeof(value_type), reinterpret_cast<munit_plus_uint8_t*>(&v));
     *i = v;
   }
 }

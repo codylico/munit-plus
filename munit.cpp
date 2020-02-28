@@ -1790,9 +1790,9 @@ munit_print_help(int argc, char* const argv[MUNIT_ARRAY_PARAM(argc + 1)], void* 
 #endif
   printf(" %d.%d.%d\n"
          "Full documentation at: https://nemequ.github.io/munit/\n",
-         (MUNIT_CURRENT_VERSION >> 16) & 0xff,
-         (MUNIT_CURRENT_VERSION >> 8) & 0xff,
-         (MUNIT_CURRENT_VERSION >> 0) & 0xff);
+         (MUNIT_PLUS_CURRENT_VERSION >> 16) & 0xff,
+         (MUNIT_PLUS_CURRENT_VERSION >> 8) & 0xff,
+         (MUNIT_PLUS_CURRENT_VERSION >> 0) & 0xff);
   for (arg = arguments ; arg != NULL && arg->name != NULL ; arg++)
     arg->write_help(arg, user_data);
 }

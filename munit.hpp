@@ -28,10 +28,10 @@
 #include <stdarg.h>
 #include <stdlib.h>
 
-#define MUNIT_VERSION(major, minor, revision) \
+#define MUNIT_PLUS_VERSION(major, minor, revision) \
   (((major) << 16) | ((minor) << 8) | (revision))
 
-#define MUNIT_CURRENT_VERSION MUNIT_VERSION(0, 4, 1)
+#define MUNIT_PLUS_CURRENT_VERSION MUNIT_PLUS_VERSION(0, 4, 1)
 
 #if defined(_MSC_VER) && (_MSC_VER < 1600)
 #  define munit_plus_int8_t   __int8

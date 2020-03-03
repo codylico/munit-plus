@@ -1112,7 +1112,7 @@ munit_plus_parameters_add(size_t* params_size, MunitPlusParameter* params[MUNIT_
 /* Concatenate two strings, but just return one of the components
  * unaltered if the other is NULL or "". */
 static char*
-munit_maybe_concat(size_t* len, char* prefix, char* suffix) {
+munit_plus_maybe_concat(size_t* len, char* prefix, char* suffix) {
   char* res;
   size_t res_l;
   const size_t prefix_l = prefix != NULL ? strlen(prefix) : 0;
@@ -1140,9 +1140,9 @@ munit_maybe_concat(size_t* len, char* prefix, char* suffix) {
   return res;
 }
 
-/* Possbily free a string returned by munit_maybe_concat. */
+/* Possbily free a string returned by munit_plus_maybe_concat. */
 static void
-munit_maybe_free_concat(char* s, const char* prefix, const char* suffix) {
+munit_plus_maybe_free_concat(char* s, const char* prefix, const char* suffix) {
   if (prefix != s && suffix != s)
     free(s);
 }
@@ -1601,7 +1601,7 @@ static void
 munit_test_runner_run_test(MunitTestRunner* runner,
                            const MunitTest* test,
                            const char* prefix) {
-  char* test_name = munit_maybe_concat(NULL, (char*) prefix, (char*) test->name);
+  char* test_name = munit_plus_maybe_concat(NULL, (char*) prefix, (char*) test->name);
   /* The array of parameters to pass to
    * munit_test_runner_run_test_with_params */
   MunitPlusParameter* params = NULL;
@@ -1694,7 +1694,7 @@ munit_test_runner_run_test(MunitTestRunner* runner,
     free(wild_params);
   }
 
-  munit_maybe_free_concat(test_name, prefix, test->name);
+  munit_plus_maybe_free_concat(test_name, prefix, test->name);
 }
 
 /* Recurse through the suite and run all the tests.  If a list of
@@ -1705,7 +1705,7 @@ munit_test_runner_run_suite(MunitTestRunner* runner,
                             const MunitSuite* suite,
                             const char* prefix) {
   size_t pre_l;
-  char* pre = munit_maybe_concat(&pre_l, (char*) prefix, (char*) suite->prefix);
+  char* pre = munit_plus_maybe_concat(&pre_l, (char*) prefix, (char*) suite->prefix);
   const MunitTest* test;
   const char** test_name;
   const MunitSuite* child_suite;
@@ -1736,7 +1736,7 @@ munit_test_runner_run_suite(MunitTestRunner* runner,
 
  cleanup:
 
-  munit_maybe_free_concat(pre, prefix, suite->prefix);
+  munit_plus_maybe_free_concat(pre, prefix, suite->prefix);
 }
 
 static void
@@ -1811,7 +1811,7 @@ munit_arguments_find(const MunitArgument arguments[], const char* name) {
 static void
 munit_suite_list_tests(const MunitSuite* suite, bool show_params, const char* prefix) {
   size_t pre_l;
-  char* pre = munit_maybe_concat(&pre_l, (char*) prefix, (char*) suite->prefix);
+  char* pre = munit_plus_maybe_concat(&pre_l, (char*) prefix, (char*) suite->prefix);
   const MunitTest* test;
   const MunitPlusParameterEnum* params;
   bool first;
@@ -1854,7 +1854,7 @@ munit_suite_list_tests(const MunitSuite* suite, bool show_params, const char* pr
     munit_suite_list_tests(child_suite, show_params, pre);
   }
 
-  munit_maybe_free_concat(pre, prefix, suite->prefix);
+  munit_plus_maybe_free_concat(pre, prefix, suite->prefix);
 }
 
 static bool

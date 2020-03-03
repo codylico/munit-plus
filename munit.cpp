@@ -1087,7 +1087,7 @@ munit_plus_parameters_get(const MunitPlusParameter params[], const char* key) {
 
 #if defined(MUNIT_ENABLE_TIMING)
 static void
-munit_print_time(FILE* fp, munit_plus_uint64_t nanoseconds) {
+munit_plus_print_time(FILE* fp, munit_plus_uint64_t nanoseconds) {
   fprintf(fp, "%" MUNIT_TEST_TIME_FORMAT, ((double) nanoseconds) / ((double) PSNIP_CLOCK_NSEC_PER_SEC));
 }
 #endif
@@ -1525,13 +1525,13 @@ munit_test_runner_run_test_with_params(MunitTestRunner* runner, const MunitTest*
     munit_test_runner_print_color(runner, MUNIT_RESULT_STRING_OK, '2');
 #if defined(MUNIT_ENABLE_TIMING)
     fputs(" ] [ ", MUNIT_OUTPUT_FILE);
-    munit_print_time(MUNIT_OUTPUT_FILE, report.wall_clock / report.successful);
+    munit_plus_print_time(MUNIT_OUTPUT_FILE, report.wall_clock / report.successful);
     fputs(" / ", MUNIT_OUTPUT_FILE);
-    munit_print_time(MUNIT_OUTPUT_FILE, report.cpu_clock / report.successful);
+    munit_plus_print_time(MUNIT_OUTPUT_FILE, report.cpu_clock / report.successful);
     fprintf(MUNIT_OUTPUT_FILE, " CPU ]\n  %-" MUNIT_XSTRINGIFY(MUNIT_TEST_NAME_LEN) "s Total: [ ", "");
-    munit_print_time(MUNIT_OUTPUT_FILE, report.wall_clock);
+    munit_plus_print_time(MUNIT_OUTPUT_FILE, report.wall_clock);
     fputs(" / ", MUNIT_OUTPUT_FILE);
-    munit_print_time(MUNIT_OUTPUT_FILE, report.cpu_clock);
+    munit_plus_print_time(MUNIT_OUTPUT_FILE, report.cpu_clock);
     fputs(" CPU", MUNIT_OUTPUT_FILE);
 #endif
     runner->report.successful++;
@@ -1540,9 +1540,9 @@ munit_test_runner_run_test_with_params(MunitTestRunner* runner, const MunitTest*
     munit_test_runner_print_color(runner, MUNIT_RESULT_STRING_OK, '2');
 #if defined(MUNIT_ENABLE_TIMING)
     fputs(" ] [ ", MUNIT_OUTPUT_FILE);
-    munit_print_time(MUNIT_OUTPUT_FILE, report.wall_clock);
+    munit_plus_print_time(MUNIT_OUTPUT_FILE, report.wall_clock);
     fputs(" / ", MUNIT_OUTPUT_FILE);
-    munit_print_time(MUNIT_OUTPUT_FILE, report.cpu_clock);
+    munit_plus_print_time(MUNIT_OUTPUT_FILE, report.cpu_clock);
     fputs(" CPU", MUNIT_OUTPUT_FILE);
 #endif
     runner->report.successful++;

@@ -1065,7 +1065,7 @@ typedef struct {
   const char** tests;
   munit_plus_uint32_t seed;
   unsigned int iterations;
-  MunitParameter* parameters;
+  MunitPlusParameter* parameters;
   bool single_parameter_mode;
   void* user_data;
   MunitReport report;
@@ -1076,8 +1076,8 @@ typedef struct {
 } MunitTestRunner;
 
 const char*
-munit_parameters_get(const MunitParameter params[], const char* key) {
-  const MunitParameter* param;
+munit_plus_parameters_get(const MunitPlusParameter params[], const char* key) {
+  const MunitPlusParameter* param;
 
   for (param = params ; param != NULL && param->name != NULL ; param++)
     if (strcmp(param->name, key) == 0)
@@ -1094,9 +1094,9 @@ munit_print_time(FILE* fp, munit_plus_uint64_t nanoseconds) {
 
 /* Add a paramter to an array of parameters. */
 static MunitPlusResult
-munit_parameters_add(size_t* params_size, MunitParameter* params[MUNIT_ARRAY_PARAM(*params_size)], char* name, char* value) {
-  *params = static_cast<MunitParameter*>(realloc(*params,
-                                                 sizeof(MunitParameter) * (*params_size + 2)));
+munit_plus_parameters_add(size_t* params_size, MunitPlusParameter* params[MUNIT_ARRAY_PARAM(*params_size)], char* name, char* value) {
+  *params = static_cast<MunitPlusParameter*>(realloc(*params,
+                                                 sizeof(MunitPlusParameter) * (*params_size + 2)));
   if (*params == NULL)
     return MUNIT_PLUS_ERROR;
 
@@ -1189,7 +1189,7 @@ munit_splice(int from, int to) {
 
 /* This is the part that should be handled in the child process */
 static MunitPlusResult
-munit_test_runner_exec(MunitTestRunner* runner, const MunitTest* test, const MunitParameter params[], MunitReport* report) {
+munit_test_runner_exec(MunitTestRunner* runner, const MunitTest* test, const MunitPlusParameter params[], MunitReport* report) {
   unsigned int iterations = runner->iterations;
   MunitPlusResult result = MUNIT_PLUS_FAIL;
 #if defined(MUNIT_ENABLE_TIMING)
@@ -1302,7 +1302,7 @@ munit_restore_stderr(int orig_stderr) {
 
 /* Run a test with the specified parameters. */
 static void
-munit_test_runner_run_test_with_params(MunitTestRunner* runner, const MunitTest* test, const MunitParameter params[]) {
+munit_test_runner_run_test_with_params(MunitTestRunner* runner, const MunitTest* test, const MunitPlusParameter params[]) {
   MunitPlusResult result = MUNIT_PLUS_OK;
   MunitReport report = {
     0, 0, 0, 0,
@@ -1312,7 +1312,7 @@ munit_test_runner_run_test_with_params(MunitTestRunner* runner, const MunitTest*
   };
   unsigned int output_l;
   bool first;
-  const MunitParameter* param;
+  const MunitPlusParameter* param;
   FILE* stderr_buf;
 #if !defined(MUNIT_NO_FORK)
   int pipefd[2];
@@ -1568,11 +1568,11 @@ static void
 munit_test_runner_run_test_wild(MunitTestRunner* runner,
                                 const MunitTest* test,
                                 const char* test_name,
-                                MunitParameter* params,
-                                MunitParameter* p) {
-  const MunitParameterEnum* pe;
+                                MunitPlusParameter* params,
+                                MunitPlusParameter* p) {
+  const MunitPlusParameterEnum* pe;
   char** values;
-  MunitParameter* next;
+  MunitPlusParameter* next;
 
   for (pe = test->parameters ; pe != NULL && pe->name != NULL ; pe++) {
     if (p->name == pe->name)
@@ -1604,7 +1604,7 @@ munit_test_runner_run_test(MunitTestRunner* runner,
   char* test_name = munit_maybe_concat(NULL, (char*) prefix, (char*) test->name);
   /* The array of parameters to pass to
    * munit_test_runner_run_test_with_params */
-  MunitParameter* params = NULL;
+  MunitPlusParameter* params = NULL;
   size_t params_l = 0;
   /* Wildcard parameters are parameters which have possible values
    * specified in the test, but no specific value was passed to the
@@ -1612,15 +1612,15 @@ munit_test_runner_run_test(MunitTestRunner* runner,
    * possible combination of parameter values or, if --single was
    * passed to the CLI, a single time with a random set of
    * parameters. */
-  MunitParameter* wild_params = NULL;
+  MunitPlusParameter* wild_params = NULL;
   size_t wild_params_l = 0;
-  const MunitParameterEnum* pe;
-  const MunitParameter* cli_p;
+  const MunitPlusParameterEnum* pe;
+  const MunitPlusParameter* cli_p;
   bool filled;
   unsigned int possible;
   char** vals;
   size_t first_wild;
-  const MunitParameter* wp;
+  const MunitPlusParameter* wp;
   int pidx;
 
   munit_plus_rand_seed(runner->seed);
@@ -1638,7 +1638,7 @@ munit_test_runner_run_test(MunitTestRunner* runner,
       filled = false;
       for (cli_p = runner->parameters ; cli_p != NULL && cli_p->name != NULL ; cli_p++) {
         if (strcmp(cli_p->name, pe->name) == 0) {
-          if (MUNIT_UNLIKELY(munit_parameters_add(&params_l, &params, pe->name, cli_p->value) != MUNIT_PLUS_OK))
+          if (MUNIT_UNLIKELY(munit_plus_parameters_add(&params_l, &params, pe->name, cli_p->value) != MUNIT_PLUS_OK))
             goto cleanup;
           filled = true;
           break;
@@ -1663,12 +1663,12 @@ munit_test_runner_run_test(MunitTestRunner* runner,
          * the same number of parameters to choose the same parameter
          * number, so use the test name as a primitive salt. */
         pidx = munit_plus_rand_at_most(munit_str_hash(test_name), possible - 1);
-        if (MUNIT_UNLIKELY(munit_parameters_add(&params_l, &params, pe->name, pe->values[pidx]) != MUNIT_PLUS_OK))
+        if (MUNIT_UNLIKELY(munit_plus_parameters_add(&params_l, &params, pe->name, pe->values[pidx]) != MUNIT_PLUS_OK))
           goto cleanup;
       } else {
         /* We want to try every permutation.  Put in a placeholder
          * entry, we'll iterate through them later. */
-        if (MUNIT_UNLIKELY(munit_parameters_add(&wild_params_l, &wild_params, pe->name, NULL) != MUNIT_PLUS_OK))
+        if (MUNIT_UNLIKELY(munit_plus_parameters_add(&wild_params_l, &wild_params, pe->name, NULL) != MUNIT_PLUS_OK))
           goto cleanup;
       }
     }
@@ -1678,7 +1678,7 @@ munit_test_runner_run_test(MunitTestRunner* runner,
       for (wp = wild_params ; wp != NULL && wp->name != NULL ; wp++) {
         for (pe = test->parameters ; pe != NULL && pe->name != NULL && pe->values != NULL ; pe++) {
           if (strcmp(wp->name, pe->name) == 0) {
-            if (MUNIT_UNLIKELY(munit_parameters_add(&params_l, &params, pe->name, pe->values[0]) != MUNIT_PLUS_OK))
+            if (MUNIT_UNLIKELY(munit_plus_parameters_add(&params_l, &params, pe->name, pe->values[0]) != MUNIT_PLUS_OK))
               goto cleanup;
           }
         }
@@ -1813,7 +1813,7 @@ munit_suite_list_tests(const MunitSuite* suite, bool show_params, const char* pr
   size_t pre_l;
   char* pre = munit_maybe_concat(&pre_l, (char*) prefix, (char*) suite->prefix);
   const MunitTest* test;
-  const MunitParameterEnum* params;
+  const MunitPlusParameterEnum* params;
   bool first;
   char** val;
   const MunitSuite* child_suite;
@@ -1969,8 +1969,8 @@ munit_suite_main_custom(const MunitSuite* suite, void* user_data,
           goto cleanup;
         }
 
-        runner.parameters = static_cast<MunitParameter*>(realloc(runner.parameters,
-                                                                 sizeof(MunitParameter) * (parameters_size + 2)));
+        runner.parameters = static_cast<MunitPlusParameter*>(realloc(runner.parameters,
+                                                                 sizeof(MunitPlusParameter) * (parameters_size + 2)));
         if (runner.parameters == NULL) {
           munit_plus_log_internal(MUNIT_PLUS_LOG_ERROR, stderr, "failed to allocate memory");
           goto cleanup;

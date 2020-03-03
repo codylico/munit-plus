@@ -400,14 +400,14 @@ typedef enum {
 typedef struct {
   char*  name;
   char** values;
-} MunitParameterEnum;
+} MunitPlusParameterEnum;
 
 typedef struct {
   char* name;
   char* value;
-} MunitParameter;
+} MunitPlusParameter;
 
-const char* munit_parameters_get(const MunitParameter params[], const char* key);
+const char* munit_plus_parameters_get(const MunitPlusParameter params[], const char* key);
 
 typedef enum {
   MUNIT_TEST_OPTION_NONE             = 0,
@@ -415,8 +415,8 @@ typedef enum {
   MUNIT_TEST_OPTION_TODO             = 1 << 1
 } MunitTestOptions;
 
-typedef MunitPlusResult (* MunitTestFunc)(const MunitParameter params[], void* user_data_or_fixture);
-typedef void*       (* MunitTestSetup)(const MunitParameter params[], void* user_data);
+typedef MunitPlusResult (* MunitTestFunc)(const MunitPlusParameter params[], void* user_data_or_fixture);
+typedef void*       (* MunitTestSetup)(const MunitPlusParameter params[], void* user_data);
 typedef void        (* MunitTestTearDown)(void* fixture);
 
 typedef struct {
@@ -425,7 +425,7 @@ typedef struct {
   MunitTestSetup      setup;
   MunitTestTearDown   tear_down;
   MunitTestOptions    options;
-  MunitParameterEnum* parameters;
+  MunitPlusParameterEnum* parameters;
 } MunitTest;
 
 typedef enum {

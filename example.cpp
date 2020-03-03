@@ -26,7 +26,7 @@
 /* Tests are functions that return void, and take a single void*
  * parameter.  We'll get to what that parameter is later. */
 static MunitPlusResult
-test_compare(const MunitParameter params[], void* data) {
+test_compare(const MunitPlusParameter params[], void* data) {
   /* We'll use these later */
   const unsigned char val_uchar = 'b';
   const short val_short = 1729;
@@ -124,7 +124,7 @@ test_compare(const MunitParameter params[], void* data) {
 }
 
 static MunitPlusResult
-test_rand(const MunitParameter params[], void* user_data) {
+test_rand(const MunitPlusParameter params[], void* user_data) {
   int random_int;
   double random_dbl;
   munit_plus_uint8_t data[5];
@@ -182,7 +182,7 @@ test_rand(const MunitParameter params[], void* user_data) {
  * CLI to have the harness simply choose one variation at random
  * instead of running them all. */
 static MunitPlusResult
-test_parameters(const MunitParameter params[], void* user_data) {
+test_parameters(const MunitPlusParameter params[], void* user_data) {
   const char* foo;
   const char* bar;
 
@@ -190,9 +190,9 @@ test_parameters(const MunitParameter params[], void* user_data) {
 
   /* The "foo" parameter is specified as one of the following values:
    * "one", "two", or "three". */
-  foo = munit_parameters_get(params, "foo");
+  foo = munit_plus_parameters_get(params, "foo");
   /* Similarly, "bar" is one of "four", "five", or "six". */
-  bar = munit_parameters_get(params, "bar");
+  bar = munit_plus_parameters_get(params, "bar");
   /* "baz" is a bit more complicated.  We don't actually specify a
    * list of valid values, so by default NULL is passed.  However, the
    * CLI will accept any value.  This is a good way to have a value
@@ -235,7 +235,7 @@ test_parameters(const MunitParameter params[], void* user_data) {
  * before the test, and the return value will be passed as the sole
  * parameter to the test function. */
 static void*
-test_compare_setup(const MunitParameter params[], void* user_data) {
+test_compare_setup(const MunitPlusParameter params[], void* user_data) {
   (void) params;
 
   munit_plus_assert_string_equal(static_cast<char*>(user_data), "µnit");
@@ -262,7 +262,7 @@ public:
 
 /* Let's see what C++ can do. */
 static MunitPlusResult
-test_compare_cxx(const MunitParameter params[], void* data) {
+test_compare_cxx(const MunitPlusParameter params[], void* data) {
   /* We'll use these later */
   const unsigned char val_uchar = 'b';
   const short val_short = 1729;
@@ -373,7 +373,7 @@ public:
   void* nowhere;
 };
 static MunitPlusResult
-test_compare_cxx_oneoff(const MunitParameter params[], void* data) {
+test_compare_cxx_oneoff(const MunitPlusParameter params[], void* data) {
   std::list<long> seven;
   /* assign */{
     int i;
@@ -408,7 +408,7 @@ static char* bar_params[] = {
   (char*) "red", (char*) "green", (char*) "blue", NULL
 };
 
-static MunitParameterEnum test_params[] = {
+static MunitPlusParameterEnum test_params[] = {
   { (char*) "foo", foo_params },
   { (char*) "bar", bar_params },
   { (char*) "baz", NULL },
@@ -452,10 +452,10 @@ static MunitTest test_suite_tests[] = {
   { (char*) "/example/rand", test_rand, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL },
   { (char*) "/example/parameters", test_parameters, NULL, NULL, MUNIT_TEST_OPTION_NONE, test_params },
   { (char*) "/example/cxx", test_compare_cxx, nullptr, nullptr, MUNIT_TEST_OPTION_NONE },
-  { (char*) "/example/lambda", [](const MunitParameter params[], void* data)->MunitPlusResult{
-        const char* foo = munit_parameters_get(params, "foo");
-        const char* bar = munit_parameters_get(params, "bar");
-        const char* baz = munit_parameters_get(params, "baz");
+  { (char*) "/example/lambda", [](const MunitPlusParameter params[], void* data)->MunitPlusResult{
+        const char* foo = munit_plus_parameters_get(params, "foo");
+        const char* bar = munit_plus_parameters_get(params, "bar");
+        const char* baz = munit_plus_parameters_get(params, "baz");
         if (!baz) baz = "baz";
         munit_plus_logf(MUNIT_PLUS_LOG_INFO, "oops. lambda here. oh well. %s %s %s",foo,bar,baz);
         munit_plus_assert_true(true);

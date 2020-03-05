@@ -441,17 +441,17 @@ static MunitTest test_suite_tests[] = {
      * operation. */
     test_compare_tear_down,
     /* Finally, there is a bitmask for options you can pass here.  You
-     * can provide either MUNIT_TEST_OPTION_NONE or 0 here to use the
+     * can provide either MUNIT_PLUS_TEST_OPTION_NONE or 0 here to use the
      * defaults. */
-    MUNIT_TEST_OPTION_NONE,
+    MUNIT_PLUS_TEST_OPTION_NONE,
     NULL
   },
   /* Usually this is written in a much more compact format; all these
    * comments kind of ruin that, though.  Here is how you'll usually
    * see entries written: */
-  { (char*) "/example/rand", test_rand, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL },
-  { (char*) "/example/parameters", test_parameters, NULL, NULL, MUNIT_TEST_OPTION_NONE, test_params },
-  { (char*) "/example/cxx", test_compare_cxx, nullptr, nullptr, MUNIT_TEST_OPTION_NONE },
+  { (char*) "/example/rand", test_rand, NULL, NULL, MUNIT_PLUS_TEST_OPTION_NONE, NULL },
+  { (char*) "/example/parameters", test_parameters, NULL, NULL, MUNIT_PLUS_TEST_OPTION_NONE, test_params },
+  { (char*) "/example/cxx", test_compare_cxx, nullptr, nullptr, MUNIT_PLUS_TEST_OPTION_NONE },
   { (char*) "/example/lambda", [](const MunitPlusParameter params[], void* data)->MunitPlusResult{
         const char* foo = munit_plus_parameters_get(params, "foo");
         const char* bar = munit_plus_parameters_get(params, "bar");
@@ -460,11 +460,11 @@ static MunitTest test_suite_tests[] = {
         munit_plus_logf(MUNIT_PLUS_LOG_INFO, "oops. lambda here. oh well. %s %s %s",foo,bar,baz);
         munit_plus_assert_true(true);
         return MUNIT_PLUS_OK;
-      }, nullptr, nullptr, MUNIT_TEST_OPTION_NONE, test_params },
-  { (char*) "/example/cxx_oneoff", test_compare_cxx_oneoff, nullptr, nullptr, MUNIT_TEST_OPTION_NONE },
+      }, nullptr, nullptr, MUNIT_PLUS_TEST_OPTION_NONE, test_params },
+  { (char*) "/example/cxx_oneoff", test_compare_cxx_oneoff, nullptr, nullptr, MUNIT_PLUS_TEST_OPTION_NONE },
   /* To tell the test runner when the array is over, just add a NULL
    * entry at the end. */
-  { NULL, NULL, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL }
+  { NULL, NULL, NULL, NULL, MUNIT_PLUS_TEST_OPTION_NONE, NULL }
 };
 
 /* If you wanted to have your test suite run other test suites you
@@ -498,7 +498,7 @@ static const MunitSuite test_suite = {
    * cases a bit, or if you are doing performance testing and want to
    * average multiple runs.  0 is an alias for 1. */
   1,
-  /* Just like MUNIT_TEST_OPTION_NONE, you can provide
+  /* Just like MUNIT_PLUS_TEST_OPTION_NONE, you can provide
    * MUNIT_SUITE_OPTION_NONE or 0 to use the default settings. */
   MUNIT_SUITE_OPTION_NONE
 };

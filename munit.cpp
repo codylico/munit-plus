@@ -1198,7 +1198,7 @@ munit_test_runner_exec(MunitTestRunner* runner, const MunitTest* test, const Mun
 #endif
   unsigned int i = 0;
 
-  if ((test->options & MUNIT_TEST_OPTION_SINGLE_ITERATION) == MUNIT_TEST_OPTION_SINGLE_ITERATION)
+  if ((test->options & MUNIT_PLUS_TEST_OPTION_SINGLE_ITERATION) == MUNIT_PLUS_TEST_OPTION_SINGLE_ITERATION)
     iterations = 1;
   else if (iterations == 0)
     iterations = runner->suite->iterations;
@@ -1498,7 +1498,7 @@ munit_test_runner_run_test_with_params(MunitTestRunner* runner, const MunitTest*
  print_result:
 
   fputs("[ ", MUNIT_OUTPUT_FILE);
-  if ((test->options & MUNIT_TEST_OPTION_TODO) == MUNIT_TEST_OPTION_TODO) {
+  if ((test->options & MUNIT_PLUS_TEST_OPTION_TODO) == MUNIT_PLUS_TEST_OPTION_TODO) {
     if (report.failed != 0 || report.errored != 0 || report.skipped != 0) {
       munit_test_runner_print_color(runner, MUNIT_RESULT_STRING_TODO, '3');
       result = MUNIT_PLUS_OK;

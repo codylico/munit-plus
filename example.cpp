@@ -198,7 +198,7 @@ test_parameters(const MunitPlusParameter params[], void* user_data) {
    * CLI will accept any value.  This is a good way to have a value
    * that is usually selected randomly by the test, but can be
    * overridden on the command line if desired. */
-  /* const char* baz = munit_parameters_get(params, "baz"); */
+  /* const char* baz = munit_plus_parameters_get(params, "baz"); */
 
   /* Notice that we're returning MUNIT_PLUS_FAIL instead of writing an
    * error message.  Error messages are generally preferable, since
@@ -208,11 +208,11 @@ test_parameters(const MunitPlusParameter params[], void* user_data) {
    * Possible values are:
    *  - MUNIT_PLUS_OK: Sucess
    *  - MUNIT_PLUS_FAIL: Failure
-   *  - MUNIT_SKIP: The test was skipped; usually this happens when a
+   *  - MUNIT_PLUS_SKIP: The test was skipped; usually this happens when a
    *    particular feature isn't in use.  For example, if you're
    *    writing a test which uses a Wayland-only feature, but your
    *    application is running on X11.
-   *  - MUNIT_ERROR: The test failed, but not because of anything you
+   *  - MUNIT_PLUS_ERROR: The test failed, but not because of anything you
    *    wanted to test.  For example, maybe your test downloads a
    *    remote resource and tries to parse it, but the network was
    *    down.

@@ -706,6 +706,7 @@ inline void munit_plus_assert_type_base
 {
   if (!MUNIT_PLUS_LIKELY(c.value)) {
     std::string text = "assertion failed: ";
+    text.reserve(100);
     (((text += stra) += C::text) += strb);
     ((text += " (") += munit_plus_formatter<A>::format(a));
     text += C::text;
@@ -725,6 +726,7 @@ inline void munit_plus_assert_precision_base
       (a - b);
   if (MUNIT_PLUS_UNLIKELY(diff > static_cast<C>(eps))) {
     std::string text = "assertion failed: ";
+    text.reserve(100);
     (((text += stra) += C_text) += strb);
     ((text += " (") += munit_plus_formatter<A>::precise_format(a,prec));
     text += C_text;

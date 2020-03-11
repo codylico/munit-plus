@@ -125,10 +125,11 @@ extern "C" {
 #define MUNIT_UNUSED MUNIT_PLUS_UNUSED
 
 #if defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L) && !defined(__PGI)
-#  define MUNIT_ARRAY_PARAM(name) name
+#  define MUNIT_PLUS_ARRAY_PARAM(name) name
 #else
-#  define MUNIT_ARRAY_PARAM(name)
+#  define MUNIT_PLUS_ARRAY_PARAM(name)
 #endif
+#define MUNIT_ARRAY_PARAM MUNIT_PLUS_ARRAY_PARAM
 
 #if !defined(_WIN32)
 #  define MUNIT_PLUS_SIZE_MODIFIER "z"

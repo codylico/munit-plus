@@ -79,7 +79,7 @@ test_compare(const MunitPlusParameter params[], void* data) {
   munit_plus_assert_double(pi, ==, 3.141592654);
 
   /* If you want to compare two doubles for equality, you might want
-   * to consider using munit_assert_double_equal.  It compares two
+   * to consider using munit_plus_assert_double_equal.  It compares two
    * doubles for equality within a precison of 1.0 x 10^-(precision).
    * Note that precision (the third argument to the macro) needs to be
    * fully evaluated to an integer by the preprocessor so µnit doesn't
@@ -87,7 +87,7 @@ test_compare(const MunitPlusParameter params[], void* data) {
   munit_plus_assert_double_equal(3.141592654, 3.141592653589793, 9);
 
   /* And if you want to check strings for equality (or inequality),
-   * there is munit_assert_string_equal/not_equal.
+   * there is munit_plus_assert_string_equal/not_equal.
    *
    * "stewardesses" is the longest word you can type on a QWERTY
    * keyboard with only one hand, which makes it loads of fun to type.
@@ -280,14 +280,14 @@ test_compare_cxx(const MunitPlusParameter params[], void* data) {
   munit_plus_assert(0 != 1);
 
   /* There is also the more verbose, though slightly more descriptive
-     munit_assert_true/false: */
+     munit_plus_assert_true/false: */
   munit_plus_assert_false(false);
 
-  /* You can also call munit_error and munit_errorf yourself.  We
+  /* You can also call munit_plus_error and munit_plus_errorf yourself.  We
    * won't do it is used to indicate a failure, but here is what it
    * would look like: */
-  /* munit_error("FAIL"); */
-  /* munit_errorf("Goodbye, cruel %s", "world"); */
+  /* munit_plus_error("FAIL"); */
+  /* munit_plus_errorf("Goodbye, cruel %s", "world"); */
 
   /* There are macros for comparing lots of types. */
   munit_plus_assert_op('a', ==, 'a');
@@ -325,7 +325,7 @@ test_compare_cxx(const MunitPlusParameter params[], void* data) {
 
   /* And if you want to check strings for equality (or inequality),
    * the munit_plus_assert_op should just work. For the char* variables,
-   * munit_assert_string_equal remains available.
+   * munit_plus_assert_string_equal remains available.
    *
    * "stewardesses" is the longest word you can type on a QWERTY
    * keyboard with only one hand, which makes it loads of fun to type.
@@ -427,7 +427,7 @@ static MunitPlusTest test_suite_tests[] = {
      * functions. */
     test_compare,
     /* If you want, you can supply a function to set up a fixture.  If
-     * you supply NULL, the user_data parameter from munit_suite_main
+     * you supply NULL, the user_data parameter from munit_plus_suite_main
      * will be used directly.  If, however, you provide a callback
      * here the user_data parameter will be passed to this callback,
      * and the return value from this callback will be passed to the

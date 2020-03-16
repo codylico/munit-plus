@@ -1142,7 +1142,7 @@ munit_plus_maybe_free_concat(char* s, const char* prefix, const char* suffix) {
 
 /* Cheap string hash function, just used to salt the PRNG. */
 static munit_plus_uint32_t
-munit_str_hash(const char* name) {
+munit_plus_str_hash(const char* name) {
   const char *p;
   munit_plus_uint32_t h = 5381U;
 
@@ -1153,7 +1153,7 @@ munit_str_hash(const char* name) {
 }
 
 static void
-munit_splice(int from, int to) {
+munit_plus_splice(int from, int to) {
   munit_plus_uint8_t buf[1024];
 #if !defined(_WIN32)
   ssize_t len;
@@ -1267,7 +1267,7 @@ munit_plus_test_runner_print_color(const MunitPlusTestRunner* runner, const char
 
 #if !defined(MUNIT_NO_BUFFER)
 static int
-munit_replace_stderr(FILE* stderr_buf) {
+munit_plus_replace_stderr(FILE* stderr_buf) {
   if (stderr_buf != NULL) {
     const int orig_stderr = dup(STDERR_FILENO);
 
@@ -1285,7 +1285,7 @@ munit_replace_stderr(FILE* stderr_buf) {
 }
 
 static void
-munit_restore_stderr(int orig_stderr) {
+munit_plus_restore_stderr(int orig_stderr) {
   if (orig_stderr != -1) {
     dup2(orig_stderr, STDERR_FILENO);
     close(orig_stderr);
@@ -1366,7 +1366,7 @@ munit_plus_test_runner_run_test_with_params(MunitPlusTestRunner* runner, const M
     if (fork_pid == 0) {
       close(pipefd[0]);
 
-      orig_stderr = munit_replace_stderr(stderr_buf);
+      orig_stderr = munit_plus_replace_stderr(stderr_buf);
 #if defined(MUNIT_THREAD_LOCAL)
       munit_plus_error_jmp_active = false;
 #endif /*MUNIT_THREAD_LOCAL*/
@@ -1457,7 +1457,7 @@ munit_plus_test_runner_run_test_with_params(MunitPlusTestRunner* runner, const M
 #endif
   {
 #if !defined(MUNIT_NO_BUFFER)
-    const volatile int orig_stderr = munit_replace_stderr(stderr_buf);
+    const volatile int orig_stderr = munit_plus_replace_stderr(stderr_buf);
 #endif
 
 #if defined(MUNIT_THREAD_LOCAL)
@@ -1480,7 +1480,7 @@ munit_plus_test_runner_run_test_with_params(MunitPlusTestRunner* runner, const M
 #endif /*MUNIT_THREAD_LOCAL*/
 
 #if !defined(MUNIT_NO_BUFFER)
-    munit_restore_stderr(orig_stderr);
+    munit_plus_restore_stderr(orig_stderr);
 #endif
 
     /* Here just so that the label is used on Windows and we don't get
@@ -1548,7 +1548,7 @@ munit_plus_test_runner_run_test_with_params(MunitPlusTestRunner* runner, const M
       fflush(MUNIT_OUTPUT_FILE);
 
       rewind(stderr_buf);
-      munit_splice(fileno(stderr_buf), STDERR_FILENO);
+      munit_plus_splice(fileno(stderr_buf), STDERR_FILENO);
 
       fflush(stderr);
     }
@@ -1655,7 +1655,7 @@ munit_plus_test_runner_run_test(MunitPlusTestRunner* runner,
          * running a single test, but we don't want every test with
          * the same number of parameters to choose the same parameter
          * number, so use the test name as a primitive salt. */
-        pidx = munit_plus_rand_at_most(munit_str_hash(test_name), possible - 1);
+        pidx = munit_plus_rand_at_most(munit_plus_str_hash(test_name), possible - 1);
         if (MUNIT_UNLIKELY(munit_plus_parameters_add(&params_l, &params, pe->name, pe->values[pidx]) != MUNIT_PLUS_OK))
           goto cleanup;
       } else {
@@ -1851,7 +1851,7 @@ munit_plus_suite_list_tests(const MunitPlusSuite* suite, bool show_params, const
 }
 
 static bool
-munit_stream_supports_ansi(FILE *stream) {
+munit_plus_stream_supports_ansi(FILE *stream) {
 #if !defined(_WIN32)
   return isatty(fileno(stream));
 #else
@@ -1921,7 +1921,7 @@ munit_plus_suite_main_custom(const MunitPlusSuite* suite, void* user_data,
   runner.suite = suite;
   runner.user_data = user_data;
   runner.seed = munit_plus_rand_generate_seed();
-  runner.colorize = munit_stream_supports_ansi(MUNIT_OUTPUT_FILE);
+  runner.colorize = munit_plus_stream_supports_ansi(MUNIT_OUTPUT_FILE);
 
   for (arg = 1 ; arg < argc ; arg++) {
     if (strncmp("--", argv[arg], 2) == 0) {
@@ -1985,7 +1985,7 @@ munit_plus_suite_main_custom(const MunitPlusSuite* suite, void* user_data,
         else if (strcmp(argv[arg + 1], "never") == 0)
           runner.colorize = false;
         else if (strcmp(argv[arg + 1], "auto") == 0)
-          runner.colorize = munit_stream_supports_ansi(MUNIT_OUTPUT_FILE);
+          runner.colorize = munit_plus_stream_supports_ansi(MUNIT_OUTPUT_FILE);
         else {
           munit_plus_logf_internal(MUNIT_PLUS_LOG_ERROR, stderr, "invalid value ('%s') passed to %s", argv[arg + 1], argv[arg]);
           goto cleanup;

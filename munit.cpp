@@ -949,9 +949,9 @@ munit_plus_rand_uint32(void) {
 }
 
 static void
-munit_plus_rand_state_memory(munit_plus_uint32_t* state, size_t size, munit_plus_uint8_t data[MUNIT_ARRAY_PARAM(size)]) {
-  size_t members_remaining = size / sizeof(munit_plus_uint32_t);
-  size_t bytes_remaining = size % sizeof(munit_plus_uint32_t);
+munit_plus_rand_state_memory(munit_plus_uint32_t* state, std::size_t size, munit_plus_uint8_t data[MUNIT_ARRAY_PARAM(size)]) {
+  std::size_t members_remaining = size / sizeof(munit_plus_uint32_t);
+  std::size_t bytes_remaining = size % sizeof(munit_plus_uint32_t);
   munit_plus_uint8_t* b = data;
   munit_plus_uint32_t rv;
   while (members_remaining-- > 0) {
@@ -966,7 +966,7 @@ munit_plus_rand_state_memory(munit_plus_uint32_t* state, size_t size, munit_plus
 }
 
 void
-munit_plus_rand_memory(size_t size, munit_plus_uint8_t data[MUNIT_ARRAY_PARAM(size)]) {
+munit_plus_rand_memory(std::size_t size, munit_plus_uint8_t data[MUNIT_ARRAY_PARAM(size)]) {
   munit_plus_uint32_t old, state;
 
   do {
@@ -1087,7 +1087,7 @@ munit_plus_print_time(FILE* fp, munit_plus_uint64_t nanoseconds) {
 
 /* Add a paramter to an array of parameters. */
 static MunitPlusResult
-munit_plus_parameters_add(size_t* params_size, MunitPlusParameter* params[MUNIT_ARRAY_PARAM(*params_size)], char* name, char* value) {
+munit_plus_parameters_add(std::size_t* params_size, MunitPlusParameter* params[MUNIT_ARRAY_PARAM(*params_size)], char* name, char* value) {
   *params = static_cast<MunitPlusParameter*>(realloc(*params,
                                                  sizeof(MunitPlusParameter) * (*params_size + 2)));
   if (*params == NULL)
@@ -1105,11 +1105,11 @@ munit_plus_parameters_add(size_t* params_size, MunitPlusParameter* params[MUNIT_
 /* Concatenate two strings, but just return one of the components
  * unaltered if the other is NULL or "". */
 static char*
-munit_plus_maybe_concat(size_t* len, char* prefix, char* suffix) {
+munit_plus_maybe_concat(std::size_t* len, char* prefix, char* suffix) {
   char* res;
-  size_t res_l;
-  const size_t prefix_l = prefix != NULL ? strlen(prefix) : 0;
-  const size_t suffix_l = suffix != NULL ? strlen(suffix) : 0;
+  std::size_t res_l;
+  const std::size_t prefix_l = prefix != NULL ? strlen(prefix) : 0;
+  const std::size_t suffix_l = suffix != NULL ? strlen(suffix) : 0;
   if (prefix_l == 0 && suffix_l == 0) {
     res = NULL;
     res_l = 0;
@@ -1399,7 +1399,7 @@ munit_plus_test_runner_run_test_with_params(MunitPlusTestRunner* runner, const M
           exit(EXIT_FAILURE);
         }
         bytes_written += write_res;
-      } while ((size_t) bytes_written < sizeof(report));
+      } while ((std::size_t) bytes_written < sizeof(report));
 
       if (stderr_buf != NULL)
         fclose(stderr_buf);
@@ -1598,7 +1598,7 @@ munit_plus_test_runner_run_test(MunitPlusTestRunner* runner,
   /* The array of parameters to pass to
    * munit_plus_test_runner_run_test_with_params */
   MunitPlusParameter* params = NULL;
-  size_t params_l = 0;
+  std::size_t params_l = 0;
   /* Wildcard parameters are parameters which have possible values
    * specified in the test, but no specific value was passed to the
    * CLI.  That means we want to run the test once for every
@@ -1606,13 +1606,13 @@ munit_plus_test_runner_run_test(MunitPlusTestRunner* runner,
    * passed to the CLI, a single time with a random set of
    * parameters. */
   MunitPlusParameter* wild_params = NULL;
-  size_t wild_params_l = 0;
+  std::size_t wild_params_l = 0;
   const MunitPlusParameterEnum* pe;
   const MunitPlusParameter* cli_p;
   bool filled;
   unsigned int possible;
   char** vals;
-  size_t first_wild;
+  std::size_t first_wild;
   const MunitPlusParameter* wp;
   int pidx;
 
@@ -1697,7 +1697,7 @@ static void
 munit_plus_test_runner_run_suite(MunitPlusTestRunner* runner,
                             const MunitPlusSuite* suite,
                             const char* prefix) {
-  size_t pre_l;
+  std::size_t pre_l;
   char* pre = munit_plus_maybe_concat(&pre_l, (char*) prefix, (char*) suite->prefix);
   const MunitPlusTest* test;
   const char** test_name;
@@ -1803,7 +1803,7 @@ munit_plus_arguments_find(const MunitPlusArgument arguments[], const char* name)
 
 static void
 munit_plus_suite_list_tests(const MunitPlusSuite* suite, bool show_params, const char* prefix) {
-  size_t pre_l;
+  std::size_t pre_l;
   char* pre = munit_plus_maybe_concat(&pre_l, (char*) prefix, (char*) suite->prefix);
   const MunitPlusTest* test;
   const MunitPlusParameterEnum* params;
@@ -1857,7 +1857,7 @@ munit_plus_stream_supports_ansi(FILE *stream) {
 #else
 
 #if !defined(__MINGW32__)
-  size_t ansicon_size = 0;
+  std::size_t ansicon_size = 0;
 #endif
 
   if (isatty(fileno(stream))) {
@@ -1878,8 +1878,8 @@ munit_plus_suite_main_custom(const MunitPlusSuite* suite, void* user_data,
                         const MunitPlusArgument arguments[]) {
   int result = EXIT_FAILURE;
   MunitPlusTestRunner runner;
-  size_t parameters_size = 0;
-  size_t tests_size = 0;
+  std::size_t parameters_size = 0;
+  std::size_t tests_size = 0;
   int arg;
 
   char* envptr;

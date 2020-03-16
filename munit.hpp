@@ -314,9 +314,9 @@ void munit_plus_errorf_ex(const char* filename, int line, const char* format, ..
   do { \
     const unsigned char* munit_tmp_a_ = (const unsigned char*) (a); \
     const unsigned char* munit_tmp_b_ = (const unsigned char*) (b); \
-    const size_t munit_tmp_size_ = (size); \
+    const std::size_t munit_tmp_size_ = (size); \
     if (MUNIT_UNLIKELY(std::memcmp(munit_tmp_a_, munit_tmp_b_, munit_tmp_size_)) != 0) { \
-      size_t munit_tmp_pos_; \
+      std::size_t munit_tmp_pos_; \
       for (munit_tmp_pos_ = 0 ; munit_tmp_pos_ < munit_tmp_size_ ; munit_tmp_pos_++) { \
         if (munit_tmp_a_[munit_tmp_pos_] != munit_tmp_b_[munit_tmp_pos_]) { \
           munit_plus_errorf("assertion failed: memory %s == %s, at offset %" MUNIT_PLUS_SIZE_MODIFIER "u", \
@@ -333,8 +333,8 @@ void munit_plus_errorf_ex(const char* filename, int line, const char* format, ..
   do { \
     const unsigned char* munit_tmp_a_ = (const unsigned char*) (a); \
     const unsigned char* munit_tmp_b_ = (const unsigned char*) (b); \
-    const size_t munit_tmp_size_ = (size); \
-    if (MUNIT_UNLIKELY(memcmp(munit_tmp_a_, munit_tmp_b_, munit_tmp_size_)) == 0) { \
+    const std::size_t munit_tmp_size_ = (size); \
+    if (MUNIT_UNLIKELY(std::memcmp(munit_tmp_a_, munit_tmp_b_, munit_tmp_size_)) == 0) { \
       munit_plus_errorf("assertion failed: memory %s != %s (%zu bytes)", \
                    #a, #b, munit_tmp_size_); \
     } \
@@ -381,7 +381,7 @@ void munit_plus_rand_seed(munit_plus_uint32_t seed);
 munit_plus_uint32_t munit_plus_rand_uint32(void);
 int munit_plus_rand_int_range(int min, int max);
 double munit_plus_rand_double(void);
-void munit_plus_rand_memory(size_t size, munit_plus_uint8_t buffer[MUNIT_ARRAY_PARAM(size)]);
+void munit_plus_rand_memory(std::size_t size, munit_plus_uint8_t buffer[MUNIT_ARRAY_PARAM(size)]);
 
 /*** Tests and Suites ***/
 

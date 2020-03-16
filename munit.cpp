@@ -1050,23 +1050,23 @@ typedef struct {
   munit_plus_uint64_t cpu_clock;
   munit_plus_uint64_t wall_clock;
 #endif
-} MunitReport;
+} MunitPlusReport;
 
 typedef struct {
   const char* prefix;
-  const MunitSuite* suite;
+  const MunitPlusSuite* suite;
   const char** tests;
   munit_plus_uint32_t seed;
   unsigned int iterations;
   MunitPlusParameter* parameters;
   bool single_parameter_mode;
   void* user_data;
-  MunitReport report;
+  MunitPlusReport report;
   bool colorize;
   bool fork;
   bool show_stderr;
   bool fatal_failures;
-} MunitTestRunner;
+} MunitPlusTestRunner;
 
 const char*
 munit_plus_parameters_get(const MunitPlusParameter params[], const char* key) {
@@ -1182,7 +1182,7 @@ munit_splice(int from, int to) {
 
 /* This is the part that should be handled in the child process */
 static MunitPlusResult
-munit_test_runner_exec(MunitTestRunner* runner, const MunitTest* test, const MunitPlusParameter params[], MunitReport* report) {
+munit_plus_test_runner_exec(MunitPlusTestRunner* runner, const MunitPlusTest* test, const MunitPlusParameter params[], MunitPlusReport* report) {
   unsigned int iterations = runner->iterations;
   MunitPlusResult result = MUNIT_PLUS_FAIL;
 #if defined(MUNIT_ENABLE_TIMING)
@@ -1258,7 +1258,7 @@ munit_test_runner_exec(MunitTestRunner* runner, const MunitTest* test, const Mun
 #endif
 
 static void
-munit_test_runner_print_color(const MunitTestRunner* runner, const char* string, char color) {
+munit_plus_test_runner_print_color(const MunitPlusTestRunner* runner, const char* string, char color) {
   if (runner->colorize)
     fprintf(MUNIT_OUTPUT_FILE, "\x1b[3%cm%s\x1b[39m", color, string);
   else
@@ -1295,9 +1295,9 @@ munit_restore_stderr(int orig_stderr) {
 
 /* Run a test with the specified parameters. */
 static void
-munit_test_runner_run_test_with_params(MunitTestRunner* runner, const MunitTest* test, const MunitPlusParameter params[]) {
+munit_plus_test_runner_run_test_with_params(MunitPlusTestRunner* runner, const MunitPlusTest* test, const MunitPlusParameter params[]) {
   MunitPlusResult result = MUNIT_PLUS_OK;
-  MunitReport report = {
+  MunitPlusReport report = {
     0, 0, 0, 0,
 #if defined(MUNIT_ENABLE_TIMING)
     0, 0
@@ -1371,7 +1371,7 @@ munit_test_runner_run_test_with_params(MunitTestRunner* runner, const MunitTest*
       munit_plus_error_jmp_active = false;
 #endif /*MUNIT_THREAD_LOCAL*/
       try {
-        munit_test_runner_exec(runner, test, params, &report);
+        munit_plus_test_runner_exec(runner, test, params, &report);
       } catch (struct munit_plus_error_jmp const& j) {
         report.failed++;
 #if defined(MUNIT_THREAD_LOCAL)
@@ -1464,7 +1464,7 @@ munit_test_runner_run_test_with_params(MunitTestRunner* runner, const MunitTest*
     munit_plus_error_jmp_active = false;
 #endif /*MUNIT_THREAD_LOCAL*/
     try {
-      result = munit_test_runner_exec(runner, test, params, &report);
+      result = munit_plus_test_runner_exec(runner, test, params, &report);
     } catch (struct munit_plus_error_jmp const& ) {
       result = MUNIT_PLUS_FAIL;
 #if defined(MUNIT_THREAD_LOCAL)
@@ -1493,29 +1493,29 @@ munit_test_runner_run_test_with_params(MunitTestRunner* runner, const MunitTest*
   fputs("[ ", MUNIT_OUTPUT_FILE);
   if ((test->options & MUNIT_PLUS_TEST_OPTION_TODO) == MUNIT_PLUS_TEST_OPTION_TODO) {
     if (report.failed != 0 || report.errored != 0 || report.skipped != 0) {
-      munit_test_runner_print_color(runner, MUNIT_RESULT_STRING_TODO, '3');
+      munit_plus_test_runner_print_color(runner, MUNIT_RESULT_STRING_TODO, '3');
       result = MUNIT_PLUS_OK;
     } else {
-      munit_test_runner_print_color(runner, MUNIT_RESULT_STRING_ERROR, '1');
+      munit_plus_test_runner_print_color(runner, MUNIT_RESULT_STRING_ERROR, '1');
       if (MUNIT_LIKELY(stderr_buf != NULL))
         munit_plus_log_internal(MUNIT_PLUS_LOG_ERROR, stderr_buf, "Test marked TODO, but was successful.");
       runner->report.failed++;
       result = MUNIT_PLUS_ERROR;
     }
   } else if (report.failed > 0) {
-    munit_test_runner_print_color(runner, MUNIT_RESULT_STRING_FAIL, '1');
+    munit_plus_test_runner_print_color(runner, MUNIT_RESULT_STRING_FAIL, '1');
     runner->report.failed++;
     result = MUNIT_PLUS_FAIL;
   } else if (report.errored > 0) {
-    munit_test_runner_print_color(runner, MUNIT_RESULT_STRING_ERROR, '1');
+    munit_plus_test_runner_print_color(runner, MUNIT_RESULT_STRING_ERROR, '1');
     runner->report.errored++;
     result = MUNIT_PLUS_ERROR;
   } else if (report.skipped > 0) {
-    munit_test_runner_print_color(runner, MUNIT_RESULT_STRING_SKIP, '3');
+    munit_plus_test_runner_print_color(runner, MUNIT_RESULT_STRING_SKIP, '3');
     runner->report.skipped++;
     result = MUNIT_PLUS_SKIP;
   } else if (report.successful > 1) {
-    munit_test_runner_print_color(runner, MUNIT_RESULT_STRING_OK, '2');
+    munit_plus_test_runner_print_color(runner, MUNIT_RESULT_STRING_OK, '2');
 #if defined(MUNIT_ENABLE_TIMING)
     fputs(" ] [ ", MUNIT_OUTPUT_FILE);
     munit_plus_print_time(MUNIT_OUTPUT_FILE, report.wall_clock / report.successful);
@@ -1530,7 +1530,7 @@ munit_test_runner_run_test_with_params(MunitTestRunner* runner, const MunitTest*
     runner->report.successful++;
     result = MUNIT_PLUS_OK;
   } else if (report.successful > 0) {
-    munit_test_runner_print_color(runner, MUNIT_RESULT_STRING_OK, '2');
+    munit_plus_test_runner_print_color(runner, MUNIT_RESULT_STRING_OK, '2');
 #if defined(MUNIT_ENABLE_TIMING)
     fputs(" ] [ ", MUNIT_OUTPUT_FILE);
     munit_plus_print_time(MUNIT_OUTPUT_FILE, report.wall_clock);
@@ -1558,8 +1558,8 @@ munit_test_runner_run_test_with_params(MunitTestRunner* runner, const MunitTest*
 }
 
 static void
-munit_test_runner_run_test_wild(MunitTestRunner* runner,
-                                const MunitTest* test,
+munit_plus_test_runner_run_test_wild(MunitPlusTestRunner* runner,
+                                const MunitPlusTest* test,
                                 const char* test_name,
                                 MunitPlusParameter* params,
                                 MunitPlusParameter* p) {
@@ -1579,9 +1579,9 @@ munit_test_runner_run_test_wild(MunitTestRunner* runner,
     next = p + 1;
     p->value = *values;
     if (next->name == NULL) {
-      munit_test_runner_run_test_with_params(runner, test, params);
+      munit_plus_test_runner_run_test_with_params(runner, test, params);
     } else {
-      munit_test_runner_run_test_wild(runner, test, test_name, params, next);
+      munit_plus_test_runner_run_test_wild(runner, test, test_name, params, next);
     }
     if (runner->fatal_failures && (runner->report.failed != 0 || runner->report.errored != 0))
       break;
@@ -1591,12 +1591,12 @@ munit_test_runner_run_test_wild(MunitTestRunner* runner,
 /* Run a single test, with every combination of parameters
  * requested. */
 static void
-munit_test_runner_run_test(MunitTestRunner* runner,
-                           const MunitTest* test,
+munit_plus_test_runner_run_test(MunitPlusTestRunner* runner,
+                           const MunitPlusTest* test,
                            const char* prefix) {
   char* test_name = munit_plus_maybe_concat(NULL, (char*) prefix, (char*) test->name);
   /* The array of parameters to pass to
-   * munit_test_runner_run_test_with_params */
+   * munit_plus_test_runner_run_test_with_params */
   MunitPlusParameter* params = NULL;
   size_t params_l = 0;
   /* Wildcard parameters are parameters which have possible values
@@ -1622,7 +1622,7 @@ munit_test_runner_run_test(MunitTestRunner* runner,
 
   if (test->parameters == NULL) {
     /* No parameters.  Simple, nice. */
-    munit_test_runner_run_test_with_params(runner, test, NULL);
+    munit_plus_test_runner_run_test_with_params(runner, test, NULL);
   } else {
     fputc('\n', MUNIT_OUTPUT_FILE);
 
@@ -1677,9 +1677,9 @@ munit_test_runner_run_test(MunitTestRunner* runner,
         }
       }
 
-      munit_test_runner_run_test_wild(runner, test, test_name, params, params + first_wild);
+      munit_plus_test_runner_run_test_wild(runner, test, test_name, params, params + first_wild);
     } else {
-      munit_test_runner_run_test_with_params(runner, test, params);
+      munit_plus_test_runner_run_test_with_params(runner, test, params);
     }
 
   cleanup:
@@ -1694,14 +1694,14 @@ munit_test_runner_run_test(MunitTestRunner* runner,
  * tests to run was provied on the command line, run only those
  * tests.  */
 static void
-munit_test_runner_run_suite(MunitTestRunner* runner,
-                            const MunitSuite* suite,
+munit_plus_test_runner_run_suite(MunitPlusTestRunner* runner,
+                            const MunitPlusSuite* suite,
                             const char* prefix) {
   size_t pre_l;
   char* pre = munit_plus_maybe_concat(&pre_l, (char*) prefix, (char*) suite->prefix);
-  const MunitTest* test;
+  const MunitPlusTest* test;
   const char** test_name;
-  const MunitSuite* child_suite;
+  const MunitPlusSuite* child_suite;
 
   /* Run the tests. */
   for (test = suite->tests ; test != NULL && test->test != NULL ; test++) {
@@ -1709,13 +1709,13 @@ munit_test_runner_run_suite(MunitTestRunner* runner,
       for (test_name = runner->tests ; test_name != NULL && *test_name != NULL ; test_name++) {
         if ((pre_l == 0 || strncmp(pre, *test_name, pre_l) == 0) &&
             strncmp(test->name, *test_name + pre_l, strlen(*test_name + pre_l)) == 0) {
-          munit_test_runner_run_test(runner, test, pre);
+          munit_plus_test_runner_run_test(runner, test, pre);
           if (runner->fatal_failures && (runner->report.failed != 0 || runner->report.errored != 0))
             goto cleanup;
         }
       }
     } else { /* Run all tests */
-      munit_test_runner_run_test(runner, test, pre);
+      munit_plus_test_runner_run_test(runner, test, pre);
     }
   }
 
@@ -1724,7 +1724,7 @@ munit_test_runner_run_suite(MunitTestRunner* runner,
 
   /* Run any child suites. */
   for (child_suite = suite->suites ; child_suite != NULL && child_suite->prefix != NULL ; child_suite++) {
-    munit_test_runner_run_suite(runner, child_suite, pre);
+    munit_plus_test_runner_run_suite(runner, child_suite, pre);
   }
 
  cleanup:
@@ -1733,8 +1733,8 @@ munit_test_runner_run_suite(MunitTestRunner* runner,
 }
 
 static void
-munit_test_runner_run(MunitTestRunner* runner) {
-  munit_test_runner_run_suite(runner, runner->suite, NULL);
+munit_plus_test_runner_run(MunitPlusTestRunner* runner) {
+  munit_plus_test_runner_run_suite(runner, runner->suite, NULL);
 }
 
 static void
@@ -1802,14 +1802,14 @@ munit_arguments_find(const MunitArgument arguments[], const char* name) {
 }
 
 static void
-munit_suite_list_tests(const MunitSuite* suite, bool show_params, const char* prefix) {
+munit_plus_suite_list_tests(const MunitPlusSuite* suite, bool show_params, const char* prefix) {
   size_t pre_l;
   char* pre = munit_plus_maybe_concat(&pre_l, (char*) prefix, (char*) suite->prefix);
-  const MunitTest* test;
+  const MunitPlusTest* test;
   const MunitPlusParameterEnum* params;
   bool first;
   char** val;
-  const MunitSuite* child_suite;
+  const MunitPlusSuite* child_suite;
 
   for (test = suite->tests ;
        test != NULL && test->name != NULL ;
@@ -1844,7 +1844,7 @@ munit_suite_list_tests(const MunitSuite* suite, bool show_params, const char* pr
   }
 
   for (child_suite = suite->suites ; child_suite != NULL && child_suite->prefix != NULL ; child_suite++) {
-    munit_suite_list_tests(child_suite, show_params, pre);
+    munit_plus_suite_list_tests(child_suite, show_params, pre);
   }
 
   munit_plus_maybe_free_concat(pre, prefix, suite->prefix);
@@ -1873,11 +1873,11 @@ munit_stream_supports_ansi(FILE *stream) {
 }
 
 int
-munit_suite_main_custom(const MunitSuite* suite, void* user_data,
+munit_plus_suite_main_custom(const MunitPlusSuite* suite, void* user_data,
                         int argc, char* const argv[MUNIT_ARRAY_PARAM(argc + 1)],
                         const MunitArgument arguments[]) {
   int result = EXIT_FAILURE;
-  MunitTestRunner runner;
+  MunitPlusTestRunner runner;
   size_t parameters_size = 0;
   size_t tests_size = 0;
   int arg;
@@ -2033,11 +2033,11 @@ munit_suite_main_custom(const MunitSuite* suite, void* user_data,
 
         arg++;
       } else if (strcmp("list", argv[arg] + 2) == 0) {
-        munit_suite_list_tests(suite, false, NULL);
+        munit_plus_suite_list_tests(suite, false, NULL);
         result = EXIT_SUCCESS;
         goto cleanup;
       } else if (strcmp("list-params", argv[arg] + 2) == 0) {
-        munit_suite_list_tests(suite, true, NULL);
+        munit_plus_suite_list_tests(suite, true, NULL);
         result = EXIT_SUCCESS;
         goto cleanup;
       } else {
@@ -2065,7 +2065,7 @@ munit_suite_main_custom(const MunitSuite* suite, void* user_data,
   fflush(stderr);
   fprintf(MUNIT_OUTPUT_FILE, "Running test suite with seed 0x%08" PRIx32 "...\n", runner.seed);
 
-  munit_test_runner_run(&runner);
+  munit_plus_test_runner_run(&runner);
 
   tests_run = runner.report.successful + runner.report.failed + runner.report.errored;
   tests_total = tests_run + runner.report.skipped;
@@ -2091,9 +2091,9 @@ munit_suite_main_custom(const MunitSuite* suite, void* user_data,
 }
 
 int
-munit_suite_main(const MunitSuite* suite, void* user_data,
+munit_plus_suite_main(const MunitPlusSuite* suite, void* user_data,
                  int argc, char* const argv[MUNIT_ARRAY_PARAM(argc + 1)]) {
-  return munit_suite_main_custom(suite, user_data, argc, argv, NULL);
+  return munit_plus_suite_main_custom(suite, user_data, argc, argv, NULL);
 }
 
 //BEGIN cxx-style stuff

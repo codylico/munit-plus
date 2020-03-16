@@ -417,7 +417,7 @@ static MunitPlusParameterEnum test_params[] = {
 
 /* Creating a test suite is pretty simple.  First, you'll need an
  * array of tests: */
-static MunitTest test_suite_tests[] = {
+static MunitPlusTest test_suite_tests[] = {
   {
     /* The name is just a unique human-readable way to identify the
      * test. You can use it to run a specific test if you want, but
@@ -470,14 +470,14 @@ static MunitTest test_suite_tests[] = {
 /* If you wanted to have your test suite run other test suites you
  * could declare an array of them.  Of course each sub-suite can
  * contain more suites, etc. */
-/* static const MunitSuite other_suites[] = { */
-/*   { "/second", test_suite_tests, NULL, 1, MUNIT_SUITE_OPTION_NONE }, */
-/*   { NULL, NULL, NULL, 0, MUNIT_SUITE_OPTION_NONE } */
+/* static const MunitPlusSuite other_suites[] = { */
+/*   { "/second", test_suite_tests, NULL, 1, MUNIT_PLUS_SUITE_OPTION_NONE }, */
+/*   { NULL, NULL, NULL, 0, MUNIT_PLUS_SUITE_OPTION_NONE } */
 /* }; */
 
 /* Now we'll actually declare the test suite.  You could do this in
  * the main function, or on the heap, or whatever you want. */
-static const MunitSuite test_suite = {
+static const MunitPlusSuite test_suite = {
   /* This string will be prepended to all test names in this suite;
    * for example, "/example/rand" will become "/µnit/example/rand".
    * Note that, while it doesn't really matter for the top-level
@@ -499,8 +499,8 @@ static const MunitSuite test_suite = {
    * average multiple runs.  0 is an alias for 1. */
   1,
   /* Just like MUNIT_PLUS_TEST_OPTION_NONE, you can provide
-   * MUNIT_SUITE_OPTION_NONE or 0 to use the default settings. */
-  MUNIT_SUITE_OPTION_NONE
+   * MUNIT_PLUS_SUITE_OPTION_NONE or 0 to use the default settings. */
+  MUNIT_PLUS_SUITE_OPTION_NONE
 };
 
 /* This is only necessary for EXIT_SUCCESS and EXIT_FAILURE, which you
@@ -513,5 +513,5 @@ int main(int argc, char* argv[MUNIT_ARRAY_PARAM(argc + 1)]) {
   /* Finally, we'll actually run our test suite!  That second argument
    * is the user_data parameter which will be passed either to the
    * test or (if provided) the fixture setup function. */
-  return munit_suite_main(&test_suite, (void*) "µnit", argc, argv);
+  return munit_plus_suite_main(&test_suite, (void*) "µnit", argc, argv);
 }

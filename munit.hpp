@@ -416,34 +416,34 @@ typedef enum {
   MUNIT_PLUS_TEST_OPTION_TODO             = 1 << 1
 } MunitPlusTestOptions;
 
-typedef MunitPlusResult (* MunitTestFunc)(const MunitPlusParameter params[], void* user_data_or_fixture);
-typedef void*       (* MunitTestSetup)(const MunitPlusParameter params[], void* user_data);
-typedef void        (* MunitTestTearDown)(void* fixture);
+typedef MunitPlusResult (* MunitPlusTestFunc)(const MunitPlusParameter params[], void* user_data_or_fixture);
+typedef void*       (* MunitPlusTestSetup)(const MunitPlusParameter params[], void* user_data);
+typedef void        (* MunitPlusTestTearDown)(void* fixture);
 
 typedef struct {
   char*               name;
-  MunitTestFunc       test;
-  MunitTestSetup      setup;
-  MunitTestTearDown   tear_down;
+  MunitPlusTestFunc       test;
+  MunitPlusTestSetup      setup;
+  MunitPlusTestTearDown   tear_down;
   MunitPlusTestOptions    options;
   MunitPlusParameterEnum* parameters;
-} MunitTest;
+} MunitPlusTest;
 
 typedef enum {
-  MUNIT_SUITE_OPTION_NONE = 0
-} MunitSuiteOptions;
+  MUNIT_PLUS_SUITE_OPTION_NONE = 0
+} MunitPlusSuiteOptions;
 
-typedef struct MunitSuite_ MunitSuite;
+typedef struct MunitPlusSuite_ MunitPlusSuite;
 
-struct MunitSuite_ {
+struct MunitPlusSuite_ {
   char*             prefix;
-  MunitTest*        tests;
-  MunitSuite*       suites;
+  MunitPlusTest*        tests;
+  MunitPlusSuite*       suites;
   unsigned int      iterations;
-  MunitSuiteOptions options;
+  MunitPlusSuiteOptions options;
 };
 
-int munit_suite_main(const MunitSuite* suite, void* user_data, int argc, char* const argv[MUNIT_ARRAY_PARAM(argc + 1)]);
+int munit_plus_suite_main(const MunitPlusSuite* suite, void* user_data, int argc, char* const argv[MUNIT_ARRAY_PARAM(argc + 1)]);
 
 /* Note: I'm not very happy with this API; it's likely to change if I
  * figure out something better.  Suggestions welcome. */
@@ -452,11 +452,11 @@ typedef struct MunitArgument_ MunitArgument;
 
 struct MunitArgument_ {
   char* name;
-  bool (* parse_argument)(const MunitSuite* suite, void* user_data, int* arg, int argc, char* const argv[MUNIT_ARRAY_PARAM(argc + 1)]);
+  bool (* parse_argument)(const MunitPlusSuite* suite, void* user_data, int* arg, int argc, char* const argv[MUNIT_ARRAY_PARAM(argc + 1)]);
   void (* write_help)(const MunitArgument* argument, void* user_data);
 };
 
-int munit_suite_main_custom(const MunitSuite* suite,
+int munit_plus_suite_main_custom(const MunitPlusSuite* suite,
                             void* user_data,
                             int argc, char* const argv[MUNIT_ARRAY_PARAM(argc + 1)],
                             const MunitArgument arguments[]);

@@ -220,18 +220,6 @@ void munit_plus_errorf_ex(const char* filename, int line, const char* format, ..
     } \
   } /*while (0)*/
 
-#define munit_assert_type_full(prefix, suffix, T, fmt, a, op, b)   \
-  do { \
-    T munit_tmp_a_ = (a); \
-    T munit_tmp_b_ = (b); \
-    if (!(munit_tmp_a_ op munit_tmp_b_)) {                               \
-      munit_errorf("assertion failed: %s %s %s (" prefix "%" fmt suffix " %s " prefix "%" fmt suffix ")", \
-                   #a, #op, #b, munit_tmp_a_, #op, munit_tmp_b_); \
-    } \
-    MUNIT__PUSH_DISABLE_MSVC_C4127 \
-  } while (0) \
-  MUNIT__POP_DISABLE_MSVC_C4127
-
 #define munit_plus_assert_char(a, op, b) \
   munit_plus_assert_type_full("'\\x", "'", char, "02" MUNIT_PLUS_CHAR_MODIFIER "x", a, op, b)
 #define munit_plus_assert_uchar(a, op, b) \

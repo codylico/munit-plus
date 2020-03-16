@@ -1738,8 +1738,8 @@ munit_plus_test_runner_run(MunitPlusTestRunner* runner) {
 }
 
 static void
-munit_print_help(int argc, char* const argv[MUNIT_ARRAY_PARAM(argc + 1)], void* user_data, const MunitArgument arguments[]) {
-  const MunitArgument* arg;
+munit_plus_print_help(int argc, char* const argv[MUNIT_ARRAY_PARAM(argc + 1)], void* user_data, const MunitPlusArgument arguments[]) {
+  const MunitPlusArgument* arg;
   (void) argc;
 
   printf("USAGE: %s [OPTIONS...] [TEST...]\n\n", argv[0]);
@@ -1790,9 +1790,9 @@ munit_print_help(int argc, char* const argv[MUNIT_ARRAY_PARAM(argc + 1)], void* 
     arg->write_help(arg, user_data);
 }
 
-static const MunitArgument*
-munit_arguments_find(const MunitArgument arguments[], const char* name) {
-  const MunitArgument* arg;
+static const MunitPlusArgument*
+munit_plus_arguments_find(const MunitPlusArgument arguments[], const char* name) {
+  const MunitPlusArgument* arg;
 
   for (arg = arguments ; arg != NULL && arg->name != NULL ; arg++)
     if (strcmp(arg->name, name) == 0)
@@ -1875,7 +1875,7 @@ munit_plus_stream_supports_ansi(FILE *stream) {
 int
 munit_plus_suite_main_custom(const MunitPlusSuite* suite, void* user_data,
                         int argc, char* const argv[MUNIT_ARRAY_PARAM(argc + 1)],
-                        const MunitArgument arguments[]) {
+                        const MunitPlusArgument arguments[]) {
   int result = EXIT_FAILURE;
   MunitPlusTestRunner runner;
   size_t parameters_size = 0;
@@ -1887,7 +1887,7 @@ munit_plus_suite_main_custom(const MunitPlusSuite* suite, void* user_data,
   char* endptr;
   unsigned long long iterations;
   MunitPlusLogLevel level;
-  const MunitArgument* argument;
+  const MunitPlusArgument* argument;
   const char** runner_tests;
   unsigned int tests_run;
   unsigned int tests_total;
@@ -1993,7 +1993,7 @@ munit_plus_suite_main_custom(const MunitPlusSuite* suite, void* user_data,
 
         arg++;
       } else if (strcmp("help", argv[arg] + 2) == 0) {
-        munit_print_help(argc, argv, user_data, arguments);
+        munit_plus_print_help(argc, argv, user_data, arguments);
         result = EXIT_SUCCESS;
         goto cleanup;
       } else if (strcmp("single", argv[arg] + 2) == 0) {
@@ -2041,7 +2041,7 @@ munit_plus_suite_main_custom(const MunitPlusSuite* suite, void* user_data,
         result = EXIT_SUCCESS;
         goto cleanup;
       } else {
-        argument = munit_arguments_find(arguments, argv[arg] + 2);
+        argument = munit_plus_arguments_find(arguments, argv[arg] + 2);
         if (argument == NULL) {
           munit_plus_logf_internal(MUNIT_PLUS_LOG_ERROR, stderr, "unknown argument ('%s')", argv[arg]);
           goto cleanup;

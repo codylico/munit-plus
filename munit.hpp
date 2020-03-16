@@ -448,18 +448,18 @@ int munit_plus_suite_main(const MunitPlusSuite* suite, void* user_data, int argc
 /* Note: I'm not very happy with this API; it's likely to change if I
  * figure out something better.  Suggestions welcome. */
 
-typedef struct MunitArgument_ MunitArgument;
+typedef struct MunitPlusArgument_ MunitPlusArgument;
 
-struct MunitArgument_ {
+struct MunitPlusArgument_ {
   char* name;
   bool (* parse_argument)(const MunitPlusSuite* suite, void* user_data, int* arg, int argc, char* const argv[MUNIT_ARRAY_PARAM(argc + 1)]);
-  void (* write_help)(const MunitArgument* argument, void* user_data);
+  void (* write_help)(const MunitPlusArgument* argument, void* user_data);
 };
 
 int munit_plus_suite_main_custom(const MunitPlusSuite* suite,
                             void* user_data,
                             int argc, char* const argv[MUNIT_ARRAY_PARAM(argc + 1)],
-                            const MunitArgument arguments[]);
+                            const MunitPlusArgument arguments[]);
 
 #if defined(MUNIT_ENABLE_ASSERT_ALIASES)
 

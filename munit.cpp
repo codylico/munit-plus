@@ -949,7 +949,7 @@ munit_plus_rand_uint32(void) {
 }
 
 static void
-munit_plus_rand_state_memory(munit_plus_uint32_t* state, std::size_t size, munit_plus_uint8_t data[MUNIT_ARRAY_PARAM(size)]) {
+munit_plus_rand_state_memory(munit_plus_uint32_t* state, std::size_t size, munit_plus_uint8_t data[MUNIT_PLUS_ARRAY_PARAM(size)]) {
   std::size_t members_remaining = size / sizeof(munit_plus_uint32_t);
   std::size_t bytes_remaining = size % sizeof(munit_plus_uint32_t);
   munit_plus_uint8_t* b = data;
@@ -966,7 +966,7 @@ munit_plus_rand_state_memory(munit_plus_uint32_t* state, std::size_t size, munit
 }
 
 void
-munit_plus_rand_memory(std::size_t size, munit_plus_uint8_t data[MUNIT_ARRAY_PARAM(size)]) {
+munit_plus_rand_memory(std::size_t size, munit_plus_uint8_t data[MUNIT_PLUS_ARRAY_PARAM(size)]) {
   munit_plus_uint32_t old, state;
 
   do {
@@ -1087,7 +1087,7 @@ munit_plus_print_time(FILE* fp, munit_plus_uint64_t nanoseconds) {
 
 /* Add a paramter to an array of parameters. */
 static MunitPlusResult
-munit_plus_parameters_add(std::size_t* params_size, MunitPlusParameter* params[MUNIT_ARRAY_PARAM(*params_size)], char* name, char* value) {
+munit_plus_parameters_add(std::size_t* params_size, MunitPlusParameter* params[MUNIT_PLUS_ARRAY_PARAM(*params_size)], char* name, char* value) {
   *params = static_cast<MunitPlusParameter*>(realloc(*params,
                                                  sizeof(MunitPlusParameter) * (*params_size + 2)));
   if (*params == NULL)
@@ -1216,7 +1216,7 @@ munit_plus_test_runner_exec(MunitPlusTestRunner* runner, const MunitPlusTest* te
     if (test->tear_down != NULL)
       test->tear_down(data);
 
-    if (MUNIT_LIKELY(result == MUNIT_PLUS_OK)) {
+    if (MUNIT_PLUS_LIKELY(result == MUNIT_PLUS_OK)) {
       report->successful++;
 #if defined(MUNIT_ENABLE_TIMING)
       report->wall_clock += munit_plus_clock_get_elapsed(&wall_clock_begin, &wall_clock_end);
@@ -1272,7 +1272,7 @@ munit_plus_replace_stderr(FILE* stderr_buf) {
     const int orig_stderr = dup(STDERR_FILENO);
 
     int errfd = fileno(stderr_buf);
-    if (MUNIT_UNLIKELY(errfd == -1)) {
+    if (MUNIT_PLUS_UNLIKELY(errfd == -1)) {
       exit(EXIT_FAILURE);
     }
 
@@ -1425,7 +1425,7 @@ munit_plus_test_runner_run_test_with_params(MunitPlusTestRunner* runner, const M
 
       changed_pid = waitpid(fork_pid, &status, 0);
 
-      if (MUNIT_LIKELY(changed_pid == fork_pid) && MUNIT_LIKELY(WIFEXITED(status))) {
+      if (MUNIT_PLUS_LIKELY(changed_pid == fork_pid) && MUNIT_PLUS_LIKELY(WIFEXITED(status))) {
         if (bytes_read != sizeof(report)) {
           munit_plus_logf_internal(MUNIT_PLUS_LOG_ERROR, stderr_buf,
                                    "child exited unexpectedly with status %d", WEXITSTATUS(status));
@@ -1497,7 +1497,7 @@ munit_plus_test_runner_run_test_with_params(MunitPlusTestRunner* runner, const M
       result = MUNIT_PLUS_OK;
     } else {
       munit_plus_test_runner_print_color(runner, MUNIT_RESULT_STRING_ERROR, '1');
-      if (MUNIT_LIKELY(stderr_buf != NULL))
+      if (MUNIT_PLUS_LIKELY(stderr_buf != NULL))
         munit_plus_log_internal(MUNIT_PLUS_LOG_ERROR, stderr_buf, "Test marked TODO, but was successful.");
       runner->report.failed++;
       result = MUNIT_PLUS_ERROR;
@@ -1631,7 +1631,7 @@ munit_plus_test_runner_run_test(MunitPlusTestRunner* runner,
       filled = false;
       for (cli_p = runner->parameters ; cli_p != NULL && cli_p->name != NULL ; cli_p++) {
         if (strcmp(cli_p->name, pe->name) == 0) {
-          if (MUNIT_UNLIKELY(munit_plus_parameters_add(&params_l, &params, pe->name, cli_p->value) != MUNIT_PLUS_OK))
+          if (MUNIT_PLUS_UNLIKELY(munit_plus_parameters_add(&params_l, &params, pe->name, cli_p->value) != MUNIT_PLUS_OK))
             goto cleanup;
           filled = true;
           break;
@@ -1656,12 +1656,12 @@ munit_plus_test_runner_run_test(MunitPlusTestRunner* runner,
          * the same number of parameters to choose the same parameter
          * number, so use the test name as a primitive salt. */
         pidx = munit_plus_rand_at_most(munit_plus_str_hash(test_name), possible - 1);
-        if (MUNIT_UNLIKELY(munit_plus_parameters_add(&params_l, &params, pe->name, pe->values[pidx]) != MUNIT_PLUS_OK))
+        if (MUNIT_PLUS_UNLIKELY(munit_plus_parameters_add(&params_l, &params, pe->name, pe->values[pidx]) != MUNIT_PLUS_OK))
           goto cleanup;
       } else {
         /* We want to try every permutation.  Put in a placeholder
          * entry, we'll iterate through them later. */
-        if (MUNIT_UNLIKELY(munit_plus_parameters_add(&wild_params_l, &wild_params, pe->name, NULL) != MUNIT_PLUS_OK))
+        if (MUNIT_PLUS_UNLIKELY(munit_plus_parameters_add(&wild_params_l, &wild_params, pe->name, NULL) != MUNIT_PLUS_OK))
           goto cleanup;
       }
     }
@@ -1671,7 +1671,7 @@ munit_plus_test_runner_run_test(MunitPlusTestRunner* runner,
       for (wp = wild_params ; wp != NULL && wp->name != NULL ; wp++) {
         for (pe = test->parameters ; pe != NULL && pe->name != NULL && pe->values != NULL ; pe++) {
           if (strcmp(wp->name, pe->name) == 0) {
-            if (MUNIT_UNLIKELY(munit_plus_parameters_add(&params_l, &params, pe->name, pe->values[0]) != MUNIT_PLUS_OK))
+            if (MUNIT_PLUS_UNLIKELY(munit_plus_parameters_add(&params_l, &params, pe->name, pe->values[0]) != MUNIT_PLUS_OK))
               goto cleanup;
           }
         }
@@ -1738,7 +1738,7 @@ munit_plus_test_runner_run(MunitPlusTestRunner* runner) {
 }
 
 static void
-munit_plus_print_help(int argc, char* const argv[MUNIT_ARRAY_PARAM(argc + 1)], void* user_data, const MunitPlusArgument arguments[]) {
+munit_plus_print_help(int argc, char* const argv[MUNIT_PLUS_ARRAY_PARAM(argc + 1)], void* user_data, const MunitPlusArgument arguments[]) {
   const MunitPlusArgument* arg;
   (void) argc;
 
@@ -1874,7 +1874,7 @@ munit_plus_stream_supports_ansi(FILE *stream) {
 
 int
 munit_plus_suite_main_custom(const MunitPlusSuite* suite, void* user_data,
-                        int argc, char* const argv[MUNIT_ARRAY_PARAM(argc + 1)],
+                        int argc, char* const argv[MUNIT_PLUS_ARRAY_PARAM(argc + 1)],
                         const MunitPlusArgument arguments[]) {
   int result = EXIT_FAILURE;
   MunitPlusTestRunner runner;
@@ -2092,7 +2092,7 @@ munit_plus_suite_main_custom(const MunitPlusSuite* suite, void* user_data,
 
 int
 munit_plus_suite_main(const MunitPlusSuite* suite, void* user_data,
-                 int argc, char* const argv[MUNIT_ARRAY_PARAM(argc + 1)]) {
+                 int argc, char* const argv[MUNIT_PLUS_ARRAY_PARAM(argc + 1)]) {
   return munit_plus_suite_main_custom(suite, user_data, argc, argv, NULL);
 }
 

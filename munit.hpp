@@ -120,16 +120,12 @@ extern "C" {
 #  define MUNIT_PLUS_UNLIKELY(expr) (expr)
 #  define MUNIT_PLUS_UNUSED
 #endif
-#define MUNIT_LIKELY MUNIT_PLUS_LIKELY
-#define MUNIT_UNLIKELY MUNIT_PLUS_UNLIKELY
-#define MUNIT_UNUSED MUNIT_PLUS_UNUSED
 
 #if defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L) && !defined(__PGI)
 #  define MUNIT_PLUS_ARRAY_PARAM(name) name
 #else
 #  define MUNIT_PLUS_ARRAY_PARAM(name)
 #endif
-#define MUNIT_ARRAY_PARAM MUNIT_PLUS_ARRAY_PARAM
 
 #if !defined(_WIN32)
 #  define MUNIT_PLUS_SIZE_MODIFIER "z"
@@ -278,7 +274,7 @@ void munit_plus_errorf_ex(const char* filename, int line, const char* format, ..
   do { \
     const char* munit_tmp_a_ = a; \
     const char* munit_tmp_b_ = b; \
-    if (MUNIT_UNLIKELY(std::strcmp(munit_tmp_a_, munit_tmp_b_) != 0)) { \
+    if (MUNIT_PLUS_UNLIKELY(std::strcmp(munit_tmp_a_, munit_tmp_b_) != 0)) { \
       munit_plus_errorf("assertion failed: string %s == %s (\"%s\" == \"%s\")", \
                    #a, #b, munit_tmp_a_, munit_tmp_b_); \
     } \
@@ -290,7 +286,7 @@ void munit_plus_errorf_ex(const char* filename, int line, const char* format, ..
   do { \
     const char* munit_tmp_a_ = a; \
     const char* munit_tmp_b_ = b; \
-    if (MUNIT_UNLIKELY(std::strcmp(munit_tmp_a_, munit_tmp_b_) == 0)) { \
+    if (MUNIT_PLUS_UNLIKELY(std::strcmp(munit_tmp_a_, munit_tmp_b_) == 0)) { \
       munit_plus_errorf("assertion failed: string %s != %s (\"%s\" == \"%s\")", \
                    #a, #b, munit_tmp_a_, munit_tmp_b_); \
     } \
@@ -303,7 +299,7 @@ void munit_plus_errorf_ex(const char* filename, int line, const char* format, ..
     const unsigned char* munit_tmp_a_ = (const unsigned char*) (a); \
     const unsigned char* munit_tmp_b_ = (const unsigned char*) (b); \
     const std::size_t munit_tmp_size_ = (size); \
-    if (MUNIT_UNLIKELY(std::memcmp(munit_tmp_a_, munit_tmp_b_, munit_tmp_size_)) != 0) { \
+    if (MUNIT_PLUS_UNLIKELY(std::memcmp(munit_tmp_a_, munit_tmp_b_, munit_tmp_size_)) != 0) { \
       std::size_t munit_tmp_pos_; \
       for (munit_tmp_pos_ = 0 ; munit_tmp_pos_ < munit_tmp_size_ ; munit_tmp_pos_++) { \
         if (munit_tmp_a_[munit_tmp_pos_] != munit_tmp_b_[munit_tmp_pos_]) { \
@@ -322,7 +318,7 @@ void munit_plus_errorf_ex(const char* filename, int line, const char* format, ..
     const unsigned char* munit_tmp_a_ = (const unsigned char*) (a); \
     const unsigned char* munit_tmp_b_ = (const unsigned char*) (b); \
     const std::size_t munit_tmp_size_ = (size); \
-    if (MUNIT_UNLIKELY(std::memcmp(munit_tmp_a_, munit_tmp_b_, munit_tmp_size_)) == 0) { \
+    if (MUNIT_PLUS_UNLIKELY(std::memcmp(munit_tmp_a_, munit_tmp_b_, munit_tmp_size_)) == 0) { \
       munit_plus_errorf("assertion failed: memory %s != %s (%zu bytes)", \
                    #a, #b, munit_tmp_size_); \
     } \
@@ -369,7 +365,7 @@ void munit_plus_rand_seed(munit_plus_uint32_t seed);
 munit_plus_uint32_t munit_plus_rand_uint32(void);
 int munit_plus_rand_int_range(int min, int max);
 double munit_plus_rand_double(void);
-void munit_plus_rand_memory(std::size_t size, munit_plus_uint8_t buffer[MUNIT_ARRAY_PARAM(size)]);
+void munit_plus_rand_memory(std::size_t size, munit_plus_uint8_t buffer[MUNIT_PLUS_ARRAY_PARAM(size)]);
 
 /*** Tests and Suites ***/
 
@@ -431,7 +427,7 @@ struct MunitPlusSuite_ {
   MunitPlusSuiteOptions options;
 };
 
-int munit_plus_suite_main(const MunitPlusSuite* suite, void* user_data, int argc, char* const argv[MUNIT_ARRAY_PARAM(argc + 1)]);
+int munit_plus_suite_main(const MunitPlusSuite* suite, void* user_data, int argc, char* const argv[MUNIT_PLUS_ARRAY_PARAM(argc + 1)]);
 
 /* Note: I'm not very happy with this API; it's likely to change if I
  * figure out something better.  Suggestions welcome. */
@@ -440,13 +436,13 @@ typedef struct MunitPlusArgument_ MunitPlusArgument;
 
 struct MunitPlusArgument_ {
   char* name;
-  bool (* parse_argument)(const MunitPlusSuite* suite, void* user_data, int* arg, int argc, char* const argv[MUNIT_ARRAY_PARAM(argc + 1)]);
+  bool (* parse_argument)(const MunitPlusSuite* suite, void* user_data, int* arg, int argc, char* const argv[MUNIT_PLUS_ARRAY_PARAM(argc + 1)]);
   void (* write_help)(const MunitPlusArgument* argument, void* user_data);
 };
 
 int munit_plus_suite_main_custom(const MunitPlusSuite* suite,
                             void* user_data,
-                            int argc, char* const argv[MUNIT_ARRAY_PARAM(argc + 1)],
+                            int argc, char* const argv[MUNIT_PLUS_ARRAY_PARAM(argc + 1)],
                             const MunitPlusArgument arguments[]);
 
 #if defined(MUNIT_ENABLE_ASSERT_ALIASES)

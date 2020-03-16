@@ -109,7 +109,7 @@ test_compare(const MunitPlusParameter params[], void* data) {
   munit_plus_assert_ptr_equal(most_fun_word_to_type, stewardesses);
 
   /* And null/not_null */
-  munit_plus_assert_null(NULL);
+  munit_plus_assert_null(nullptr);
   munit_plus_assert_not_null(most_fun_word_to_type);
 
   /* Lets verify that the data parameter is what we expected.  We'll
@@ -194,7 +194,7 @@ test_parameters(const MunitPlusParameter params[], void* user_data) {
   /* Similarly, "bar" is one of "four", "five", or "six". */
   bar = munit_plus_parameters_get(params, "bar");
   /* "baz" is a bit more complicated.  We don't actually specify a
-   * list of valid values, so by default NULL is passed.  However, the
+   * list of valid values, so by default nullptr is passed.  However, the
    * CLI will accept any value.  This is a good way to have a value
    * that is usually selected randomly by the test, but can be
    * overridden on the command line if desired. */
@@ -398,18 +398,18 @@ test_compare_cxx_oneoff(const MunitPlusParameter params[], void* data) {
 }
 
 static char* foo_params[] = {
-  (char*) "one", (char*) "two", (char*) "three", NULL
+  (char*) "one", (char*) "two", (char*) "three", nullptr
 };
 
 static char* bar_params[] = {
-  (char*) "red", (char*) "green", (char*) "blue", NULL
+  (char*) "red", (char*) "green", (char*) "blue", nullptr
 };
 
 static MunitPlusParameterEnum test_params[] = {
   { (char*) "foo", foo_params },
   { (char*) "bar", bar_params },
-  { (char*) "baz", NULL },
-  { NULL, NULL },
+  { (char*) "baz", nullptr },
+  { nullptr, nullptr },
 };
 
 /* Creating a test suite is pretty simple.  First, you'll need an
@@ -424,7 +424,7 @@ static MunitPlusTest test_suite_tests[] = {
      * functions. */
     test_compare,
     /* If you want, you can supply a function to set up a fixture.  If
-     * you supply NULL, the user_data parameter from munit_plus_suite_main
+     * you supply nullptr, the user_data parameter from munit_plus_suite_main
      * will be used directly.  If, however, you provide a callback
      * here the user_data parameter will be passed to this callback,
      * and the return value from this callback will be passed to the
@@ -441,13 +441,13 @@ static MunitPlusTest test_suite_tests[] = {
      * can provide either MUNIT_PLUS_TEST_OPTION_NONE or 0 here to use the
      * defaults. */
     MUNIT_PLUS_TEST_OPTION_NONE,
-    NULL
+    nullptr
   },
   /* Usually this is written in a much more compact format; all these
    * comments kind of ruin that, though.  Here is how you'll usually
    * see entries written: */
-  { (char*) "/example/rand", test_rand, NULL, NULL, MUNIT_PLUS_TEST_OPTION_NONE, NULL },
-  { (char*) "/example/parameters", test_parameters, NULL, NULL, MUNIT_PLUS_TEST_OPTION_NONE, test_params },
+  { (char*) "/example/rand", test_rand, nullptr, nullptr, MUNIT_PLUS_TEST_OPTION_NONE, nullptr },
+  { (char*) "/example/parameters", test_parameters, nullptr, nullptr, MUNIT_PLUS_TEST_OPTION_NONE, test_params },
   { (char*) "/example/cxx", test_compare_cxx, test_compare_setup, test_compare_tear_down, MUNIT_PLUS_TEST_OPTION_NONE },
   { (char*) "/example/lambda", [](const MunitPlusParameter params[], void* data)->MunitPlusResult{
         const char* foo = munit_plus_parameters_get(params, "foo");
@@ -459,17 +459,17 @@ static MunitPlusTest test_suite_tests[] = {
         return MUNIT_PLUS_OK;
       }, nullptr, nullptr, MUNIT_PLUS_TEST_OPTION_NONE, test_params },
   { (char*) "/example/cxx_oneoff", test_compare_cxx_oneoff, nullptr, nullptr, MUNIT_PLUS_TEST_OPTION_NONE },
-  /* To tell the test runner when the array is over, just add a NULL
+  /* To tell the test runner when the array is over, just add a nullptr
    * entry at the end. */
-  { NULL, NULL, NULL, NULL, MUNIT_PLUS_TEST_OPTION_NONE, NULL }
+  { nullptr, nullptr, nullptr, nullptr, MUNIT_PLUS_TEST_OPTION_NONE, nullptr }
 };
 
 /* If you wanted to have your test suite run other test suites you
  * could declare an array of them.  Of course each sub-suite can
  * contain more suites, etc. */
 /* static const MunitPlusSuite other_suites[] = { */
-/*   { "/second", test_suite_tests, NULL, 1, MUNIT_PLUS_SUITE_OPTION_NONE }, */
-/*   { NULL, NULL, NULL, 0, MUNIT_PLUS_SUITE_OPTION_NONE } */
+/*   { "/second", test_suite_tests, nullptr, 1, MUNIT_PLUS_SUITE_OPTION_NONE }, */
+/*   { nullptr, nullptr, nullptr, 0, MUNIT_PLUS_SUITE_OPTION_NONE } */
 /* }; */
 
 /* Now we'll actually declare the test suite.  You could do this in
@@ -478,7 +478,7 @@ static const MunitPlusSuite test_suite = {
   /* This string will be prepended to all test names in this suite;
    * for example, "/example/rand" will become "/µnit/example/rand".
    * Note that, while it doesn't really matter for the top-level
-   * suite, NULL signal the end of an array of tests; you should use
+   * suite, nullptr signal the end of an array of tests; you should use
    * an empty string ("") instead. */
   (char*) "",
   /* The first parameter is the array of test suites. */
@@ -488,7 +488,7 @@ static const MunitPlusSuite test_suite = {
    * a great help to projects with lots of tests by making it easier
    * to spread the tests across many files.  This is where you would
    * put "other_suites" (which is commented out above). */
-  NULL,
+  nullptr,
   /* An interesting feature of µnit is that it supports automatically
    * running multiple iterations of the tests.  This is usually only
    * interesting if you make use of the PRNG to randomize your tests

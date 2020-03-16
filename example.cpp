@@ -390,9 +390,9 @@ test_compare_cxx_oneoff(const MunitPlusParameter params[], void* data) {
   thing_with_a_dtor two[2];
   //munit_plus_rand_memory_ex(two);
   /* read */{
-    for (long x : seven) { munit_plus_logf(MUNIT_PLUS_LOG_INFO, "seven: %li\n", x); }
-    for (trivial_thing const& x : five) { munit_plus_logf(MUNIT_PLUS_LOG_INFO, "five: %i,%f,%p\n", x.yay,x.hah,x.nowhere); }
-    for (int x : six) { munit_plus_logf(MUNIT_PLUS_LOG_INFO, "six: %i\n", x); }
+    for (long x : seven) { munit_plus_logf(MUNIT_PLUS_LOG_INFO, "seven: %li", x); }
+    for (trivial_thing const& x : five) { munit_plus_logf(MUNIT_PLUS_LOG_INFO, "five: %i,%f,%p", x.yay,x.hah,x.nowhere); }
+    for (int x : six) { munit_plus_logf(MUNIT_PLUS_LOG_INFO, "six: %i", x); }
   }
   return MUNIT_PLUS_OK;
 }

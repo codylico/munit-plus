@@ -345,7 +345,7 @@ test_compare_cxx(const MunitPlusParameter params[], void* data) {
 
   /* There are equal/not_equal macros for pointers, too: */
   most_fun_word_to_type = stewardesses;
-  munit_plus_assert_ptr_equal(most_fun_word_to_type.c_str(), stewardesses.c_str());
+  munit_plus_assert_ptr_not_equal(most_fun_word_to_type.c_str(), stewardesses.c_str());
 
   /* And null/not_null */
   munit_plus_assert_null(nullptr);
@@ -358,9 +358,6 @@ test_compare_cxx(const MunitPlusParameter params[], void* data) {
    * function a real pointer (instead of a number like 0xdeadbeef) it
    * would work as expected. */
   munit_plus_assert_ptr_equal(data, reinterpret_cast<void*>(static_cast<uintptr_t>(0xdeadbeef)));
-
-  /* Fail this test to see if thingie's destructor gets called. */
-  munit_plus_assert_true(false);
 
   return MUNIT_PLUS_OK;
 }
@@ -451,7 +448,7 @@ static MunitPlusTest test_suite_tests[] = {
    * see entries written: */
   { (char*) "/example/rand", test_rand, NULL, NULL, MUNIT_PLUS_TEST_OPTION_NONE, NULL },
   { (char*) "/example/parameters", test_parameters, NULL, NULL, MUNIT_PLUS_TEST_OPTION_NONE, test_params },
-  { (char*) "/example/cxx", test_compare_cxx, nullptr, nullptr, MUNIT_PLUS_TEST_OPTION_NONE },
+  { (char*) "/example/cxx", test_compare_cxx, test_compare_setup, test_compare_tear_down, MUNIT_PLUS_TEST_OPTION_NONE },
   { (char*) "/example/lambda", [](const MunitPlusParameter params[], void* data)->MunitPlusResult{
         const char* foo = munit_plus_parameters_get(params, "foo");
         const char* bar = munit_plus_parameters_get(params, "bar");

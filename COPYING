@@ -1,5 +1,6 @@
-µnit Testing Framework
-Copyright (c) 2013-2016 Evan Nemerson <evan@nemerson.com>
+µnit-plus Testing Framework
+Original library copyright (c) 2013-2016 Evan Nemerson <evan@nemerson.com>
+C++ adaptations copyright (c) 2020 Cody Licorish <svgmovement@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the

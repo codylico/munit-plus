@@ -1,4 +1,18 @@
-# µnit
+# µnit-plus
+
+This is an unofficial port of the `µnit` unit testing library to C++ 2011.
+Features include:
+ * API similar to the original library
+ * Proper handling of exceptions
+ * Templated functions for randomizing trivial instances
+ * Support for user-defined comparison operators for assertions
+ * Support for custom formatters for user-defined classes
+
+The license remains MIT.
+
+Original README continues below.
+
+## µnit (from original)
 
 µnit is a small but full-featured unit testing framework for C.  It has
 no dependencies (beyond libc), is permissively licensed (MIT), and is

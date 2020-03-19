@@ -10,6 +10,10 @@ Features include:
 
 The license remains MIT.
 
+### Build status for µnit-plus
+[![Build status](https://travis-ci.com/codylico/munit-plus.svg?branch=cxx11)](https://travis-ci.com/github/codylico/munit-plus)
+[![Windows build status](https://ci.appveyor.com/api/projects/status/2g4e5b3fferv9hmw?svg=true)](https://ci.appveyor.com/project/codylico/munit-plus/branch/cxx11)
+
 Original README continues below.
 
 ## µnit (from original)

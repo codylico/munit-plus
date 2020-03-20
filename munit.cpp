@@ -812,7 +812,7 @@ munit_plus_clock_get_elapsed(struct PsnipClockTimespec* start, struct PsnipClock
 #elif defined(HAVE_STDATOMIC)
 #  include <cstdint>
 #  include <atomic>
-#  define ATOMIC_UINT32_T std::atomic<sts::uint32_t>
+#  define ATOMIC_UINT32_T std::atomic<std::uint32_t>
 #  define ATOMIC_UINT32_INIT(x) ATOMIC_VAR_INIT(x)
 #elif defined(HAVE_CLANG_ATOMICS)
 #  define ATOMIC_UINT32_T _Atomic uint32_t

@@ -51,14 +51,14 @@ matrix:
     #       packages:
     #       - gcc-4.7
     #       - g++-4.7
-    - env: CXX_COMPILER=g++-4.6
-      addons:
-        apt:
-          sources:
-          - ubuntu-toolchain-r-test
-          packages:
-          - gcc-4.6
-          - g++-4.6
+    #- env: CXX_COMPILER=g++-4.6 #since no c++11 support
+    #  addons:
+    #    apt:
+    #      sources:
+    #      - ubuntu-toolchain-r-test
+    #      packages:
+    #      - gcc-4.6
+    #      - g++-4.6
     # - os: linux
     #   env: CXX_COMPILER=g++-4.5
     #   addons:
@@ -68,14 +68,14 @@ matrix:
     #       packages:
     #       - gcc-4.5
     #       - g++-4.5
-    - env: CXX_COMPILER=g++-4.4
-      addons:
-        apt:
-          sources:
-          - ubuntu-toolchain-r-test
-          packages:
-          - gcc-4.4
-          - g++-4.4
+    #- env: CXX_COMPILER=g++-4.4 #since no c++11 support
+    #  addons:
+    #    apt:
+    #      sources:
+    #      - ubuntu-toolchain-r-test
+    #      packages:
+    #      - gcc-4.4
+    #      - g++-4.4
 
     ###
     ## clang on Linux

@@ -504,7 +504,7 @@ static const MunitPlusSuite test_suite = {
  * *should* be using but probably aren't (no, zero and non-zero don't
  * always mean success and failure).  I guess my point is that nothing
  * about µnit requires it. */
-#include <stdlib.h>
+#include <cstdlib>
 
 int main(int argc, char* argv[MUNIT_PLUS_ARRAY_PARAM(argc + 1)]) {
   /* Finally, we'll actually run our test suite!  That second argument

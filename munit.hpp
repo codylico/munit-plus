@@ -25,8 +25,9 @@
 #if !defined(MUNIT_PLUS_H)
 #define MUNIT_PLUS_H
 
-#include <stdarg.h>
-#include <stdlib.h>
+#include <cstdarg>
+#include <cstdlib>
+#include <cstring>
 
 #define MUNIT_PLUS_VERSION(major, minor, revision) \
   (((major) << 16) | ((minor) << 8) | (revision))
@@ -43,7 +44,7 @@
 #  define munit_plus_int64_t  __int64
 #  define munit_plus_uint64_t unsigned __int64
 #else
-#  include <stdint.h>
+#  include <cstdint>
 #  define munit_plus_int8_t   int8_t
 #  define munit_plus_uint8_t  uint8_t
 #  define munit_plus_int16_t  int16_t
@@ -104,7 +105,7 @@
 #    define PRIu64 "I64u"
 #  endif
 #else
-#  include <inttypes.h>
+#  include <cinttypes>
 #endif
 
 #if defined(__cplusplus)
@@ -266,9 +267,6 @@ void munit_plus_errorf_ex(const char* filename, int line, const char* format, ..
 
 #define munit_plus_assert_double_equal(a, b, precision) \
   munit_plus_assert_near_equal(double, a, b, precision)
-
-#include <cstring>
-#include <string.h>
 
 #define munit_plus_assert_string_equal(a, b) \
   do { \

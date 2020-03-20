@@ -780,8 +780,8 @@ bool munit_plus_precision<C>::operator>(double eps) const { return value > eps; 
 
 #define munit_plus_assert_op(a, op, b) \
   /*do*/ { \
-    decltype(a) const& munit_tmp_a_ = (a); \
-    decltype(b) const& munit_tmp_b_ = (b); \
+    std::remove_reference<decltype(a)>::type const& munit_tmp_a_ = (a); \
+    std::remove_reference<decltype(b)>::type const& munit_tmp_b_ = (b); \
     munit_plus_assert_type_base(__FILE__, __LINE__, #a,#b,\
       munit_tmp_a_, munit_tmp_b_,\
       munit_plus_op_switch<decltype(munit_tmp_a_)>(munit_tmp_a_) op munit_tmp_b_); \

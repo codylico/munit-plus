@@ -1,11 +1,10 @@
-project('munit_plus', 'cpp')
+project('munit_plus', 'cpp',
+  default_options : ['cpp_std=c++11'])
 
 conf_data = configuration_data()
 conf_data.set('version', '0.2.0')
 
-add_project_arguments('-std=c++11', language : 'cpp')
-
-cc  = meson.get_compiler('cpp')
+cxx = meson.get_compiler('cpp')
 
 root_include = include_directories('.')
 

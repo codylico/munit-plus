@@ -142,7 +142,7 @@ matrix:
           - ubuntu-toolchain-r-test
           packages:
           - meson
-          - ninja
+          - ninja-build
 
 before_install:
 - if [ -n "${CXX_COMPILER}" ]; then export CXX="${CXX_COMPILER}"; fi

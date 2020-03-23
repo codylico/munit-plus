@@ -135,6 +135,7 @@ matrix:
     ## Meson
     ###
     - env: BUILD_SYSTEM=meson
+      dist: xenial
       addons:
         apt:
           sources:

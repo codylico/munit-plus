@@ -1372,7 +1372,7 @@ munit_plus_test_runner_run_test_with_params(MunitPlusTestRunner* runner, const M
 #endif /*MUNIT_THREAD_LOCAL*/
       try {
         munit_plus_test_runner_exec(runner, test, params, &report);
-      } catch (struct munit_plus_error_jmp const& j) {
+      } catch (munit_plus_error_jmp const& j) {
         report.failed++;
 #if defined(MUNIT_THREAD_LOCAL)
         munit_plus_error_jmp_active = false;
@@ -1465,7 +1465,7 @@ munit_plus_test_runner_run_test_with_params(MunitPlusTestRunner* runner, const M
 #endif /*MUNIT_THREAD_LOCAL*/
     try {
       result = munit_plus_test_runner_exec(runner, test, params, &report);
-    } catch (struct munit_plus_error_jmp const& ) {
+    } catch (munit_plus_error_jmp const& ) {
       result = MUNIT_PLUS_FAIL;
 #if defined(MUNIT_THREAD_LOCAL)
       munit_plus_error_jmp_active = false;

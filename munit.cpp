@@ -238,7 +238,7 @@ munit_plus_log_internal(MunitPlusLogLevel level, FILE* fp, const char* message) 
 }
 
 void
-munit_plus_logf_ex(MunitPlusLogLevel level, const char* filename, int line, const char* format, ...) {
+munit_plus_logf_ex(MunitPlusLogLevel level, const char* filename, int line, const char* format, ...) noexcept(false) {
   va_list ap;
 
   va_start(ap, format);
@@ -251,7 +251,7 @@ munit_plus_logf_ex(MunitPlusLogLevel level, const char* filename, int line, cons
 }
 
 void
-munit_plus_errorf_ex(const char* filename, int line, const char* format, ...) {
+munit_plus_errorf_ex(const char* filename, int line, const char* format, ...) noexcept(false) {
   va_list ap;
 
   va_start(ap, format);

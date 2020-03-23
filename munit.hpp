@@ -108,9 +108,7 @@
 #  include <cinttypes>
 #endif
 
-#if defined(__cplusplus)
-extern "C" {
-#endif
+extern "C++" {
 
 #if defined(__GNUC__)
 #  define MUNIT_PLUS_LIKELY(expr) (__builtin_expect ((expr), 1))
@@ -178,7 +176,7 @@ typedef enum {
 #define MUNIT_PRINTF MUNIT_PLUS_PRINTF
 
 MUNIT_PLUS_PRINTF(4, 5)
-void munit_plus_logf_ex(MunitPlusLogLevel level, const char* filename, int line, const char* format, ...);
+void munit_plus_logf_ex(MunitPlusLogLevel level, const char* filename, int line, const char* format, ...) noexcept(false);
 
 #define munit_plus_logf(level, format, ...) \
   munit_plus_logf_ex(level, __FILE__, __LINE__, format, __VA_ARGS__)
@@ -188,7 +186,7 @@ void munit_plus_logf_ex(MunitPlusLogLevel level, const char* filename, int line,
 
 MUNIT_PLUS_NO_RETURN
 MUNIT_PLUS_PRINTF(3, 4)
-void munit_plus_errorf_ex(const char* filename, int line, const char* format, ...);
+void munit_plus_errorf_ex(const char* filename, int line, const char* format, ...) noexcept(false);
 
 #define munit_plus_errorf(format, ...) \
   munit_plus_errorf_ex(__FILE__, __LINE__, format, __VA_ARGS__)
@@ -486,9 +484,7 @@ int munit_plus_suite_main_custom(const MunitPlusSuite* suite,
 
 #endif /* defined(MUNIT_ENABLE_ASSERT_ALIASES) */
 
-#if defined(__cplusplus)
 }
-#endif
 
 
 /*** Cxx-style macros ***/

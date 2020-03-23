@@ -345,7 +345,7 @@ test_compare_cxx(const MunitPlusParameter params[], void* data) {
 
   /* There are equal/not_equal macros for pointers, too: */
   most_fun_word_to_type = stewardesses;
-  munit_plus_assert_ptr_not_equal(most_fun_word_to_type.c_str(), stewardesses.c_str());
+  munit_plus_assert_ptr_not_equal(&most_fun_word_to_type, &stewardesses);
 
   /* And null/not_null */
   munit_plus_assert_null(nullptr);

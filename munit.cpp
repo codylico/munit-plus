@@ -2109,7 +2109,7 @@ munit_plus_suite_main(const MunitPlusSuite* suite, void* user_data,
 #include <cstring>
 #include <iomanip>
 
-std::string munit_plus_formatter<std::nullptr_t>::format(std::nullptr_t val) {
+std::string munit_plus_formatter<std::nullptr_t>::format(std::nullptr_t ) {
   return "(nil)";
 }
 

@@ -371,6 +371,11 @@ public:
 };
 static MunitPlusResult
 test_compare_cxx_oneoff(const MunitPlusParameter params[], void* data) {
+  /* These are just to silence compiler warnings about the parameters
+   * being unused. */
+  (void) params;
+  (void) data;
+
   std::list<long> seven;
   /* assign */{
     int i;
@@ -450,6 +455,7 @@ static MunitPlusTest test_suite_tests[] = {
   { (char*) "/example/parameters", test_parameters, nullptr, nullptr, MUNIT_PLUS_TEST_OPTION_NONE, test_params },
   { (char*) "/example/cxx", test_compare_cxx, test_compare_setup, test_compare_tear_down, MUNIT_PLUS_TEST_OPTION_NONE },
   { (char*) "/example/lambda", [](const MunitPlusParameter params[], void* data)->MunitPlusResult{
+        (void)data;
         const char* foo = munit_plus_parameters_get(params, "foo");
         const char* bar = munit_plus_parameters_get(params, "bar");
         const char* baz = munit_plus_parameters_get(params, "baz");

@@ -2287,21 +2287,4 @@ std::string munit_plus_formatter<void*>::format(void const* val) {
   return out;
 };
 
-
-#include <cstdio>
-#include <cstdarg>
-#include <exception>
-
-#if defined(__EMSCRIPTEN__)
-#  define MUNIT_NO_BUFFER
-#endif
-
-/*** Logging ***/
-
-
-#if defined(__MINGW32__) || defined(__MINGW64__)
-#pragma GCC diagnostic pop
-#endif
-
-
 //END   cxx-style stuff

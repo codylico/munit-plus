@@ -22,6 +22,7 @@ branches:
   except:
     - master
     - /^(wip\/)?(travis|osx|mingw|ipp)(\-.+)?$/
+    - cxx11-meson
 
 configuration: Debug
 

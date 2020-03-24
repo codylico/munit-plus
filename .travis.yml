@@ -135,11 +135,17 @@ matrix:
     ## Meson
     ###
     - env: BUILD_SYSTEM=meson
+      dist: bionic
+      addons:
+        apt:
+          packages:
+          - meson
+          - ninja-build
 
 before_install:
 - if [ -n "${CXX_COMPILER}" ]; then export CXX="${CXX_COMPILER}"; fi
 - if [ "${CXX_COMPILER}" = "pgc++" ]; then wget -q -O /dev/stdout 'https://raw.githubusercontent.com/nemequ/pgi-travis/master/install-pgi.sh' | /bin/sh; fi
-- if [ "${BUILD_SYSTEM}" = "meson" ]; then wget -O /tmp/ninja-linux.zip $(curl -s https://api.github.com/repos/ninja-build/ninja/releases/latest | grep -oP 'https://github.com/ninja-build/ninja/releases/download/v[0-9\.]+/ninja-linux.zip') && unzip -q /tmp/ninja-linux.zip -d ~/bin && pyenv local 3.6 && pip3 install meson; fi
+#- if [ "${BUILD_SYSTEM}" = "meson" ]; then wget -O /tmp/ninja-linux.zip $(curl -s https://api.github.com/repos/ninja-build/ninja/releases/latest | grep -oP 'https://github.com/ninja-build/ninja/releases/download/v[0-9\.]+/ninja-linux.zip') && unzip -q /tmp/ninja-linux.zip -d ~/bin && pyenv local 3.6 && pip3 install meson; fi
 
 script:
  - if [ "${BUILD_SYSTEM}" = "meson" ]; then meson build && ninja -Cbuild; else make CXX="${CXX}" AGGRESSIVE_WARNINGS=y EXTENSION="${EXTENSION}" OPENMP="${OPENMP}" ASAN="${ASAN}" UBSAN="${UBSAN}"; fi

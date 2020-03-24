@@ -2128,6 +2128,18 @@ std::string munit_plus_formatter<bool>::format(bool val) {
     MUNIT__PUSH_DISABLE_MSVC_C4127 \
   } while (0) \
   MUNIT__POP_DISABLE_MSVC_C4127
+#define munit_plus_format_prec_do(out, val, i, format) \
+  do { \
+    MUNIT_PLUS_CONSTEXPR char const* f = format; \
+    int const len = std::snprintf(nullptr, 0u, f, i, val); \
+    if (len > 0) { \
+      out.resize(len+1, 0); \
+      std::snprintf(&out[0], len+1, f, i, val); \
+      out.resize(len); \
+    } \
+    MUNIT__PUSH_DISABLE_MSVC_C4127 \
+  } while (0) \
+  MUNIT__POP_DISABLE_MSVC_C4127
 
 
 std::string munit_plus_formatter<char>::format(char val) {
@@ -2207,30 +2219,18 @@ std::string munit_plus_formatter<long double>::format(long double val) {
 };
 
 std::string munit_plus_formatter<float>::precise_format(float val, int i) {
-  MUNIT_PLUS_CONSTEXPR char const* format = "%0.*g";
-  int const len = std::snprintf(nullptr, 0u, format, i, val);
-  if (len < 0) return std::string();
-  std::string out(len+1, 0);
-  std::snprintf(&out[0], len+1, format, i, val);
-  out.resize(len);
+  std::string out;
+  munit_plus_format_prec_do(out, val, i, "%0.*g");
   return out;
 };
 std::string munit_plus_formatter<double>::precise_format(double val, int i) {
-  MUNIT_PLUS_CONSTEXPR char const* format = "%0.*g";
-  int const len = std::snprintf(nullptr, 0u, format, i, val);
-  if (len < 0) return std::string();
-  std::string out(len+1, 0);
-  std::snprintf(&out[0], len+1, format, i, val);
-  out.resize(len);
+  std::string out;
+  munit_plus_format_prec_do(out, val, i, "%0.*g");
   return out;
 };
 std::string munit_plus_formatter<long double>::precise_format(long double val, int i) {
-  MUNIT_PLUS_CONSTEXPR char const* format = "%0.*Lg";
-  int const len = std::snprintf(nullptr, 0u, format, i, val);
-  if (len < 0) return std::string();
-  std::string out(len+1, 0);
-  std::snprintf(&out[0], len+1, format, i, val);
-  out.resize(len);
+  std::string out;
+  munit_plus_format_prec_do(out, val, i, "%0.*Lg");
   return out;
 };
 

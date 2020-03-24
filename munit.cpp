@@ -133,6 +133,14 @@
 #pragma warning(disable: 4127)
 #endif
 
+/* MSVC 14.0 complains about unused function 'psnip_clock_get_precision'.
+ * Since 'psnip_clock...' is supposed to remain in sync with the source
+ * repository, neither removing it nor marking as [[maybe_unused]] are
+ * viable options. */
+#if defined(_MSC_VER) && (_MSC_VER >= 1900)
+#  pragma warning(disable: 4505)
+#endif
+
 #if defined(_WIN32) || defined(__EMSCRIPTEN__)
 #  define MUNIT_NO_FORK
 #endif

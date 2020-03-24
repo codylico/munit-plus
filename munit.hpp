@@ -489,7 +489,11 @@ int munit_plus_suite_main_custom(const MunitPlusSuite* suite,
 
 /*** Cxx-style macros ***/
 
-
+#if defined(_MSC_VER) && (_MSC_VER < 1900)
+#  define MUNIT_PLUS_CONSTEXPR
+#else
+#  define MUNIT_PLUS_CONSTEXPR constexpr
+#endif /*_MSC_VER*/
 
 
 #include <string>
@@ -603,27 +607,27 @@ std::string munit_plus_formatter<T*>::format(T const* val) {
 
 struct munit_plus_ops {
   struct equal_to {
-    static constexpr char const* text = " == ";
+    static MUNIT_PLUS_CONSTEXPR char const* text = " == ";
     bool value;
   };
   struct not_equal_to {
-    static constexpr char const* text = " != ";
+    static MUNIT_PLUS_CONSTEXPR char const* text = " != ";
     bool value;
   };
   struct greater {
-    static constexpr char const* text = " > ";
+    static MUNIT_PLUS_CONSTEXPR char const* text = " > ";
     bool value;
   };
   struct less {
-    static constexpr char const* text = " < ";
+    static MUNIT_PLUS_CONSTEXPR char const* text = " < ";
     bool value;
   };
   struct greater_equal {
-    static constexpr char const* text = " >= ";
+    static MUNIT_PLUS_CONSTEXPR char const* text = " >= ";
     bool value;
   };
   struct less_equal {
-    static constexpr char const* text = " <= ";
+    static MUNIT_PLUS_CONSTEXPR char const* text = " <= ";
     bool value;
   };
 };
@@ -697,7 +701,7 @@ template <typename A, typename B>
 inline void munit_plus_assert_precision_base
     (char const* filename, int line, char const* stra, char const* strb, A const a, B const b, double eps, int prec)
 {
-  constexpr char const* C_text = " == ";
+  MUNIT_PLUS_CONSTEXPR char const* C_text = " == ";
   typedef decltype(a-b) C;
   munit_plus_precision<C> const diff = ((a - b) < 0) ?
       -(a - b) :

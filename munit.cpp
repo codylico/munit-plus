@@ -2110,7 +2110,7 @@ std::string munit_plus_formatter<bool>::format(bool val) {
 
 #define munit_plus_format_do(out, val, format) \
   do { \
-    constexpr char const* f = format; \
+    MUNIT_PLUS_CONSTEXPR char const* f = format; \
     int const len = std::snprintf(nullptr, 0u, f, val); \
     if (len > 0) { \
       out.resize(len+1, 0); \
@@ -2199,7 +2199,7 @@ std::string munit_plus_formatter<long double>::format(long double val) {
 };
 
 std::string munit_plus_formatter<float>::precise_format(float val, int i) {
-  constexpr char const* format = "%0.*g";
+  MUNIT_PLUS_CONSTEXPR char const* format = "%0.*g";
   int const len = std::snprintf(nullptr, 0u, format, i, val);
   if (len < 0) return std::string();
   std::string out(len+1, 0);
@@ -2208,7 +2208,7 @@ std::string munit_plus_formatter<float>::precise_format(float val, int i) {
   return out;
 };
 std::string munit_plus_formatter<double>::precise_format(double val, int i) {
-  constexpr char const* format = "%0.*g";
+  MUNIT_PLUS_CONSTEXPR char const* format = "%0.*g";
   int const len = std::snprintf(nullptr, 0u, format, i, val);
   if (len < 0) return std::string();
   std::string out(len+1, 0);
@@ -2217,7 +2217,7 @@ std::string munit_plus_formatter<double>::precise_format(double val, int i) {
   return out;
 };
 std::string munit_plus_formatter<long double>::precise_format(long double val, int i) {
-  constexpr char const* format = "%0.*Lg";
+  MUNIT_PLUS_CONSTEXPR char const* format = "%0.*Lg";
   int const len = std::snprintf(nullptr, 0u, format, i, val);
   if (len < 0) return std::string();
   std::string out(len+1, 0);

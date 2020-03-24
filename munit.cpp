@@ -2107,6 +2107,7 @@ munit_plus_suite_main(const MunitPlusSuite* suite, void* user_data,
 //BEGIN cxx-style stuff
 #include <cstdio>
 #include <cstring>
+#include <iomanip>
 
 std::string munit_plus_formatter<std::nullptr_t>::format(std::nullptr_t val) {
   return "(nil)";
@@ -2116,31 +2117,77 @@ std::string munit_plus_formatter<bool>::format(bool val) {
   return val ? "true" : "false";
 };
 
-#define munit_plus_format_do(out, val, format) \
-  do { \
-    MUNIT_PLUS_CONSTEXPR char const* f = format; \
-    int const len = std::snprintf(nullptr, 0u, f, val); \
-    if (len > 0) { \
-      out.resize(len+1, 0); \
-      std::snprintf(&out[0], len+1, f, val); \
-      out.resize(len); \
-    } \
-    MUNIT__PUSH_DISABLE_MSVC_C4127 \
-  } while (0) \
-  MUNIT__POP_DISABLE_MSVC_C4127
-#define munit_plus_format_prec_do(out, val, i, format) \
-  do { \
-    MUNIT_PLUS_CONSTEXPR char const* f = format; \
-    int const len = std::snprintf(nullptr, 0u, f, i, val); \
-    if (len > 0) { \
-      out.resize(len+1, 0); \
-      std::snprintf(&out[0], len+1, f, i, val); \
-      out.resize(len); \
-    } \
-    MUNIT__PUSH_DISABLE_MSVC_C4127 \
-  } while (0) \
-  MUNIT__POP_DISABLE_MSVC_C4127
+#if defined(_MSC_VER) && (_MSC_VER < 1900)
+namespace {
+  template <typename A>
+  void munit_plus_format_put(std::ostream & os, A a);
 
+  template <typename A>
+  void munit_plus_format_put(std::ostream & os, A a) {
+    os << a;
+  }
+  template <>
+  void munit_plus_format_put<char>(std::ostream & os, char a) {
+    os << "\\x";
+    os.width(2); os.fill('0');
+    os << std::hex << static_cast<unsigned int>(a);
+  }
+  template <>
+  void munit_plus_format_put<signed char>(std::ostream & os, signed char a) {
+    os << "\\x";
+    os.width(2); os.fill('0');
+    os << std::hex << static_cast<unsigned int>(a);
+  }
+  template <>
+  void munit_plus_format_put<unsigned char>(std::ostream & os, unsigned char a) {
+    os << "\\x";
+    os.width(2); os.fill('0');
+    os << std::hex << static_cast<unsigned int>(a);
+  }
+};
+#  define munit_plus_format_do(out, val, format) \
+    do { \
+      std::ostringstream os; \
+      munit_plus_format_put(os, val); \
+      out = os.str(); \
+      MUNIT__PUSH_DISABLE_MSVC_C4127 \
+    } while (0) \
+    MUNIT__POP_DISABLE_MSVC_C4127
+#  define munit_plus_format_prec_do(out, val, i, format) \
+    do { \
+      std::ostringstream os; \
+      os.precision(i); \
+      os << val; \
+      out = os.str(); \
+      MUNIT__PUSH_DISABLE_MSVC_C4127 \
+    } while (0) \
+    MUNIT__POP_DISABLE_MSVC_C4127
+#else
+#  define munit_plus_format_do(out, val, format) \
+    do { \
+      MUNIT_PLUS_CONSTEXPR char const* f = format; \
+      int const len = std::snprintf(nullptr, 0u, f, val); \
+      if (len > 0) { \
+        out.resize(len+1, 0); \
+        std::snprintf(&out[0], len+1, f, val); \
+        out.resize(len); \
+      } \
+      MUNIT__PUSH_DISABLE_MSVC_C4127 \
+    } while (0) \
+    MUNIT__POP_DISABLE_MSVC_C4127
+#  define munit_plus_format_prec_do(out, val, i, format) \
+    do { \
+      MUNIT_PLUS_CONSTEXPR char const* f = format; \
+      int const len = std::snprintf(nullptr, 0u, f, i, val); \
+      if (len > 0) { \
+        out.resize(len+1, 0); \
+        std::snprintf(&out[0], len+1, f, i, val); \
+        out.resize(len); \
+      } \
+      MUNIT__PUSH_DISABLE_MSVC_C4127 \
+    } while (0) \
+    MUNIT__POP_DISABLE_MSVC_C4127
+#endif
 
 std::string munit_plus_formatter<char>::format(char val) {
   std::string out;

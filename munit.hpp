@@ -629,27 +629,27 @@ std::string munit_plus_formatter<T*>::format(T const* val) {
 
 struct munit_plus_ops {
   struct equal_to {
-    static MUNIT_PLUS_CONSTEXPR char const* text = " == ";
+    static MUNIT_PLUS_CONSTEXPR char const* text(void) { return " == "; };
     bool value;
   };
   struct not_equal_to {
-    static MUNIT_PLUS_CONSTEXPR char const* text = " != ";
+    static MUNIT_PLUS_CONSTEXPR char const* text(void) { return " != "; };
     bool value;
   };
   struct greater {
-    static MUNIT_PLUS_CONSTEXPR char const* text = " > ";
+    static MUNIT_PLUS_CONSTEXPR char const* text(void) { return " > "; };
     bool value;
   };
   struct less {
-    static MUNIT_PLUS_CONSTEXPR char const* text = " < ";
+    static MUNIT_PLUS_CONSTEXPR char const* text(void) { return " < "; };
     bool value;
   };
   struct greater_equal {
-    static MUNIT_PLUS_CONSTEXPR char const* text = " >= ";
+    static MUNIT_PLUS_CONSTEXPR char const* text(void) { return " >= "; };
     bool value;
   };
   struct less_equal {
-    static MUNIT_PLUS_CONSTEXPR char const* text = " <= ";
+    static MUNIT_PLUS_CONSTEXPR char const* text(void) { return " <= "; };
     bool value;
   };
 };
@@ -718,9 +718,9 @@ inline void munit_plus_assert_type_base
   if (!MUNIT_PLUS_LIKELY(c.value)) {
     std::string text = "assertion failed: ";
     text.reserve(100);
-    (((text += stra) += C::text) += strb);
+    (((text += stra) += C::text()) += strb);
     ((text += " (") += munit_plus_formatter<A>::format(a));
-    text += C::text;
+    text += C::text();
     (text += munit_plus_formatter<B>::format(b)) += ")";
     munit_plus_errorf_ex(filename, line, "%s", text.c_str());
   }

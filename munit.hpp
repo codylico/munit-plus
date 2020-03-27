@@ -832,9 +832,6 @@ inline A* munit_plus_new_ex(const char* typetext, const char* filename, int line
 {
   A* ptr;
 
-  if (sizeof(A) == 0)
-    return nullptr;
-
   try {
     ptr = new A;
   } catch (std::exception const& e) {
@@ -866,9 +863,6 @@ inline A* munit_plus_new_ex(const char* typetext, const char* filename, int line
 {
   A* ptr;
 
-  if (sizeof(A) == 0)
-    return nullptr;
-
   try {
     ptr = new A(static_cast<D&&>(args)...);
   } catch (std::exception const& e) {
@@ -894,7 +888,7 @@ template <typename A>
 inline A* munit_plus_newa_ex(const char* typetext, const char* filename, int line, std::size_t nmemb) {
   A* ptr;
 
-  if (sizeof(A) == 0 || nmemb == 0)
+  if (nmemb == 0u)
     return nullptr;
 
   try {

@@ -345,8 +345,30 @@ void* munit_plus_malloc_ex(const char* filename, int line, std::size_t size);
 
 #define munit_plus_new(type) \
   munit_plus_new_ex<type>(#type, __FILE__, __LINE__)
-#define munit_plus_newp(type, ...) \
-  munit_plus_new_ex<type>(#type, __FILE__, __LINE__, __VA_ARGS__)
+#if defined(_MSC_VER) && (_MSC_VER < 1800)
+#  define munit_plus_newp(type, ...) /* because no support for typename...D yet */ \
+    [&](void) -> type * { \
+      type * out; \
+      try { \
+        return new type(__VA_ARGS__); \
+      } catch (std::exception const& e) { \
+        munit_plus_logf(MUNIT_PLUS_LOG_ERROR, \
+          "Failed to construct %s of %" MUNIT_PLUS_SIZE_MODIFIER "u bytes. (what(): %s)", #type, sizeof(type), e.what()); \
+        throw; \
+      } catch (...) { \
+        munit_plus_logf(MUNIT_PLUS_LOG_ERROR, \
+          "Failed to construct %s of %" MUNIT_PLUS_SIZE_MODIFIER "u bytes.", #type, sizeof(type)); \
+        throw; \
+      } \
+      if (MUNIT_PLUS_UNLIKELY(out == nullptr)) { \
+        munit_plus_logf(MUNIT_PLUS_LOG_ERROR, \
+          "Failed to allocate %s of %" MUNIT_PLUS_SIZE_MODIFIER "u bytes.", #type, sizeof(type)); \
+      } \
+    }()
+#else
+#  define munit_plus_newp(type, ...) \
+    munit_plus_new_ex<type>(#type, __FILE__, __LINE__, __VA_ARGS__)
+#endif
 
 #define munit_plus_calloc(nmemb, size) \
   munit_plus_malloc((nmemb) * (size))
@@ -669,8 +691,15 @@ template <typename A, typename B>
 void munit_plus_assert_precision_base
     (char const* filename, int line, char const* stra, char const* strb, A const a, B const b, double eps, int prec);
 
+#if defined(_MSC_VER) && (_MSC_VER < 1800)
+template <typename A>
+A* munit_plus_new_ex(const char* typetext, const char* filename, int line);
+template <typename A, typename B>
+A* munit_plus_new_ex(const char* typetext, const char* filename, int line, B, ...); /* will trigger static_assert! */
+#else
 template <typename A, typename... D>
 A* munit_plus_new_ex(const char* typetext, const char* filename, int line, D... args);
+#endif
 template <typename A>
 A* munit_plus_newa_ex(const char* typetext, const char* filename, int line, std::size_t nmemb);
 
@@ -793,6 +822,41 @@ bool munit_plus_precision<C>::operator>(double eps) const { return value > eps; 
       munit_tmp_a_,munit_tmp_b_,1e-##precision,precision); \
   } /*while (0)*/
 
+#if defined(_MSC_VER) && (_MSC_VER < 1800)
+template <typename A> /* because no support for typename...D yet */
+inline A* munit_plus_new_ex(const char* typetext, const char* filename, int line)
+{
+  A* ptr;
+
+  if (sizeof(A) == 0)
+    return nullptr;
+
+  try {
+    ptr = new A;
+  } catch (std::exception const& e) {
+    munit_plus_logf_ex(MUNIT_PLUS_LOG_ERROR, filename, line,
+      "Failed to construct %s of %" MUNIT_PLUS_SIZE_MODIFIER "u bytes. (what(): %s)",
+      typetext, sizeof(A), e.what());
+    throw;
+  } catch (...) {
+    munit_plus_logf_ex(MUNIT_PLUS_LOG_ERROR, filename, line,
+      "Failed to construct %s of %" MUNIT_PLUS_SIZE_MODIFIER "u bytes.", typetext, sizeof(A));
+    throw;
+  }
+  if (MUNIT_PLUS_UNLIKELY(ptr == nullptr)) {
+    munit_plus_logf_ex(MUNIT_PLUS_LOG_ERROR, filename, line,
+      "Failed to allocate %s of %" MUNIT_PLUS_SIZE_MODIFIER "u bytes.", typetext, sizeof(A));
+  }
+
+  return ptr;
+}
+template <typename A, typename B> /* because no support for typename...D yet */
+inline A* munit_plus_new_ex(const char* typetext, const char* filename, int line, B, ...)
+{
+  static_assert(sizeof(A) == 0u, "Parameter pack syntax unavailable. Use the munit_plus_newp macro.");
+  return nullptr;
+}
+#else
 template <typename A, typename ...D>
 inline A* munit_plus_new_ex(const char* typetext, const char* filename, int line, D... args)
 {
@@ -820,6 +884,7 @@ inline A* munit_plus_new_ex(const char* typetext, const char* filename, int line
 
   return ptr;
 }
+#endif
 
 template <typename A>
 inline A* munit_plus_newa_ex(const char* typetext, const char* filename, int line, std::size_t nmemb) {

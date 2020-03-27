@@ -369,13 +369,30 @@ public:
   float hah;
   void* nowhere;
 };
+class not_so_trivial {
+private:
+  int x;
+public:
+  not_so_trivial() : x(50) { }
+  not_so_trivial(int i) : x(i) { }
+  int get_x(void) { return x; }
+};
+
 static MunitPlusResult
 test_compare_cxx_oneoff(const MunitPlusParameter params[], void* data) {
   /* These are just to silence compiler warnings about the parameters
    * being unused. */
   (void) params;
   (void) data;
-
+  /* Use munit_plus_new to create instances of a class through
+   * operator new. Use munit_plus_newp to add constructor parameters. */
+  int one_value = munit_plus_rand_int_range(-127, 127);
+  not_so_trivial *one = munit_plus_newp(not_so_trivial, one_value);
+  munit_plus_assert_op(one->get_x(), ==, one_value);
+  delete one;
+  not_so_trivial *another = munit_plus_new(not_so_trivial);
+  munit_plus_assert_op(one->get_x(), ==, 50);
+  delete another;
   std::list<long> seven;
   /* assign */{
     int i;

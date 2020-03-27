@@ -166,12 +166,12 @@ namespace {
     std::exception_ptr ep;
 
   public:
-    munit_plus_error_jmp(void) noexcept;
-    /*char const* what(void) const noexcept;*/ /*TODO decide if this method is necessary*/
+    munit_plus_error_jmp(void) MUNIT_PLUS_NOEXCEPT;
+    /*char const* what(void) const MUNIT_PLUS_NOEXCEPT;*/ /*TODO decide if this method is necessary*/
     void rethrow_if_nested(void) const;
   };
 
-  munit_plus_error_jmp::munit_plus_error_jmp(void) noexcept
+  munit_plus_error_jmp::munit_plus_error_jmp(void) MUNIT_PLUS_NOEXCEPT
     : ep(std::current_exception())
   {
 #if defined(MUNIT_THREAD_LOCAL)
@@ -183,7 +183,7 @@ namespace {
       std::rethrow_exception(ep);
     } else return;
   }
-  /*char const* munit_plus_error_jmp::what(void) const noexcept {
+  /*char const* munit_plus_error_jmp::what(void) const MUNIT_PLUS_NOEXCEPT {
     return "munit_plus_error_jmp should have been caught!";
   };*/
 };
@@ -246,7 +246,7 @@ munit_plus_log_internal(MunitPlusLogLevel level, FILE* fp, const char* message) 
 }
 
 void
-munit_plus_logf_ex(MunitPlusLogLevel level, const char* filename, int line, const char* format, ...) noexcept(false) {
+munit_plus_logf_ex(MunitPlusLogLevel level, const char* filename, int line, const char* format, ...) MUNIT_PLUS_NOEXCEPT_FALSE {
   va_list ap;
 
   va_start(ap, format);
@@ -259,7 +259,7 @@ munit_plus_logf_ex(MunitPlusLogLevel level, const char* filename, int line, cons
 }
 
 void
-munit_plus_errorf_ex(const char* filename, int line, const char* format, ...) noexcept(false) {
+munit_plus_errorf_ex(const char* filename, int line, const char* format, ...) MUNIT_PLUS_NOEXCEPT_FALSE {
   va_list ap;
 
   va_start(ap, format);

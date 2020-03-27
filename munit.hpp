@@ -161,6 +161,16 @@ extern "C++" {
 #define MUNIT__PUSH_DISABLE_MSVC_C4127 MUNIT_PLUS_PUSH_DISABLE_MSVC_C4127
 #define MUNIT__POP_DISABLE_MSVC_C4127 MUNIT_PLUS_POP_DISABLE_MSVC_C4127
 
+#if defined(_MSC_VER) && (_MSC_VER < 1900)
+#  define MUNIT_PLUS_CONSTEXPR
+#  define MUNIT_PLUS_NOEXCEPT throw()
+#  define MUNIT_PLUS_NOEXCEPT_FALSE
+#else
+#  define MUNIT_PLUS_CONSTEXPR constexpr
+#  define MUNIT_PLUS_NOEXCEPT noexcept
+#  define MUNIT_PLUS_NOEXCEPT_FALSE noexcept(false)
+#endif /*_MSC_VER*/
+
 typedef enum {
   MUNIT_PLUS_LOG_DEBUG,
   MUNIT_PLUS_LOG_INFO,
@@ -176,7 +186,7 @@ typedef enum {
 #define MUNIT_PRINTF MUNIT_PLUS_PRINTF
 
 MUNIT_PLUS_PRINTF(4, 5)
-void munit_plus_logf_ex(MunitPlusLogLevel level, const char* filename, int line, const char* format, ...) noexcept(false);
+void munit_plus_logf_ex(MunitPlusLogLevel level, const char* filename, int line, const char* format, ...) MUNIT_PLUS_NOEXCEPT_FALSE;
 
 #define munit_plus_logf(level, format, ...) \
   munit_plus_logf_ex(level, __FILE__, __LINE__, format, __VA_ARGS__)
@@ -186,7 +196,7 @@ void munit_plus_logf_ex(MunitPlusLogLevel level, const char* filename, int line,
 
 MUNIT_PLUS_NO_RETURN
 MUNIT_PLUS_PRINTF(3, 4)
-void munit_plus_errorf_ex(const char* filename, int line, const char* format, ...) noexcept(false);
+void munit_plus_errorf_ex(const char* filename, int line, const char* format, ...) MUNIT_PLUS_NOEXCEPT_FALSE;
 
 #define munit_plus_errorf(format, ...) \
   munit_plus_errorf_ex(__FILE__, __LINE__, format, __VA_ARGS__)
@@ -510,12 +520,6 @@ int munit_plus_suite_main_custom(const MunitPlusSuite* suite,
 
 
 /*** Cxx-style macros ***/
-
-#if defined(_MSC_VER) && (_MSC_VER < 1900)
-#  define MUNIT_PLUS_CONSTEXPR
-#else
-#  define MUNIT_PLUS_CONSTEXPR constexpr
-#endif /*_MSC_VER*/
 
 
 #include <string>

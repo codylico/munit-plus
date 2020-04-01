@@ -665,17 +665,17 @@ private:
 public:
   munit_plus_op_switch(A const& value);
   template <typename B>
-  struct munit_plus_ops::equal_to operator==(B const& ) const;
+  munit_plus_ops::equal_to operator==(B const& ) const;
   template <typename B>
-  struct munit_plus_ops::not_equal_to operator!=(B const& ) const;
+  munit_plus_ops::not_equal_to operator!=(B const& ) const;
   template <typename B>
-  struct munit_plus_ops::greater operator>(B const& ) const;
+  munit_plus_ops::greater operator>(B const& ) const;
   template <typename B>
-  struct munit_plus_ops::less operator<(B const& ) const;
+  munit_plus_ops::less operator<(B const& ) const;
   template <typename B>
-  struct munit_plus_ops::greater_equal operator>=(B const& ) const;
+  munit_plus_ops::greater_equal operator>=(B const& ) const;
   template <typename B>
-  struct munit_plus_ops::less_equal operator<=(B const& ) const;
+  munit_plus_ops::less_equal operator<=(B const& ) const;
 };
 
 template <typename C>
@@ -754,37 +754,37 @@ template <typename A>
 inline munit_plus_op_switch<A>::munit_plus_op_switch(A const& v) : value(v) { }
 template <typename A>
 template <typename B>
-inline struct munit_plus_ops::equal_to munit_plus_op_switch<A>::operator==(B const& x) const {
+inline munit_plus_ops::equal_to munit_plus_op_switch<A>::operator==(B const& x) const {
   struct munit_plus_ops::equal_to const out = { value == x };
   return out;
 }
 template <typename A>
 template <typename B>
-inline struct munit_plus_ops::not_equal_to munit_plus_op_switch<A>::operator!=(B const& x) const {
+inline munit_plus_ops::not_equal_to munit_plus_op_switch<A>::operator!=(B const& x) const {
   struct munit_plus_ops::not_equal_to const out = { value != x };
   return out;
 }
 template <typename A>
 template <typename B>
-inline struct munit_plus_ops::greater munit_plus_op_switch<A>::operator>(B const& x) const {
+inline munit_plus_ops::greater munit_plus_op_switch<A>::operator>(B const& x) const {
   struct munit_plus_ops::greater const out = { value > x };
   return out;
 }
 template <typename A>
 template <typename B>
-inline struct munit_plus_ops::less munit_plus_op_switch<A>::operator<(B const& x) const {
+inline munit_plus_ops::less munit_plus_op_switch<A>::operator<(B const& x) const {
   struct munit_plus_ops::less const out = { value < x };
   return out;
 }
 template <typename A>
 template <typename B>
-inline struct munit_plus_ops::greater_equal munit_plus_op_switch<A>::operator>=(B const& x) const {
+inline munit_plus_ops::greater_equal munit_plus_op_switch<A>::operator>=(B const& x) const {
   struct munit_plus_ops::greater_equal const out = { value >= x };
   return out;
 }
 template <typename A>
 template <typename B>
-inline struct munit_plus_ops::less_equal munit_plus_op_switch<A>::operator<=(B const& x) const {
+inline munit_plus_ops::less_equal munit_plus_op_switch<A>::operator<=(B const& x) const {
   struct munit_plus_ops::less_equal const out = { value <= x };
   return out;
 }

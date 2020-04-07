@@ -360,7 +360,7 @@ void* munit_plus_malloc_ex(const char* filename, int line, std::size_t size);
     [&](void) -> type * { \
       type * out; \
       try { \
-        return new type(__VA_ARGS__); \
+        out = new type(__VA_ARGS__); \
       } catch (std::exception const& e) { \
         munit_plus_logf(MUNIT_PLUS_LOG_ERROR, \
           "Failed to construct %s of %" MUNIT_PLUS_SIZE_MODIFIER "u bytes. (what(): %s)", #type, sizeof(type), e.what()); \
@@ -374,6 +374,7 @@ void* munit_plus_malloc_ex(const char* filename, int line, std::size_t size);
         munit_plus_logf(MUNIT_PLUS_LOG_ERROR, \
           "Failed to allocate %s of %" MUNIT_PLUS_SIZE_MODIFIER "u bytes.", #type, sizeof(type)); \
       } \
+      return out; \
     }()
 #else
 #  define munit_plus_newp(type, ...) \

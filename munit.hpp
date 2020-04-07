@@ -695,6 +695,15 @@ private:
 public:
   munit_plus_precision(C&& diff);
   bool operator>(double eps) const;
+#if defined(_MSC_VER)
+#  if (_MSC_VER < 1800)
+private:
+  munit_plus_precision<C>& operator=(munit_plus_precision<C> const&);
+#  elif (_MSC_VER >= 1800) && (_MSC_VER < 1900)
+private:
+  munit_plus_precision<C>& operator=(munit_plus_precision<C> const&) = delete;
+#  endif
+#endif
 };
 
 template <typename A, typename B, typename C>

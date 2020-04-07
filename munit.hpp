@@ -676,6 +676,15 @@ public:
   munit_plus_ops::greater_equal operator>=(B const& ) const;
   template <typename B>
   munit_plus_ops::less_equal operator<=(B const& ) const;
+#if defined(_MSC_VER)
+#  if (_MSC_VER < 1800)
+private:
+  munit_plus_op_switch<A>& operator=(munit_plus_op_switch<A> const&);
+#  elif (_MSC_VER >= 1800) && (_MSC_VER < 1900)
+private:
+  munit_plus_op_switch<A>& operator=(munit_plus_op_switch<A> const&) = delete;
+#  endif
+#endif
 };
 
 template <typename C>

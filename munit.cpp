@@ -179,7 +179,7 @@ namespace {
 #endif /*MUNIT_THREAD_LOCAL*/
   }
   void munit_plus_error_jmp::rethrow_if_nested(void) const {
-    if (ep != nullptr) {
+    if (ep != std::exception_ptr()) {
       std::rethrow_exception(ep);
     } else return;
   }

@@ -152,6 +152,14 @@
 #  define MUNIT_NO_BUFFER
 #endif
 
+/* MSVC 10.0 does not permit directly checking if a `std::exception_ptr`
+ * is empty. Therefore, the current behavior is to call
+ * `std::rethrow_exception` no matter what. Suggestions welcome. */
+#if defined(_MSC_VER) && (_MSC_VER < 1700)
+#  define MUNIT_PLUS_ADD_EXCEPTION_CHECK
+#endif
+
+
 /*** Logging ***/
 /* FIXME "switch to munit_plus_* name prefix" */
 /* NOTE Don't use a munit_plus namespace; too many macros! */
@@ -167,6 +175,9 @@ namespace {
   class munit_plus_error_jmp {
   private:
     std::exception_ptr ep;
+#if defined(MUNIT_PLUS_ADD_EXCEPTION_CHECK)
+    bool ep_nonnull;
+#endif
 
   public:
     munit_plus_error_jmp(void) MUNIT_PLUS_NOEXCEPT;
@@ -176,15 +187,24 @@ namespace {
 
   munit_plus_error_jmp::munit_plus_error_jmp(void) MUNIT_PLUS_NOEXCEPT
     : ep(std::current_exception())
+#if defined(MUNIT_PLUS_ADD_EXCEPTION_CHECK)
+    , ep_nonnull(true)
+#endif
   {
 #if defined(MUNIT_THREAD_LOCAL)
     munit_plus_error_jmp_active = true;
 #endif /*MUNIT_THREAD_LOCAL*/
   }
   void munit_plus_error_jmp::rethrow_if_nested(void) const {
-    if (ep != std::exception_ptr()) {
+#if defined(MUNIT_PLUS_ADD_EXCEPTION_CHECK)
+    if (ep_nonnull) {
       std::rethrow_exception(ep);
     } else return;
+#else
+    if (ep) {
+      std::rethrow_exception(ep);
+    } else return;
+#endif
   }
   /*char const* munit_plus_error_jmp::what(void) const MUNIT_PLUS_NOEXCEPT {
     return "munit_plus_error_jmp should have been caught!";

@@ -471,16 +471,6 @@ static MunitPlusTest test_suite_tests[] = {
   { (char*) "/example/rand", test_rand, nullptr, nullptr, MUNIT_PLUS_TEST_OPTION_NONE, nullptr },
   { (char*) "/example/parameters", test_parameters, nullptr, nullptr, MUNIT_PLUS_TEST_OPTION_NONE, test_params },
   { (char*) "/example/cxx", test_compare_cxx, test_compare_setup, test_compare_tear_down, MUNIT_PLUS_TEST_OPTION_NONE },
-  { (char*) "/example/lambda", [](const MunitPlusParameter params[], void* data)->MunitPlusResult{
-        (void)data;
-        const char* foo = munit_plus_parameters_get(params, "foo");
-        const char* bar = munit_plus_parameters_get(params, "bar");
-        const char* baz = munit_plus_parameters_get(params, "baz");
-        if (!baz) baz = "baz";
-        munit_plus_logf(MUNIT_PLUS_LOG_INFO, "oops. lambda here. oh well. %s %s %s",foo,bar,baz);
-        munit_plus_assert_true(true);
-        return MUNIT_PLUS_OK;
-      }, nullptr, nullptr, MUNIT_PLUS_TEST_OPTION_NONE, test_params },
   { (char*) "/example/cxx_oneoff", test_compare_cxx_oneoff, nullptr, nullptr, MUNIT_PLUS_TEST_OPTION_NONE },
   /* To tell the test runner when the array is over, just add a nullptr
    * entry at the end. */

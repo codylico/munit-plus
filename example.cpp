@@ -405,11 +405,11 @@ test_compare_cxx_oneoff(const MunitPlusParameter params[], void* data) {
   std::vector<std::string> four;
   four.resize(4);
   //munit_plus_rand_memory_ex(four.begin(), four.end());
-  std::string three[3] = { "a", "b", "c" };
+  //std::string three[3] = { "a", "b", "c" };
   //munit_plus_rand_memory_ex(three);
   int six[6];
   munit_plus_rand_memory_ex(six);
-  thing_with_a_dtor two[2];
+  //thing_with_a_dtor two[2];
   //munit_plus_rand_memory_ex(two);
   /* read */{
     for (long x : seven) { munit_plus_logf(MUNIT_PLUS_LOG_INFO, "seven: %li", x); }

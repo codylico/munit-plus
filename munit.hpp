@@ -360,7 +360,7 @@ void* munit_plus_malloc_ex(const char* filename, int line, std::size_t size);
     [&](void) -> type * { \
       type * out; \
       try { \
-        return new type(__VA_ARGS__); \
+        out = new type(__VA_ARGS__); \
       } catch (std::exception const& e) { \
         munit_plus_logf(MUNIT_PLUS_LOG_ERROR, \
           "Failed to construct %s of %" MUNIT_PLUS_SIZE_MODIFIER "u bytes. (what(): %s)", #type, sizeof(type), e.what()); \
@@ -374,6 +374,7 @@ void* munit_plus_malloc_ex(const char* filename, int line, std::size_t size);
         munit_plus_logf(MUNIT_PLUS_LOG_ERROR, \
           "Failed to allocate %s of %" MUNIT_PLUS_SIZE_MODIFIER "u bytes.", #type, sizeof(type)); \
       } \
+      return out; \
     }()
 #else
 #  define munit_plus_newp(type, ...) \
@@ -665,17 +666,26 @@ private:
 public:
   munit_plus_op_switch(A const& value);
   template <typename B>
-  struct munit_plus_ops::equal_to operator==(B const& ) const;
+  munit_plus_ops::equal_to operator==(B const& ) const;
   template <typename B>
-  struct munit_plus_ops::not_equal_to operator!=(B const& ) const;
+  munit_plus_ops::not_equal_to operator!=(B const& ) const;
   template <typename B>
-  struct munit_plus_ops::greater operator>(B const& ) const;
+  munit_plus_ops::greater operator>(B const& ) const;
   template <typename B>
-  struct munit_plus_ops::less operator<(B const& ) const;
+  munit_plus_ops::less operator<(B const& ) const;
   template <typename B>
-  struct munit_plus_ops::greater_equal operator>=(B const& ) const;
+  munit_plus_ops::greater_equal operator>=(B const& ) const;
   template <typename B>
-  struct munit_plus_ops::less_equal operator<=(B const& ) const;
+  munit_plus_ops::less_equal operator<=(B const& ) const;
+#if defined(_MSC_VER)
+#  if (_MSC_VER < 1800)
+private:
+  munit_plus_op_switch<A>& operator=(munit_plus_op_switch<A> const&);
+#  elif (_MSC_VER >= 1800) && (_MSC_VER < 1900)
+private:
+  munit_plus_op_switch<A>& operator=(munit_plus_op_switch<A> const&) = delete;
+#  endif
+#endif
 };
 
 template <typename C>
@@ -686,6 +696,15 @@ private:
 public:
   munit_plus_precision(C&& diff);
   bool operator>(double eps) const;
+#if defined(_MSC_VER)
+#  if (_MSC_VER < 1800)
+private:
+  munit_plus_precision<C>& operator=(munit_plus_precision<C> const&);
+#  elif (_MSC_VER >= 1800) && (_MSC_VER < 1900)
+private:
+  munit_plus_precision<C>& operator=(munit_plus_precision<C> const&) = delete;
+#  endif
+#endif
 };
 
 template <typename A, typename B, typename C>
@@ -754,37 +773,37 @@ template <typename A>
 inline munit_plus_op_switch<A>::munit_plus_op_switch(A const& v) : value(v) { }
 template <typename A>
 template <typename B>
-inline struct munit_plus_ops::equal_to munit_plus_op_switch<A>::operator==(B const& x) const {
+inline munit_plus_ops::equal_to munit_plus_op_switch<A>::operator==(B const& x) const {
   struct munit_plus_ops::equal_to const out = { value == x };
   return out;
 }
 template <typename A>
 template <typename B>
-inline struct munit_plus_ops::not_equal_to munit_plus_op_switch<A>::operator!=(B const& x) const {
+inline munit_plus_ops::not_equal_to munit_plus_op_switch<A>::operator!=(B const& x) const {
   struct munit_plus_ops::not_equal_to const out = { value != x };
   return out;
 }
 template <typename A>
 template <typename B>
-inline struct munit_plus_ops::greater munit_plus_op_switch<A>::operator>(B const& x) const {
+inline munit_plus_ops::greater munit_plus_op_switch<A>::operator>(B const& x) const {
   struct munit_plus_ops::greater const out = { value > x };
   return out;
 }
 template <typename A>
 template <typename B>
-inline struct munit_plus_ops::less munit_plus_op_switch<A>::operator<(B const& x) const {
+inline munit_plus_ops::less munit_plus_op_switch<A>::operator<(B const& x) const {
   struct munit_plus_ops::less const out = { value < x };
   return out;
 }
 template <typename A>
 template <typename B>
-inline struct munit_plus_ops::greater_equal munit_plus_op_switch<A>::operator>=(B const& x) const {
+inline munit_plus_ops::greater_equal munit_plus_op_switch<A>::operator>=(B const& x) const {
   struct munit_plus_ops::greater_equal const out = { value >= x };
   return out;
 }
 template <typename A>
 template <typename B>
-inline struct munit_plus_ops::less_equal munit_plus_op_switch<A>::operator<=(B const& x) const {
+inline munit_plus_ops::less_equal munit_plus_op_switch<A>::operator<=(B const& x) const {
   struct munit_plus_ops::less_equal const out = { value <= x };
   return out;
 }

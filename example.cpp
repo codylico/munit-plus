@@ -405,16 +405,29 @@ test_compare_cxx_oneoff(const MunitPlusParameter params[], void* data) {
   std::vector<std::string> four;
   four.resize(4);
   //munit_plus_rand_memory_ex(four.begin(), four.end());
-  std::string three[3] = { "a", "b", "c" };
+  //std::string three[3] = { "a", "b", "c" };
   //munit_plus_rand_memory_ex(three);
   int six[6];
   munit_plus_rand_memory_ex(six);
-  thing_with_a_dtor two[2];
+  //thing_with_a_dtor two[2];
   //munit_plus_rand_memory_ex(two);
   /* read */{
-    for (long x : seven) { munit_plus_logf(MUNIT_PLUS_LOG_INFO, "seven: %li", x); }
-    for (trivial_thing const& x : five) { munit_plus_logf(MUNIT_PLUS_LOG_INFO, "five: %i,%f,%p", x.yay,x.hah,x.nowhere); }
-    for (int x : six) { munit_plus_logf(MUNIT_PLUS_LOG_INFO, "six: %i", x); }
+    for (std::list<long>::iterator it7 = seven.begin();
+      it7 != seven.end(); ++it7)
+    {
+      long x = *it7;
+      munit_plus_logf(MUNIT_PLUS_LOG_INFO, "seven: %li", x);
+    }
+    for (std::vector<trivial_thing>::iterator it5 = five.begin();
+      it5 != five.end(); ++it5)
+    {
+      trivial_thing const& x = *it5;
+      munit_plus_logf(MUNIT_PLUS_LOG_INFO, "five: %i,%f,%p", x.yay,x.hah,x.nowhere);
+    }
+    for (int i = 0; i < 6; ++i) {
+      int x = six[i];
+      munit_plus_logf(MUNIT_PLUS_LOG_INFO, "six: %i", x);
+    }
   }
   return MUNIT_PLUS_OK;
 }
@@ -471,16 +484,6 @@ static MunitPlusTest test_suite_tests[] = {
   { (char*) "/example/rand", test_rand, nullptr, nullptr, MUNIT_PLUS_TEST_OPTION_NONE, nullptr },
   { (char*) "/example/parameters", test_parameters, nullptr, nullptr, MUNIT_PLUS_TEST_OPTION_NONE, test_params },
   { (char*) "/example/cxx", test_compare_cxx, test_compare_setup, test_compare_tear_down, MUNIT_PLUS_TEST_OPTION_NONE },
-  { (char*) "/example/lambda", [](const MunitPlusParameter params[], void* data)->MunitPlusResult{
-        (void)data;
-        const char* foo = munit_plus_parameters_get(params, "foo");
-        const char* bar = munit_plus_parameters_get(params, "bar");
-        const char* baz = munit_plus_parameters_get(params, "baz");
-        if (!baz) baz = "baz";
-        munit_plus_logf(MUNIT_PLUS_LOG_INFO, "oops. lambda here. oh well. %s %s %s",foo,bar,baz);
-        munit_plus_assert_true(true);
-        return MUNIT_PLUS_OK;
-      }, nullptr, nullptr, MUNIT_PLUS_TEST_OPTION_NONE, test_params },
   { (char*) "/example/cxx_oneoff", test_compare_cxx_oneoff, nullptr, nullptr, MUNIT_PLUS_TEST_OPTION_NONE },
   /* To tell the test runner when the array is over, just add a nullptr
    * entry at the end. */

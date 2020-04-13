@@ -4,6 +4,7 @@ dist: trusty
 branches:
   except:
     - /^(wip\/)?(appveyor|msvc|mingw|windows)(\-.+)?$/
+    - /^cxx11-appveyor$/
     # https://github.com/travis-ci/travis-ci/issues/6632
     # - /^master$/
 matrix:

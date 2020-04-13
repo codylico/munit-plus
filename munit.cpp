@@ -138,9 +138,9 @@
  * repository, neither removing it nor marking as [[maybe_unused]] are
  * viable options.
  *
- * Both MSVC 11.0 and MSVC 12.0 also complain about
+ * MSVC 10.0, MSVC 11.0, and MSVC 12.0 also complain about
  * 'psnip_clock_get_precision'. */
-#if defined(_MSC_VER) && (_MSC_VER >= 1700)
+#if defined(_MSC_VER) && (_MSC_VER >= 1600)
 #  pragma warning(disable: 4505)
 #endif
 

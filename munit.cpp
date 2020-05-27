@@ -194,6 +194,15 @@ namespace {
 #if defined(MUNIT_THREAD_LOCAL)
     munit_plus_error_jmp_active = true;
 #endif /*MUNIT_THREAD_LOCAL*/
+#if defined(MUNIT_PLUS_ADD_EXCEPTION_CHECK) && defined(_MSC_VER) \
+      && (_MSC_VER >= 1600) && (_MSC_VER < 1700)
+    static_assert(sizeof(std::exception_ptr)==2*sizeof(void*),
+        "Exception transport patch expcects different std::exception_ptr layout.");
+    /* This line of code assumes that the layout of an std::exception_ptr
+     * matches that of the Win32 EXCEPTION_POINTERS struct, where the
+     * first field is a near pointer to an EXCEPTION_RECORD. */
+    ep_nonnull = ((*reinterpret_cast<void**>(&ep)) != nullptr);
+#endif
   }
   void munit_plus_error_jmp::rethrow_if_nested(void) const {
 #if defined(MUNIT_PLUS_ADD_EXCEPTION_CHECK)
@@ -1496,12 +1505,13 @@ munit_plus_test_runner_run_test_with_params(MunitPlusTestRunner* runner, const M
 #endif /*MUNIT_THREAD_LOCAL*/
     try {
       result = munit_plus_test_runner_exec(runner, test, params, &report);
-    } catch (munit_plus_error_jmp const& ) {
+    } catch (munit_plus_error_jmp const& j) {
       result = MUNIT_PLUS_FAIL;
 #if defined(MUNIT_THREAD_LOCAL)
       munit_plus_error_jmp_active = false;
 #endif /*MUNIT_THREAD_LOCAL*/
       report.failed++;
+      j.rethrow_if_nested();
     }
 #if defined(MUNIT_THREAD_LOCAL)
     if (munit_plus_error_jmp_active) {

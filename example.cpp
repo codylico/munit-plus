@@ -418,7 +418,6 @@ test_compare_cxx_oneoff(const MunitPlusParameter params[], void* data) {
       long x = *it7;
       munit_plus_logf(MUNIT_PLUS_LOG_INFO, "seven: %li", x);
     }
-    munit_plus_log(MUNIT_PLUS_LOG_ERROR, "did not catch a runtime_error");
     for (std::vector<trivial_thing>::iterator it5 = five.begin();
       it5 != five.end(); ++it5)
     {

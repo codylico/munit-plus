@@ -108,6 +108,8 @@
 #  include <cinttypes>
 #endif
 
+typedef bool munit_plus_bool;
+
 extern "C++" {
 
 #if defined(__GNUC__)
@@ -158,8 +160,8 @@ extern "C++" {
 #  define MUNIT_PLUS_PUSH_DISABLE_MSVC_C4127
 #  define MUNIT_PLUS_POP_DISABLE_MSVC_C4127
 #endif
-#define MUNIT__PUSH_DISABLE_MSVC_C4127 MUNIT_PLUS_PUSH_DISABLE_MSVC_C4127
-#define MUNIT__POP_DISABLE_MSVC_C4127 MUNIT_PLUS_POP_DISABLE_MSVC_C4127
+#define MUNIT_PUSH_DISABLE_MSVC_C4127_ MUNIT_PLUS_PUSH_DISABLE_MSVC_C4127
+#define MUNIT_POP_DISABLE_MSVC_C4127_ MUNIT_PLUS_POP_DISABLE_MSVC_C4127
 
 #if defined(_MSC_VER) && (_MSC_VER < 1900)
 #  define MUNIT_PLUS_CONSTEXPR
@@ -284,9 +286,9 @@ void munit_plus_errorf_ex(const char* filename, int line, const char* format, ..
       munit_plus_errorf("assertion failed: string %s == %s (\"%s\" == \"%s\")", \
                    #a, #b, munit_tmp_a_, munit_tmp_b_); \
     } \
-    MUNIT__PUSH_DISABLE_MSVC_C4127 \
+    MUNIT_PUSH_DISABLE_MSVC_C4127_ \
   } while (0) \
-  MUNIT__POP_DISABLE_MSVC_C4127
+  MUNIT_POP_DISABLE_MSVC_C4127_
 
 #define munit_plus_assert_string_not_equal(a, b) \
   do { \
@@ -296,9 +298,9 @@ void munit_plus_errorf_ex(const char* filename, int line, const char* format, ..
       munit_plus_errorf("assertion failed: string %s != %s (\"%s\" == \"%s\")", \
                    #a, #b, munit_tmp_a_, munit_tmp_b_); \
     } \
-    MUNIT__PUSH_DISABLE_MSVC_C4127 \
+    MUNIT_PUSH_DISABLE_MSVC_C4127_ \
   } while (0) \
-  MUNIT__POP_DISABLE_MSVC_C4127
+  MUNIT_POP_DISABLE_MSVC_C4127_
 
 #define munit_plus_assert_memory_equal(size, a, b) \
   do { \
@@ -315,9 +317,9 @@ void munit_plus_errorf_ex(const char* filename, int line, const char* format, ..
         } \
       } \
     } \
-    MUNIT__PUSH_DISABLE_MSVC_C4127 \
+    MUNIT_PUSH_DISABLE_MSVC_C4127_ \
   } while (0) \
-  MUNIT__POP_DISABLE_MSVC_C4127
+  MUNIT_POP_DISABLE_MSVC_C4127_
 
 #define munit_plus_assert_memory_not_equal(size, a, b) \
   do { \
@@ -328,9 +330,9 @@ void munit_plus_errorf_ex(const char* filename, int line, const char* format, ..
       munit_plus_errorf("assertion failed: memory %s != %s (%zu bytes)", \
                    #a, #b, munit_tmp_size_); \
     } \
-    MUNIT__PUSH_DISABLE_MSVC_C4127 \
+    MUNIT_PUSH_DISABLE_MSVC_C4127_ \
   } while (0) \
-  MUNIT__POP_DISABLE_MSVC_C4127
+  MUNIT_POP_DISABLE_MSVC_C4127_
 
 #define munit_plus_assert_ptr_equal(a, b) \
   munit_plus_assert_ptr(a, ==, b)
@@ -465,7 +467,7 @@ typedef struct MunitPlusArgument_ MunitPlusArgument;
 
 struct MunitPlusArgument_ {
   char* name;
-  bool (* parse_argument)(const MunitPlusSuite* suite, void* user_data, int* arg, int argc, char* const argv[MUNIT_PLUS_ARRAY_PARAM(argc + 1)]);
+  munit_plus_bool (* parse_argument)(const MunitPlusSuite* suite, void* user_data, int* arg, int argc, char* const argv[MUNIT_PLUS_ARRAY_PARAM(argc + 1)]);
   void (* write_help)(const MunitPlusArgument* argument, void* user_data);
 };
 

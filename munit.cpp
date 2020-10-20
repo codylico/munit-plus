@@ -2183,18 +2183,18 @@ namespace {
       std::ostringstream os; \
       munit_plus_format_put(os, val); \
       out = os.str(); \
-      MUNIT__PUSH_DISABLE_MSVC_C4127 \
+      MUNIT_PUSH_DISABLE_MSVC_C4127_ \
     } while (0) \
-    MUNIT__POP_DISABLE_MSVC_C4127
+    MUNIT_POP_DISABLE_MSVC_C4127_
 #  define munit_plus_format_prec_do(out, val, i, format) \
     do { \
       std::ostringstream os; \
       os.precision(i); \
       os << val; \
       out = os.str(); \
-      MUNIT__PUSH_DISABLE_MSVC_C4127 \
+      MUNIT_PUSH_DISABLE_MSVC_C4127_ \
     } while (0) \
-    MUNIT__POP_DISABLE_MSVC_C4127
+    MUNIT_POP_DISABLE_MSVC_C4127_
 #else
 #  define munit_plus_format_do(out, val, format) \
     do { \
@@ -2205,9 +2205,9 @@ namespace {
         std::snprintf(&out[0], len+1, f, val); \
         out.resize(len); \
       } \
-      MUNIT__PUSH_DISABLE_MSVC_C4127 \
+      MUNIT_PUSH_DISABLE_MSVC_C4127_ \
     } while (0) \
-    MUNIT__POP_DISABLE_MSVC_C4127
+    MUNIT_POP_DISABLE_MSVC_C4127_
 #  define munit_plus_format_prec_do(out, val, i, format) \
     do { \
       MUNIT_PLUS_CONSTEXPR char const* f = format; \
@@ -2217,9 +2217,9 @@ namespace {
         std::snprintf(&out[0], len+1, f, i, val); \
         out.resize(len); \
       } \
-      MUNIT__PUSH_DISABLE_MSVC_C4127 \
+      MUNIT_PUSH_DISABLE_MSVC_C4127_ \
     } while (0) \
-    MUNIT__POP_DISABLE_MSVC_C4127
+    MUNIT_POP_DISABLE_MSVC_C4127_
 #endif
 
 std::string munit_plus_formatter<char>::format(char val) {

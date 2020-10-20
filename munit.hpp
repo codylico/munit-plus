@@ -108,6 +108,8 @@
 #  include <cinttypes>
 #endif
 
+typedef bool munit_plus_bool;
+
 extern "C++" {
 
 #if defined(__GNUC__)
@@ -465,7 +467,7 @@ typedef struct MunitPlusArgument_ MunitPlusArgument;
 
 struct MunitPlusArgument_ {
   char* name;
-  bool (* parse_argument)(const MunitPlusSuite* suite, void* user_data, int* arg, int argc, char* const argv[MUNIT_PLUS_ARRAY_PARAM(argc + 1)]);
+  munit_plus_bool (* parse_argument)(const MunitPlusSuite* suite, void* user_data, int* arg, int argc, char* const argv[MUNIT_PLUS_ARRAY_PARAM(argc + 1)]);
   void (* write_help)(const MunitPlusArgument* argument, void* user_data);
 };
 
